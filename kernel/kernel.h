@@ -18,3 +18,5 @@ extern "C" const byte system_font16[];
 extern "C" byte vga_mode_t[];
 extern "C" byte vga_mode2[];
 extern "C" byte vga_mode3[];
+extern "C" byte vga_mode4[];
+extern "C" byte vga_mode5[];
