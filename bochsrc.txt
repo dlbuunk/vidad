@@ -3,8 +3,8 @@ plugin_ctrl: unmapped=1, biosdev=1, speaker=1, extfpuirq=1, iodebug=1
 config_interface: textconfig
 display_library: x
 memory: host=32, guest=32
-romimage: file="/usr/local/share/bochs/BIOS-bochs-latest"
-vgaromimage: file="/usr/local/share/bochs/VGABIOS-lgpl-latest"
+romimage: file="/usr/share/bochs/BIOS-bochs-latest"
+vgaromimage: file="/usr/share/bochs/VGABIOS-lgpl-latest"
 boot: floppy
 floppy_bootsig_check: disabled=0
 floppya: type=1_44, 1_44="image", status=inserted
