@@ -10,8 +10,8 @@ namespace IO
 		pic = new PIC();
 
 		// init timer
-		Timer *timer;
-		timer = new Timer(100.0);
+	//	Timer *timer;
+	//	timer = new Timer(100.0);
 
 		// create VGA video output
 		Video_Text *video;
@@ -34,14 +34,10 @@ namespace IO
 		kterm->puts("SYSTEM LOADED\n");
 		kterm->set_color(W);
 
-		// this should print !s on the screen with a freq of 4 Hz
+		// pointer test
 		dword ptr;
-		for (;;)
-		{	asm ("movl %1,%%eax\n\tmovl %%eax,%0\n\t" : "=r" (ptr) : "r" (&IO::Init::test) : "%eax");
-			timer->reg_cb(ptr, (dword) this, 25);
-			lock = 1;
-			while (lock) asm("hlt"); //cool down cpu
-		}
+		asm ("movl %1,%%eax\n\tmovl %%eax,%0\n\t" : "=r" (ptr) : "r" (&IO::Init::test) : "%eax");
+		printf("Pointer test:\n0x%8X\n0x%8X\n", ptr, (dword) this);
 
 		// close kernel terminal
 		if (kterm == term_std)
@@ -54,7 +50,7 @@ namespace IO
 	//	if (vga_text == video) delete vga_text;
 
 		// exit timer
-		delete timer;
+	//	delete timer;
 
 		// exit PIC
 		delete pic;
