@@ -1,0 +1,10 @@
+To buid run:
+	make
+
+To test you need bochs version 2.4.5, the config file is already there, just run:
+	bochs
+
+To test on a real computer run (this will shred the contents of /dev/fd0u1440):
+	make write
+
+and reboot.
