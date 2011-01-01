@@ -8,7 +8,7 @@ namespace IO
 	{	public : Init() {};
 		public : ~Init() {};
 		public : void main();
-		private : void test();
+		private : static void test(dword ptr);
 		private : volatile word lock;
 	};
 
@@ -22,10 +22,9 @@ namespace IO
 		public : ~Timer();
 		public : int reg_cb(dword func, dword obj, dword time);
 		public : void set_chan2(float freq);
-		private : void callback();
+		private : static void callback(dword ptr);
 		private : int int_num;
 		private : static const dword num_entries = 16;
 		private : dword cb[num_entries][3];
-		private : static const float base_freq = 1193182.0; // Hz
 	};
 };

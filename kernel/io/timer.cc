@@ -1,28 +1,30 @@
 #include "io.h"
 
+#define BASE_FREQ 1193182.0 // Hz
+
 namespace IO
 {	Timer::Timer(float freq)
-	{	word data = (word) (base_freq / freq);
+	{	word data = (word) (BASE_FREQ / freq);
 		outportb(0x0043, 0x36);
 		outportb(0x0040, data);
 		outportb(0x0040, data>>8);
-		dword ptr;
-		asm ("movl %1,%%eax\n\tmovl %%eax,%0\n\t" : "=r" (ptr) : "r" (&IO::Timer::callback) : "%eax");
-		if ((int_num = inter_reg(ptr, (dword) this, 0x00)) == -1) kerror("Error, timer cannot get irq0 handle", WHITE_GREEN);
+		if ((int_num = inter_reg((dword) &callback, (dword) this, 0x00)) == -1) kerror("Error, timer cannot get irq0 handle", WHITE_GREEN);
 	};
 
 	Timer::~Timer()
 	{	inter_dereg(0x00, int_num);
 	};
 
-	void Timer::callback()
-	{	int i;
+	void Timer::callback(dword ptr)
+	{	Timer *th; //this pointer for static function
+		th = (Timer *) ptr;
+		int i;
 		for (i=0; i<num_entries; i++)
-		{	if (cb[i][0] == 0) continue;
-			if (cb[i][2]) cb[i][2]--;
+		{	if (th->cb[i][0] == 0) continue;
+			if (th->cb[i][2]) th->cb[i][2]--;
 			else
-			{	(*((void (*)(dword)) cb[i][0]))(cb[i][1]);
-				cb[i][0] = 0;
+			{	(*((void (*)(dword)) th->cb[i][0]))(th->cb[i][1]);
+				th->cb[i][0] = 0;
 			}
 		}
 	};
@@ -37,7 +39,7 @@ namespace IO
 	};
 
 	void Timer::set_chan2(float freq)
-	{	word data = (word) (base_freq/freq);
+	{	word data = (word) (BASE_FREQ/freq);
 		outportb(0x0043, 0xB6);
 		outportb(0x0040, data);
 		outportb(0x0040, data>>8);
