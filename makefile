@@ -3,9 +3,7 @@ all: force_look
 	cp kernel/kernel.bin .
 	make -C bootload
 	cp bootload/bootload.bin .
-	cp bootload/loader.bin .
 	dd if=bootload.bin of=image
-	dd if=loader.bin of=image seek=1
 	dd if=kernel.bin of=image seek=2
 
 write:
