@@ -1,0 +1,21 @@
+struct kheader
+{	char magic[6];
+	byte video_mode;
+	byte cpu_type;
+	word mem_low;
+	word mem_mid;
+	word mem_high;
+	word mem_alt;
+	byte version;
+	byte subversion;
+	word reserved;
+	dword size;
+	word GDT_start;
+	word GDT_lenght;
+	word IDT_start;
+	word IDT_length;
+	dword start_of_image;
+	dword start_of_code;
+	dword modsum;
+	dword checksum;
+};
