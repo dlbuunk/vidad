@@ -12,6 +12,9 @@ void kmain(struct kheader *kh, dword stack_base)
 	kprint_pos = 0;
 	kprints("SYSTEM LOADED\n", BLUE);
 
+	/* initialise interrupt handling code */
+	inter_init();
+
 	/* set the memsize in 32 KB units */
 	memsize = kh->mem_low >> 5;
 
