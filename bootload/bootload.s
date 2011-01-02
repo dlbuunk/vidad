@@ -1,6 +1,7 @@
 	.text
 	.code16
 	.global bootload_entry
+	. = 0x6000;
 bootload_entry:
 	cli
 	xor	%ax,%ax
@@ -75,8 +76,8 @@ start:
 	movw	$IRQ6,0x0038
 	movw	$0x00,0x003A
 
-	# E
-	mov	$0x0E45,%ax
+	# Vidad
+	mov	$0x0E56,%ax
 	mov	$0x0007,%bx
 	int	$0x10
 
@@ -100,40 +101,32 @@ start:
 	mov	$0xE9,%al
 	out	%al,$0x40
 
-	#DMA (master)
+	#DMA
 	mov	$0x00,%al
 	out	%al,$0xC8
-	mov	$0xFF,%al
-	out	%al,$0xCD
-	mov	$0x0E,%al
-	out	%al,$0xCF
-
-	#DMA (slave)
-	mov	$0x00,%al
 	out	%al,$0x08
 	mov	$0xFF,%al
+	out	%al,$0xCD
 	out	%al,$0x0D
 	mov	$0x0E,%al
+	out	%al,$0xCF
 	out	%al,$0x0F
-
-	# X
-	mov	$0x0E58,%ax
-	mov	$0x0007,%bx
-	int	$0x10
 
 	# wait 3 secs
 	sti
 	mov	$0x003C,%cx
 	call	timer
 
+	# vIdad
+	mov	$0x0E49,%ax
+	mov	$0x0007,%bx
+	int	$0x10
+
 	#FDC init
 
 	mov	$0x03F2,%dx
 	mov	$0x00,%al
 	out	%al,%dx
-	nop
-	nop
-	nop
 
 	mov	$0x0C,%al
 	out	%al,%dx
@@ -153,7 +146,7 @@ start:
 	call	writeFIFO
 	mov	$0x02,%ah
 	call	writeFIFO
-
+	
 	# floppy motor on
 
 	mov	$0x03F2,%dx
@@ -161,6 +154,11 @@ start:
 	out	%al,%dx
 	mov	$0x000D,%cx
 	call	timer
+
+	# viDad
+	mov	$0x0E44,%ax
+	mov	$0x0007,%bx
+	int	$0x10
 
 	# calibrate
 
@@ -177,7 +175,7 @@ cal:	mov	$0x07,%ah
 	cmp	$0x00,%al
 	jne	cal
 
-	# set up DMA
+	# set up DMA (track 0)
 
 	mov	$0xFF,%al
 	out	%al,$0x0C
@@ -190,7 +188,7 @@ cal:	mov	$0x07,%ah
 
 	mov	$0xFF,%al
 	out	%al,$0x0C
-	mov	$0xFF,%al
+#	mov	$0xFF,%al
 	out	%al,$0x05
 	mov	$0x47,%al
 	out	%al,$0x05
@@ -200,12 +198,7 @@ cal:	mov	$0x07,%ah
 	mov	$0x0A,%al
 	out	%al,$0x0F
 
-	# O
-	mov	$0x0E4F,%ax
-	mov	$0x0007,%bx
-	int	$0x10
-
-	# floppy read
+	# floppy read (track 0)
 
 	mov	$0x0005,%cx
 	call	timer
@@ -214,9 +207,9 @@ cal:	mov	$0x07,%ah
 	call	writeFIFO
 	mov	$0x00,%ah
 	call	writeFIFO
-	mov	$0x00,%ah
+#	mov	$0x00,%ah
 	call	writeFIFO
-	mov	$0x00,%ah
+#	mov	$0x00,%ah
 	call	writeFIFO
 	mov	$0x01,%ah
 	call	writeFIFO
@@ -231,15 +224,112 @@ cal:	mov	$0x07,%ah
 
 	call	waitfloppy
 
-	call	readFIFO	#st0
-	call	readFIFO	#st1
-	call	readFIFO	#st2
+	mov	$0x0007,%cx
+rf0:	call	readFIFO
+	loop	rf0
 
-	call	readFIFO	#rcy
-	call	readFIFO	#rhe
-	call	readFIFO	#rse
+	# vidAd
+	mov	$0x0E41,%ax
+	mov	$0x0007,%bx
+	int	$0x10
 
-	call	readFIFO	#bps
+	# seek track 1
+	
+seek1:	mov	$0x0F,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	$0x01,%ah
+	call	writeFIFO
+	call	waitfloppy
+
+	mov	$0x08,%ah
+	call	writeFIFO
+	call	readFIFO
+	call	readFIFO
+	cmp	$0x01,%al
+	jne	seek1
+	
+	# set up DMA (track 1)
+
+	mov	$0x06,%al
+	out	%al,$0x0A
+	mov	$0xFF,%al
+	out	%al,$0x0C
+	mov	$0x00,%al
+	out	%al,$0x04
+	mov	$0x00,%al
+	out	%al,$0x04
+	mov	$0x01,%al
+	out	%al,$0x81
+
+	mov	$0xFF,%al
+	out	%al,$0x0C
+#	mov	$0xFF,%al
+	out	%al,$0x05
+	mov	$0x47,%al
+	out	%al,$0x05
+
+	mov	$0x46,%al
+	out	%al,$0x0B
+	mov	$0x0A,%al
+	out	%al,$0x0F
+
+	# floppy read (track 1)
+
+	mov	$0x0005,%cx
+	call	timer
+
+	mov	$0xC6,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	$0x01,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	$0x01,%ah
+	call	writeFIFO
+	mov	$0x02,%ah
+
+	# space is up, jump over bootsector signature
+
+	jmp	0x7E00
+	.word	0xAA55
+
+	. = 0x7E00;
+	call	writeFIFO
+	mov	$0x12,%ah
+	call	writeFIFO
+	mov	$0x1B,%ah
+	call	writeFIFO
+	mov	$0xFF,%ah
+	call	writeFIFO
+
+	call	waitfloppy
+
+	mov	$0x0007,%cx
+rf1:	call	readFIFO
+	loop	rf1
+
+	# relocate the loaded part of the kernel from 0x10000 to 0x0C400
+	push	%es
+	push	%ds
+	mov	$0x1000,%ax
+	mov	%ax,%ds
+	mov	$0x0c40,%ax
+	mov	%ax,%es
+	xor	%si,%si
+	xor	%di,%di
+	mov	$0x4800,%cx
+	rep	movsb
+	pop	%ds
+	pop	%es
+
+	# vidaD
+	mov	$0x0E44,%ax
+	mov	$0x0007,%bx
+	int	$0x10
 
 	# floppy motor off
 	mov	$0x03F2,%dx
@@ -247,11 +337,6 @@ cal:	mov	$0x07,%ah
 	out	%al,%dx
 	mov	$0x000D,%cx
 	call	timer
-
-	# S
-	mov	$0x0E53,%ax
-	mov	$0x0007,%bx
-	int	$0x10
 
 	# get BIOS info (store at 0x6006, move later to 0x8006)
 
@@ -283,9 +368,91 @@ useax:
 	mov	%ax,0x600A
 	mov	%bx,0x600C
 
-	# jump to second part of loader
-	jmp	0x7E00
-	
+	# exit FDC
+	mov	$0x00,%al
+	out	%al,%dx
+
+	# exit DMA
+	mov	$0x0F,%al
+	out	%al,$0x0F
+	out	%al,$0xCF
+	mov	$0x04,%al
+	out	%al,$0x08
+	out	%al,$0xC8
+
+	# exit PIC
+	mov	$0xFF,%al
+	out	%al,$0x21
+
+	# CPUID
+
+	pushf
+	pop	%ax
+	mov	%ax,%cx
+	and	$0x0FFF,%ax
+	push	%ax
+	popf
+	pushf
+	pop	%ax
+	and	$0xF000,%ax
+	cmp	$0xF000,%ax
+	je	error
+
+	or	$0xF000,%cx
+	push	%cx
+	popf
+	pushf
+	pop	%ax
+	and	$0xF000,%ax
+	jz	error
+
+	pushfl
+	pop	%eax
+	mov	%eax,%ecx
+	xor	$0x00040000,%eax
+	push	%eax
+	popfl
+	pushfl
+	pop	%eax
+	xor	%ecx,%eax
+	movb	$0x03,0x6007
+	jz	end_cpuid
+	push	%ecx
+	popfl
+
+	movb	$0x04,0x6007
+	mov	%ecx,%eax
+	xor	$0x00200000,%eax
+	push	%eax
+	popfl
+	pushfl
+	pop	%eax
+	xor	%ecx,%eax
+	je	end_cpuid
+	movb	$0x05,0x6007
+
+end_cpuid:
+
+	# all interrupts off (including NMI)
+	in	$0x70,%al
+	or	$0x80,%al
+	out	%al,$0x70
+	cli
+
+	jmp	A20
+
+waitA:
+	in	$0x64,%al
+	test	$0x02,%al
+	jnz	waitA
+	ret
+
+waitB:
+	in	$0x64,%al
+	test	$0x01,%al
+	jz	waitB
+	ret
+
 error:
 	mov	$0x0E21,%ax
 	mov	$0x0007,%bx
@@ -293,4 +460,102 @@ error:
 	cli
 	hlt
 
-	.word	0xAA55
+A20:	# turn A20 line on to get access to more than 1 MiB
+
+	call	waitA
+	mov	$0xAD,%al
+	out	%al,$0x64
+
+	call	waitA
+	mov	$0xD0,%al
+	out	%al,$0x64
+
+	call	waitB
+	in	$0x60,%al
+	push	%ax
+
+	call	waitA
+	mov	$0xD1,%al
+	out	%al,$0x64
+
+	call	waitA
+	pop	%ax
+	or	$0x03,%al
+	out	%al,$0x60
+
+	# checksum
+
+	mov	0x8014,%cx
+	shr	$0x02,%cx
+	xor	%ax,%ax
+	xor	%dx,%dx
+	mov	$0x8000,%si
+sum:	add	(%si),%ax
+	inc	%si
+	inc	%si
+	adc	(%si),%dx
+	inc	%si
+	inc	%si
+	loop	sum
+	cmp	%ax,%dx
+	jne	error
+	xor	%dx,%dx
+	cmp	%ax,%dx
+	jne	error
+
+	# reloc BIOS info
+
+	mov	$0x6006,%si
+	mov	$0x8006,%di
+	mov	$0x000A,%cx
+	rep	movsb
+
+	# init tables
+
+	mov	$0x0800,%di
+	mov	0x801C,%si
+	add	$0x8000,%si
+	mov	0x801E,%cx
+	rep	movsb
+
+	mov	$0x1000,%di
+	mov	0x8018,%si
+	add	$0x8000,%si
+	mov	0x801A,%cx
+	rep	movsb
+
+	mov	0x801A,%ax
+	dec	%ax
+	mov	%ax,0x6000
+	mov	$0x1000,%ax
+	mov	%ax,0x6002
+	xor	%ax,%ax
+	mov	%ax,0x6004
+
+	mov	0x801E,%ax
+	dec	%ax
+	mov	%ax,0x6008
+	mov	$0x0800,%ax
+	mov	%ax,0x600A
+	xor	%ax,%ax
+	mov	%ax,0x600C
+
+	# init final goto
+
+	mov	$end_jmp,%bx
+	mov	0x8024,%ax
+	mov	%ax,2(%bx)
+	mov	0x8026,%ax
+	mov	%ax,4(%bx)
+
+	# enter pmode
+
+	lidt	0x6008
+	lgdt	0x6000
+
+	smsw	%ax
+	or	$0x01,%al
+	lmsw	%ax
+
+end_jmp:
+	jmpl	$0x0008,$0x00000000

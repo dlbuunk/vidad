@@ -8,6 +8,8 @@ namespace IO
 		switch (mode)
 		{	case 2 :
 			case 3 : set_font(system_font8, 8); break;
+			case 4 :
+			case 5 : set_font(system_font16, 16); break;
 		}
 	};
 
@@ -82,7 +84,7 @@ namespace IO
 		outportb(gc_data, (gc6 = inportb(gc_data)) & 0xFD);
 
 		// write font data
-		for (i=0; i<128; i++)
+		for (i=0; i<256; i++)
 		{	memcpyb(0xB8000 + (i<<5), height, (dword) font);
 			font += height;
 		}

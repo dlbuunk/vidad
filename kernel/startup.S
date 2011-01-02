@@ -21,7 +21,7 @@ exec_start:
 	mov	%ax,%gs
 
 	# setting up stack
-	mov	$0x00010000,%esp
+	mov	$0x00020000,%esp
 	mov	%esp,%ebp
 
 	# init FPU

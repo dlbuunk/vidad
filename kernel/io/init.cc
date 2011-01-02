@@ -16,7 +16,7 @@ namespace IO
 		// create VGA video output
 		Video_Text *video;
 		VGA_Text *vga_text;
-		vga_text = new VGA_Text(3);
+		vga_text = new VGA_Text(4);
 		video = vga_text;
 
 		// open kernel terminal
