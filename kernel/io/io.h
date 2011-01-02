@@ -1,6 +1,7 @@
 #include "../kernel.h"
 
 #include "video/video.h"
+#include "keyboard/keyboard.h"
 #include "terminal/terminal.h"
 
 namespace IO

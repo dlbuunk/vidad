@@ -15,6 +15,7 @@ INPUT(
 	io/timer.o
 	io/video/vga.o
 	io/video/vga_text.o
+	io/keyboard/kbc.o
 	io/terminal/term_buf.o
 	io/terminal/term_std.o
 )

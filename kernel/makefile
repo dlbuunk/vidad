@@ -1,4 +1,4 @@
-CF = -w -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
+CF = -w -nostdlib -nostartfiles -nodefaultlibs
 CCF = -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector $(CF)
 
 kernel.bin: addsum kernel.ld startup.o helper.o vga_data.o kprint.o malloc.o inter.o kmain.o ccentry.o force_look

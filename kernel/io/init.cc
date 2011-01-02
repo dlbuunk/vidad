@@ -34,12 +34,12 @@ namespace IO
 		kterm->puts("SYSTEM LOADED\n");
 		kterm->set_color(W);
 
-		// this should print !s on the screen with a freq of 1 Hz
-		for (;;)
-		{	timer->reg_cb((dword) &test, (dword) this, 100);
-			lock = 1;
-			while (lock) asm("hlt"); //cool down cpu
-		}
+		// keyboard tests
+		KBC *kbc;
+		kbc = new KBC;
+		kbc->test();
+		for (;;) asm("hlt");
+		delete kbc;
 
 		// close kernel terminal
 		if (kterm == term_std)
