@@ -27,6 +27,7 @@ extern "C" void __cxa_pure_virtual()
 extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 {	(void) kh;
 	(void) dma_buff;
+	kterm = 0; // do this in order to make things like 'if (kterm)' work
 	IO::Init *init = new IO::Init;
 	init->main();
 	delete init;
@@ -127,5 +128,6 @@ void sprintf(char *str, char *format, ...)
 
 void printf(char *format, ...)
 {	print(print_buffer, &format);
-	kterm->puts(print_buffer);
+	if (kterm) kterm->puts(print_buffer);
+	else kprints(print_buffer, W);
 };
