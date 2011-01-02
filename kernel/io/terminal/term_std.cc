@@ -1,5 +1,7 @@
 #include "../io.h"
 
+extern IO::Terminal *kterm;
+
 // TODO:
 // create gets()
 // make the entire thing resizeable
@@ -9,7 +11,6 @@ namespace IO
 	{	err = stderr;
 		out = stdout;
 		current_color = W;
-		out->vid->redraw(out->buffer, out->cursor_pos);
 	};
 
 	Term_Std::~Term_Std() {};
@@ -19,6 +20,7 @@ namespace IO
 		while (*str)
 		{	switch (*str)
 			{	case '\n' : err->cursor_pos = (err->cursor_pos/err->num_col + 1) * err->num_col; break;
+				case '\c' : err->cursor_pos = (err->cursor_pos/err->num_col) * err->num_col; break;
 				case '\t' : err->cursor_pos = ((err->cursor_pos>>3) + 1) << 3; break;
 				default :
 				{	err->buffer[err->cursor_pos] = (current_color<<8) | *str;
@@ -39,6 +41,7 @@ namespace IO
 		while (*str)
 		{	switch (*str)
 			{	case '\n' : out->cursor_pos = (out->cursor_pos/out->num_col + 1) * out->num_col; break;
+				case '\c' : out->cursor_pos = (out->cursor_pos/out->num_col) * out->num_col; break;
 				case '\t' : out->cursor_pos = ((out->cursor_pos>>3) + 1) << 3; break;
 				default :
 				{	out->buffer[out->cursor_pos] = (current_color<<8) | *str;
@@ -58,6 +61,7 @@ namespace IO
 
 	void Term_Std::set_active()
 	{	out->vid->current_buffer = out->buffer;
+		out->vid->redraw(out->buffer, out->cursor_pos);
 	};
 
 	void Term_Std::set_color(byte color)
