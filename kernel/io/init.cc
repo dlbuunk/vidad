@@ -25,14 +25,11 @@ namespace IO
 		byte num_col = video->get_num_col(); // without this the
 		byte num_row = video->get_num_row(); // constuctor fails
 		term_buf = new Term_Buf(video, num_col, num_row);
+		memcpyw((dword) term_buf->buffer, 2000, 0xB8000);
+		term_buf->cursor_pos = kprint_pos;
 		term_std = new Term_Std(term_buf, term_buf);
 		kterm = term_std;
 		kterm->set_active();
-
-		// output to screen
-		kterm->set_color(BLUE);
-		kterm->puts("SYSTEM LOADED\n");
-		kterm->set_color(W);
 
 		// keyboard tests
 		KBC *kbc;
@@ -49,7 +46,7 @@ namespace IO
 
 		// close VGA video output
 		// commented out because it would clear the screen
-	//	if (vga_text == video) delete vga_text;
+		if (vga_text == video) delete vga_text;
 
 		// exit timer
 		delete timer;

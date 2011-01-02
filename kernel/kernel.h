@@ -7,6 +7,7 @@ extern "C" {
 
 extern "C" int inter_reg(dword func, dword obj, dword irq);
 extern "C" void inter_dereg(dword irq, int num);
+extern "C" void inter_init();
 
 extern "C" void kerror(char *str, byte color);
 
