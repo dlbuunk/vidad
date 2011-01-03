@@ -59,3 +59,6 @@ namespace IO
 #include "video/video.h"
 #include "keyboard/keyboard.h"
 #include "terminal/terminal.h"
+
+extern IO::Terminal *kterm;
+
