@@ -28,7 +28,7 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 	(void) dma_buff;
 	kterm = 0; // do this in order to make things like 'if (kterm)' work
 	IO::Init *init = new IO::Init;
-	init->main();
+	for (;;) asm("hlt"); // cool down cpu
 	delete init;
 };
 
