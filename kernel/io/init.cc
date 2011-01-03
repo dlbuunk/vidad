@@ -21,6 +21,10 @@ namespace IO
 		kterm = term_std = new Term_Std(term_buf, term_buf); // open terminal with both stderr and stdout set to the same buffer
 		kterm->set_active(); // and set it active
 		kterm->puts("Kernel terminal active.\n"); // and test it
+
+		// keyboard tests
+		kbc = new KBC;
+		key_translate = key_trans1 = new Key_Translate_Set1(kbc);
 	};
 	
 	Init::~Init() // IO exit function, should run everything in Init::Init() in REVERSE ORDER!

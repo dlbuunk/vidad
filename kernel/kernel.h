@@ -42,6 +42,8 @@ extern byte inportb(word port);
 extern void outportb(word port, byte val);
 
 /* data to be found in kernel_data.c */
+extern byte keyboard_mode1[];
+
 extern const byte system_font8[];
 extern const byte system_font16[];
 extern byte vga_mode_t[];

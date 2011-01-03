@@ -3,9 +3,9 @@
 // port 0x64 is command/status
 // port 0x60 is data
 namespace IO
-{	KBC::KBC(ByteBuffer *outbuffer)
+{	KBC::KBC()
 	{	byte result;
-		ob = outbuffer;
+		tl = 0;
 
 		// enable keyboard
 		wait_write();
@@ -43,6 +43,8 @@ namespace IO
 		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
 		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
 		}
+
+		set_leds(0);
 	};
 
 	KBC::~KBC()
@@ -66,7 +68,8 @@ namespace IO
 	{	KBC *th;
 		th = (KBC *) ptr;
 		th->wait_read();
-		if (th->ob->write(inportb(0x60))) printf("Keyboard, KBC: output buffer full.\n");
+		if (th->tl) th->tl->feed_scancode(inportb(0x60));
+		else inportb(0x60);
 	};
 
 	void KBC::set_leds(byte status)
@@ -74,6 +77,10 @@ namespace IO
 		outportb(0x60, 0xED);
 		wait_write();
 		outportb(0x60, status);
+	};
+
+	void KBC::set_translator(Key_Translate *new_tl)
+	{	tl = new_tl;
 	};
 
 	void KBC::reset_cpu()

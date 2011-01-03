@@ -1,7 +1,7 @@
 #include "io/io.h"
 
 // basic (s)printf functions
-// currently it only supports strings, hex and unsigned decimal
+// currently it only supports chars, strings, hex and unsigned decimal
 // width supported, no other optional stuff.
 char print_buffer[0x100];
 
@@ -27,7 +27,13 @@ void print(char *str, char **form)
 			}
 			if (*format == '\0') break;
 			switch (*format)
-			{	case 's' : //string
+			{	case 'c' : //char
+				{	*str = *((char *) varg);
+					str++;
+					format++;
+					varg++;
+				} break;
+				case 's' : //string
 				{	while (**((char **) varg))
 					{	*str = **((char **) varg);
 						str++;
