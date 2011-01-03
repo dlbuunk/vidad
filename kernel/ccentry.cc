@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "io/io.h"
 
 // kernel terminal
 IO::Terminal *kterm;
@@ -33,12 +33,21 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 };
 
 // function to print out fatal error messages
-// TODO: make compatible with kernel terminal
 extern "C" void kerror(char *str, byte color)
-{	memstow(0xB8000, 2000, 0x0020 | (color<<8));
-	kprint_pos = 0;
-	kprints(str, color);
-	kprints("\nSYSTEM HALTED", color);
+{	IO::Terminal *term;
+	term = kterm;
+	kterm = 0; // so that the next call to kerror (error in error handling) uses the basic method.
+	if (term)
+	{	term->set_color(color);
+		term->puts_err(str);
+		term->puts_err("\nSYSTEM_HALTED");
+	}
+	else
+	{	memstow(0xB8000, 2000, 0x0020 | (color<<8));
+		kprint_pos = 0;
+		kprints(str, color);
+		kprints("\nSYSTEM HALTED", color);
+	}
 	asm("cli");
 	asm("hlt");
 };

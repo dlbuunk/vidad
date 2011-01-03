@@ -129,27 +129,4 @@ extern void print(char *str, char **form);
 extern void sprintf(char *str, char *format, ...);
 extern void printf(char *format, ...);
 
-#ifndef IO_H
-/* IO namespace class definitions, shortened form */
-/* I know that this is a bad way of doing things - David */
-namespace IO
-{	class Init
-	{	public : Init() {};
-		public : ~Init() {};
-		public : void main();
-	};
-
-	class Terminal
-	{	public : Terminal() {};
-		public : virtual ~Terminal() {};
-		public : virtual void puts_err(char *str) = 0;
-		public : virtual void puts(char *str) = 0;
-		public : virtual char *gets(char *str) = 0;
-	};
-};
-
-extern IO::Terminal *kterm;
-
-#endif /* IO_H */
-
 #endif /* __cplusplus */

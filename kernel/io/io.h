@@ -1,4 +1,3 @@
-#define IO_H
 #include "../kernel.h"
 
 namespace IO

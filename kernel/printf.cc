@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "io/io.h"
 
 // basic (s)printf functions
 // currently it only supports strings, hex and unsigned decimal
