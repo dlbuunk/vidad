@@ -9,6 +9,7 @@ namespace IO
 		outportb(0x0040, data);
 		outportb(0x0040, data>>8);
 		if ((int_num = inter_reg((dword) &callback, (dword) this, 0x00)) == -1) kerror("Error, timer cannot get irq0 handle", WHITE_GREEN);
+		printf("Timer (PIT): INIT OK, frequency is %u Hz.\n", (int) freq);
 	};
 
 	Timer::~Timer()
