@@ -20,7 +20,7 @@ namespace IO
 		while (*str)
 		{	switch (*str)
 			{	case '\n' : err->cursor_pos = (err->cursor_pos/err->num_col + 1) * err->num_col; break;
-				case '\c' : err->cursor_pos = (err->cursor_pos/err->num_col) * err->num_col; break;
+				case '\r' : err->cursor_pos = (err->cursor_pos/err->num_col) * err->num_col; break;
 				case '\t' : err->cursor_pos = ((err->cursor_pos>>3) + 1) << 3; break;
 				default :
 				{	err->buffer[err->cursor_pos] = (current_color<<8) | *str;
@@ -41,7 +41,7 @@ namespace IO
 		while (*str)
 		{	switch (*str)
 			{	case '\n' : out->cursor_pos = (out->cursor_pos/out->num_col + 1) * out->num_col; break;
-				case '\c' : out->cursor_pos = (out->cursor_pos/out->num_col) * out->num_col; break;
+				case '\r' : out->cursor_pos = (out->cursor_pos/out->num_col) * out->num_col; break;
 				case '\t' : out->cursor_pos = ((out->cursor_pos>>3) + 1) << 3; break;
 				default :
 				{	out->buffer[out->cursor_pos] = (current_color<<8) | *str;
