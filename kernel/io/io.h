@@ -1,16 +1,10 @@
 #include "../kernel.h"
 
-#include "video/video.h"
-#include "keyboard/keyboard.h"
-#include "terminal/terminal.h"
-
 namespace IO
 {	class Init
 	{	public : Init() {};
 		public : ~Init() {};
 		public : void main();
-		private : static void test(dword ptr);
-		private : volatile word lock;
 	};
 
 	// should this be an all-inline class?
@@ -61,3 +55,7 @@ namespace IO
 		private : dword cb[num_entries][3];
 	};
 };
+
+#include "video/video.h"
+#include "keyboard/keyboard.h"
+#include "terminal/terminal.h"

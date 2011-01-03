@@ -31,11 +31,15 @@ namespace IO
 		kterm = term_std;
 		kterm->set_active();
 
-		// keyboard tests
+		// init keyboard
+		ByteBuffer *scancode_buffer;
 		KBC *kbc;
-		kbc = new KBC;
-		kbc->test();
-		for (;;) asm("hlt");
+		scancode_buffer = new ByteBuffer(128);
+		kbc = new KBC(scancode_buffer);
+
+		for (;;) asm("hlt"); // halt the system
+
+		// exit keyboard
 		delete kbc;
 
 		// close kernel terminal
@@ -45,7 +49,6 @@ namespace IO
 		}
 
 		// close VGA video output
-		// commented out because it would clear the screen
 		if (vga_text == video) delete vga_text;
 
 		// exit timer
@@ -53,12 +56,5 @@ namespace IO
 
 		// exit PIC
 		delete pic;
-	};
-
-	void Init::test(dword ptr)
-	{	Init *th;
-		th = (Init *) ptr;
-		printf("!");
-		th->lock = 0;
 	};
 };

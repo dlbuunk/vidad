@@ -3,8 +3,9 @@
 // port 0x64 is command/status
 // port 0x60 is data
 namespace IO
-{	KBC::KBC()
+{	KBC::KBC(ByteBuffer *outbuffer)
 	{	byte result;
+		ob = outbuffer;
 
 		// enable keyboard
 		wait_write();
@@ -64,10 +65,28 @@ namespace IO
 	void KBC::handle_irq(dword ptr)
 	{	KBC *th;
 		th = (KBC *) ptr;
-		printf("!");
+		th->wait_read();
+		if (th->ob->write(inportb(0x60))) printf("Keyboard, KBC: output buffer full.\n");
 	};
 
-	void KBC::test() // debug function
-	{
+	void KBC::set_leds(byte status)
+	{	wait_write();
+		outportb(0x60, 0xED);
+		wait_write();
+		outportb(0x60, status);
+	};
+
+	void KBC::reset_cpu()
+	{	byte outputport;
+		wait_write();
+		outportb(0x64, 0xD0);
+		wait_read();
+		outputport = inportb(0x60) & 0xFE;
+		wait_write();
+		outportb(0x64, 0xD1);
+		wait_write();
+		outportb(0x60, outputport);
+		asm("cli");
+		asm("hlt");
 	};
 };
