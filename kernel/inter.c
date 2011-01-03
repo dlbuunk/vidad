@@ -1,9 +1,4 @@
-#include "helper.h"
-#include "kprint.h"
-
-extern void kerror(char *str, byte color);
-
-#define NUM_ENTRIES 2
+#include "kernel.h"
 
 /* TODO:
 * write specific info about the exceptions, but only after bootloader rewrite, much strings.

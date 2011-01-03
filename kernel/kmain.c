@@ -1,9 +1,4 @@
-#include "helper.h"
-#include "kprint.h"
-#include "malloc.h"
-#include "kheader.h"
-
-extern void ccentry(struct kheader *kh, dword dma_buff);
+#include "kernel.h"
 
 void kmain(struct kheader *kh, dword stack_base)
 {	word memsize;

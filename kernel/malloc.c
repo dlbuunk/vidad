@@ -1,5 +1,4 @@
-#include "helper.h"
-#include "kprint.h"
+#include "kernel.h"
 
 /* bug in this implementation:
 * malloc() breaks when trying to allocate in the upper 2GB of memory
@@ -16,8 +15,6 @@
 
 dword alloc_base;
 dword alloc_top;
-
-extern void kerror(char *str, byte color);
 
 void alloc_init(dword heap_base, dword top_of_mem)
 {	alloc_base = heap_base;

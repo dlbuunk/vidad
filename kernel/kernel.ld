@@ -3,7 +3,7 @@ OUTPUT_FORMAT(binary)
 INPUT(
 	startup.o
 	helper.o
-	vga_data.o
+	kernel_data.o
 	kprint.o
 	malloc.o
 	inter.o
