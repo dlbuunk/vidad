@@ -114,16 +114,42 @@ extern void __cxa_pur_virual();
 extern void ccentry(struct kheader *kh, dword dma_buff);
 extern void kerror(char *str, byte color);
 
+/* also in ccentry.cc :
+* overloads of new, new[], delete, and delete[]
+*/
+
 #ifdef __cplusplus
 };
 #undef NUM_ENTRIES
 
-// C++ functions and data with C++ linkage stye in ccentry.cc
-// extern IO::Terminal *kterm;
+/* functions in printf.cc */
 
 extern char print_buffer[];
 extern void print(char *str, char **form);
 extern void sprintf(char *str, char *format, ...);
 extern void printf(char *format, ...);
 
-#endif
+#ifndef IO_H
+/* IO namespace class definitions, shortened form */
+/* I know that this is a bad way of doing things - David */
+namespace IO
+{	class Init
+	{	public : Init() {};
+		public : ~Init() {};
+		public : void main();
+	};
+
+	class Terminal
+	{	public : Terminal() {};
+		public : virtual ~Terminal() {};
+		public : virtual void puts_err(char *str) = 0;
+		public : virtual void puts(char *str) = 0;
+		public : virtual char *gets(char *str) = 0;
+	};
+};
+
+extern IO::Terminal *kterm;
+
+#endif /* IO_H */
+
+#endif /* __cplusplus */

@@ -1,7 +1,5 @@
+#define IO_H
 #include "../kernel.h"
-
-#include "video/video.h"
-#include "terminal/terminal.h"
 
 namespace IO
 {	class Init
@@ -60,3 +58,8 @@ namespace IO
 		private : dword cb[num_entries][3];
 	};
 };
+
+#include "video/video.h"
+#include "terminal/terminal.h"
+
+extern IO::Terminal *kterm;

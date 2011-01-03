@@ -1,7 +1,8 @@
 CF = -w -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 CCF = -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector $(CF)
 
-kernel.bin: addsum kernel.ld startup.o helper.o kernel_data.o kprint.o malloc.o inter.o kmain.o ccentry.o force_look
+kernel.bin: addsum kernel.ld startup.o helper.o kernel_data.o kprint.o \
+		malloc.o inter.o kmain.o ccentry.o printf.o force_look
 	make -C io
 	ld -T kernel.ld
 	chmod -x kernel.tmp
@@ -41,9 +42,13 @@ ccentry.o: ccentry.cc
 	gcc $(CCF) -S -o ccentry.s ccentry.cc
 	as -o ccentry.o ccentry.s
 
+printf.o: printf.cc
+	gcc $(CCF) -S -o printf.s printf.cc
+	as -o printf.o printf.s
+
 .PHONY : clean
 clean:
-	rm -f addsum kernel.{tmp,bin} helper.o {startup,kernel_data,malloc,kprint,inter,kmain,ccentry}.s *.o
+	rm -f addsum kernel.{tmp,bin} helper.o {startup,kernel_data,malloc,kprint,inter,kmain,ccentry,printf}.s *.o
 	make -C io clean
 
 .PHONY: force_look

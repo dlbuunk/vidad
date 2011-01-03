@@ -1,8 +1,5 @@
 #include "io.h"
 
-// kernel terminal, is global!
-extern IO::Terminal *kterm;
-
 namespace IO
 {	void Init::main()
 	{	// init PIC

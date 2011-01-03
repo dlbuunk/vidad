@@ -9,6 +9,7 @@ INPUT(
 	inter.o
 	kmain.o
 	ccentry.o
+	printf.o
 
 	io/init.o
 	io/pic.o
