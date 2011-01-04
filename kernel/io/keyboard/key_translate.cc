@@ -1,5 +1,7 @@
 #include "../io.h"
 
+// TODO: handle escaped scancodes
+
 namespace IO
 {	Key_Translate_Set1::Key_Translate_Set1(Keyboard *out, KBC *kbc)
 	{	this->kbc = kbc;

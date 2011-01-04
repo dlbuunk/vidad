@@ -1,3 +1,5 @@
+// TODO: make key sets 2
+
 namespace IO
 {	class Key_Translate;
 	class Keyboard;
@@ -37,5 +39,6 @@ namespace IO
 		public : void set_user(WordBuffer *buffer, int new_mode);
 		private : WordBuffer *buffer;
 		private : int mode;
+		private : int shift_state;
 	};
 };
