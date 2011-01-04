@@ -1,9 +1,4 @@
-#include "helper.h"
-#include "kprint.h"
-
-extern void kerror(char *str, byte color);
-
-#define NUM_ENTRIES 2
+#include "kernel.h"
 
 /* TODO:
 * write specific info about the exceptions, but only after bootloader rewrite, much strings.
@@ -11,6 +6,16 @@ extern void kerror(char *str, byte color);
 
 /* array to store callbacks */
 dword inter_callback[16][NUM_ENTRIES][2];
+
+/* initialise interrupt handling code */
+void inter_init()
+{	int i, j;
+	for (i=0; i<16; i++)
+	{	for (j=0; j<NUM_ENTRIES; j++)
+		{	inter_callback[i][j][0] = inter_callback[i][j][1] = 0;
+		}
+	}
+};
 
 /* called by handle_int */
 void inter_main(byte int_num)

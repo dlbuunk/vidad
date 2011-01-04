@@ -1,9 +1,4 @@
-#include "helper.h"
-#include "kprint.h"
-#include "malloc.h"
-#include "kheader.h"
-
-extern void ccentry(struct kheader *kh, dword dma_buff);
+#include "kernel.h"
 
 void kmain(struct kheader *kh, dword stack_base)
 {	word memsize;
@@ -11,6 +6,9 @@ void kmain(struct kheader *kh, dword stack_base)
 	memstow(0xB8000, 2000, 0x0720);
 	kprint_pos = 0;
 	kprints("SYSTEM LOADED\n", BLUE);
+
+	/* initialise interrupt handling code */
+	inter_init();
 
 	/* set the memsize in 32 KB units */
 	memsize = kh->mem_low >> 5;
