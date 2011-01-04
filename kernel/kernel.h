@@ -9,7 +9,7 @@
 typedef unsigned char byte;
 typedef unsigned short int word;
 typedef unsigned int dword;
-typedef unsigned long int qword;
+typedef unsigned long long int qword;
 
 /* color definitions used everywhere */
 #define BLACK 0
@@ -43,6 +43,7 @@ extern void outportb(word port, byte val);
 
 /* data to be found in kernel_data.c */
 extern byte keyboard_mode1[];
+extern byte keyboard_shift[];
 
 extern const byte system_font8[];
 extern const byte system_font16[];

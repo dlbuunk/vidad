@@ -14,6 +14,7 @@ namespace IO
 
 		// keyboard
 		KBC *kbc;
+		Keyboard *keyb;
 		Key_Translate *key_translate;
 		Key_Translate_Set1 *key_trans1;
 

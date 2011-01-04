@@ -1,10 +1,11 @@
 #include "../io.h"
 
 namespace IO
-{	Key_Translate_Set1::Key_Translate_Set1(KBC *kbc)
+{	Key_Translate_Set1::Key_Translate_Set1(Keyboard *out, KBC *kbc)
 	{	this->kbc = kbc;
 		kbc->set_translator(this);
 		status = 0;
+		this->out = out;
 	};
 
 	Key_Translate_Set1::~Key_Translate_Set1()
@@ -21,8 +22,9 @@ namespace IO
 			case 0x46 : { status ^= 0x01; kbc->set_leds(status & 0x07); } return; // scroll lock
 			case 0x9D : status &= ~0x80; return; // control OUT
 			case 0xAA : outcode = 0x000E; break; // left shift OUT
-			case 0xB6 : outcode = 0x000E; break; // right shift out
+			case 0xB6 : outcode = 0x000E; break; // right shift OUT
 			case 0xB8 : status &= ~0x40; return; // alt OUT
+			default: break;
 		}
 		if (! outcode)
 		{	if (incode & 0x80)
@@ -61,6 +63,7 @@ namespace IO
 				case 0x01 : outcode = 0x1C00; break; // ESC
 			}
 		}
-		if ((status & 0x04) && outcode > 0x60 && outcode < 0x7B) outcode -= 0x20;
+		if ((status & 0x04) && outcode > 0x60 && outcode < 0x7B) outcode -= 0x20; // handle CAPS lock
+		out->feed_code(outcode | (status<<8));
 	};
 };

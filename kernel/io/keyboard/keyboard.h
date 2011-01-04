@@ -1,5 +1,6 @@
 namespace IO
 {	class Key_Translate;
+	class Keyboard;
 
 	class KBC // Keyboard Controller
 	{	public : KBC();
@@ -21,19 +22,20 @@ namespace IO
 	};
 
 	class Key_Translate_Set1: public Key_Translate
-	{	public : Key_Translate_Set1(KBC *kbc);
+	{	public : Key_Translate_Set1(Keyboard *out, KBC *kbc);
 		public : ~Key_Translate_Set1();
 		public : void feed_scancode(byte code);
-		private : byte status; // CTRL ALT BREAK 0 0 CAPS NUM SCROLL
+		private : Keyboard *out;
+		private : word status; // CTRL ALT BREAK 0 0 CAPS NUM SCROLL
 		private : KBC *kbc;
 	};
 
 	class Keyboard // control center
 	{	public : Keyboard();
 		public : ~Keyboard();
-		public : void feed_code();
-		public : void set_user(WordBuffer buffer, int new_mode);
-		private : WordBuffer current_buffer;
+		public : void feed_code(word code);
+		public : void set_user(WordBuffer *buffer, int new_mode);
+		private : WordBuffer *buffer;
 		private : int mode;
 	};
 };

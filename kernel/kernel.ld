@@ -18,6 +18,7 @@ INPUT(
 	io/video/vga_text.o
 	io/keyboard/kbc.o
 	io/keyboard/key_translate.o
+	io/keyboard/keyboard.o
 	io/terminal/term_buf.o
 	io/terminal/term_std.o
 )

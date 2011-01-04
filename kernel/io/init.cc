@@ -24,7 +24,18 @@ namespace IO
 
 		// keyboard tests
 		kbc = new KBC;
-		key_translate = key_trans1 = new Key_Translate_Set1(kbc);
+		keyb = new Keyboard;
+		key_translate = key_trans1 = new Key_Translate_Set1(keyb, kbc);
+
+		WordBuffer *buf;
+		buf = new WordBuffer(64);
+		keyb->set_user(buf, 3);
+		int ch;
+		for (;;)
+		{	ch = buf->read();
+			if (ch == -1) continue;
+			printf("%c", ch);
+		}
 	};
 	
 	Init::~Init() // IO exit function, should run everything in Init::Init() in REVERSE ORDER!
