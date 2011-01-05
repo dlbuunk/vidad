@@ -60,11 +60,6 @@ extern word kprint_pos;
 extern void kprint(char ch, byte color);
 extern void kprints(char *str, byte color);
 
-/* these three are scheduled for removal */
-extern void kprintb(byte val, byte color);
-extern void kprintw(word val, byte color);
-extern void kprintd(dword val, byte color);
-
 /* functions and data to be found in malloc.c */
 
 extern dword alloc_base;

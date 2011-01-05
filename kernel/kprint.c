@@ -23,32 +23,3 @@ void kprint(char ch, byte color)
 void kprints(char *str, byte color)
 {	do kprint(*str, color); while (*++str);
 };
-
-void kprintb(byte val, byte color)
-{	byte out;
-	out = val;
-	val >>= 4;
-	val += 0x30;
-	if (val > 0x39) val += 7;
-	kprint(val, color);
-	out &= 0x0F;
-	out += 0x30;
-	if (out > 0x39) out += 7;
-	kprint(out, color);
-};
-
-void kprintw(word val, byte color)
-{	word out;
-	out = val;
-	val >>= 8;
-	kprintb(val, color);
-	kprintb(out, color);
-};
-
-void kprintd(dword val, byte color)
-{	dword out;
-	out = val;
-	val >>= 16;
-	kprintw(val, color);
-	kprintw(out, color);
-};

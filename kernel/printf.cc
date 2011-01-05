@@ -6,7 +6,9 @@
 char print_buffer[0x100];
 
 void print(char *str, char **form)
-{	char *format;
+{	char *str_orig;
+	str_orig = str;
+	char *format;
 	format = *form;
 	dword *varg;
 	varg = (dword *) form;
@@ -28,8 +30,14 @@ void print(char *str, char **form)
 			if (*format == '\0') break;
 			switch (*format)
 			{	case 'c' : //char
-				{	*str = *((char *) varg);
-					str++;
+				{	if (*((char *) varg) == '\b')
+					{	if (str != str_orig) str--;
+						*str = '\0';
+					}
+					else
+					{	*str = *((char *) varg);
+						str++;
+					}
 					format++;
 					varg++;
 				} break;
@@ -74,6 +82,11 @@ void print(char *str, char **form)
 					varg++;
 				} break;
 			}
+		}
+		else if (*format == '\b')
+		{	if (str != str_orig) str--;
+			*str = '\0';
+			format++;
 		}
 		else
 		{	out: *str = *format;
