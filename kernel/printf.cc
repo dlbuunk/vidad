@@ -30,17 +30,17 @@ void print(char *str, char **form)
 			if (*format == '\0') break;
 			switch (*format)
 			{	case 'c' : //char
-				{	if (**((char **) varg) == '\b')
+				{	if (*((char *) varg) == '\b')
 					{	if (str != str_orig) str--;
 						*str = '\0';
 					}
 					else
-					{	*str = **((char **) varg);
+					{	*str = *((char *) varg);
 						str++;
 					}
 					format++;
 					varg++;
-				}
+				} break;
 				case 's' : //string
 				{	while (**((char **) varg))
 					{	*str = **((char **) varg);
@@ -86,6 +86,7 @@ void print(char *str, char **form)
 		else if (*format == '\b')
 		{	if (str != str_orig) str--;
 			*str = '\0';
+			format++;
 		}
 		else
 		{	out: *str = *format;
