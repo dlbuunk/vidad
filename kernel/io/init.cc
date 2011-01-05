@@ -7,8 +7,8 @@ namespace IO
 		timer = new Timer(256.0);
 
 		// create VGA video output
-		video = vga_text = new VGA_Text(4);
-		printf("VGA set to mode 4, 25 rows, 80 cols, 16 pixel high fonts.\n");
+		video = vga_text = new VGA_Text(6);
+		printf("VGA set to mode 6, 50 rows, 80 cols, 8 pixel high fonts.\n");
 
 		// open kernel terminal
 		byte num_col = video->get_num_col(); // without this the

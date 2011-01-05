@@ -7,7 +7,9 @@ namespace IO
 		if (! set_mode(mode)) { mode = 2; set_mode(2); }
 		switch (mode)
 		{	case 2 :
-			case 3 : set_font(system_font8, 8); break;
+			case 3 :
+			case 6 :
+			case 7 : set_font(system_font8, 8); break;
 			case 4 :
 			case 5 : set_font(system_font16, 16); break;
 		}

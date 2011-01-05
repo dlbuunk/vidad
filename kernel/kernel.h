@@ -49,6 +49,8 @@ extern byte vga_mode2[];
 extern byte vga_mode3[];
 extern byte vga_mode4[];
 extern byte vga_mode5[];
+extern byte vga_mode6[];
+extern byte vga_mode7[];
 
 /* functions and data to be found in kprint.c */
 
