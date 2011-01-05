@@ -10,7 +10,7 @@ namespace IO
 {	Term_Std::Term_Std(Term_Buf *stderr, Term_Buf *stdout)
 	{	err = stderr;
 		out = stdout;
-		current_color = W;
+		current_color = 0x07;
 	};
 
 	Term_Std::~Term_Std() {};

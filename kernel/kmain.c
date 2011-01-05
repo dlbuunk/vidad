@@ -5,7 +5,7 @@ void kmain(struct kheader *kh, dword stack_base)
 
 	memstow(0xB8000, 2000, 0x0720);
 	kprint_pos = 0;
-	kprints("SYSTEM LOADED\n", BLUE);
+	kprints("SYSTEM LOADED\n", 0x01);
 
 	/* initialise interrupt handling code */
 	inter_init();
@@ -15,7 +15,7 @@ void kmain(struct kheader *kh, dword stack_base)
 
 	/* we need 32 KB for heap and 32 KB for DMA buffer */
 	if (memsize < (stack_base>>15) + 2)
-	{	kprints("Error: not enough low memory, ViDad will not run this system.\n", RED);
+	{	kprints("Error: not enough low memory, ViDad will not run this system.\n", 0x04);
 		return;
 	}
 

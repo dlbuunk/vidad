@@ -104,5 +104,5 @@ void sprintf(char *str, char *format, ...)
 void printf(char *format, ...)
 {	print(print_buffer, &format);
 	if (kterm) kterm->puts(print_buffer);
-	else kprints(print_buffer, W);
+	else kprints(print_buffer, 0x07);
 };
