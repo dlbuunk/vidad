@@ -22,7 +22,7 @@ namespace IO
 	};
 
 	class Term_Std: public Terminal
-	{	public : Term_Std(Term_Buf *stderr, Term_Buf *stdout);
+	{	public : Term_Std(Term_Buf *stderr, Term_Buf *stdout, WordBuffer *stdin);
 		public : ~Term_Std();
 		//req for every terminal
 		public : void puts_err(char *str);
@@ -34,6 +34,7 @@ namespace IO
 		//model-specific
 		private : Term_Buf *err;
 		private : Term_Buf *out;
+		private : WordBuffer *in;
 		private : byte current_color;
 	};
 };

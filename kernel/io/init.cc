@@ -10,6 +10,15 @@ namespace IO
 		video = vga_text = new VGA_Text(4);
 		printf("VGA set to mode 4, 25 rows, 80 cols, 16 pixel high fonts.\n");
 
+		// setup keyboard
+		kbc = new KBC;
+		keyb = new Keyboard;
+		key_translate = key_trans1 = new Key_Translate_Set1(keyb, kbc);
+
+		WordBuffer *key_buf;
+		key_buf = new WordBuffer(64);
+		keyb->set_user(key_buf, 3);
+
 		// open kernel terminal
 		byte num_col = video->get_num_col(); // without this the
 		byte num_row = video->get_num_row(); // constuctor fails
@@ -18,24 +27,11 @@ namespace IO
 		memcpyw((dword) term_buf->buffer, 2000, 0xB8000); // copy video memory to buffer
 		term_buf->cursor_pos = kprint_pos; // and set the cursor position with the value kprint ended with
 
-		kterm = term_std = new Term_Std(term_buf, term_buf); // open terminal with both stderr and stdout set to the same buffer
+		kterm = term_std = new Term_Std(term_buf, term_buf, key_buf); // open terminal with both stderr and stdout set to the same buffer
 		kterm->set_active(); // and set it active
+		kterm->set_color(YELLOW);
 		kterm->puts("Kernel terminal active.\n"); // and test it
-
-		// keyboard tests
-		kbc = new KBC;
-		keyb = new Keyboard;
-		key_translate = key_trans1 = new Key_Translate_Set1(keyb, kbc);
-
-		WordBuffer *buf;
-		buf = new WordBuffer(64);
-		keyb->set_user(buf, 3);
-		int ch;
-		for (;;)
-		{	ch = buf->read();
-			if (ch == -1) continue;
-			printf("%c", ch);
-		}
+		kterm->set_color(W);
 	};
 	
 	Init::~Init() // IO exit function, should run everything in Init::Init() in REVERSE ORDER!

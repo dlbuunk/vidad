@@ -1,4 +1,4 @@
-// TODO: make key sets 2
+// TODO: make key sets 2 and 3
 
 namespace IO
 {	class Key_Translate;

@@ -28,6 +28,8 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 	(void) dma_buff;
 	kterm = 0; // do this in order to make things like 'if (kterm)' work
 	IO::Init *init = new IO::Init;
+	char str[160];
+	for (;;) { kterm->puts(kterm->gets(str)); kterm->puts("\n"); }
 	for (;;) asm("hlt"); // cool down cpu
 	delete init;
 };
