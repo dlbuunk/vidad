@@ -121,7 +121,7 @@ but hey why not try it for the sake of making sure testing string.";
 		    "String unexpectedly non-empty.\n";
 		EXPECT_TRUE( s == "" ) <<
 		    "String does not consider itself equal to an empty \
-		    string.\n";
+string.\n";
 		// Capacity may be anything.
 		EXPECT_STREQ( s.c_str(), "" ) <<
 		    "String does not compare as equal to an empty string.\n";
@@ -242,21 +242,6 @@ TEST( klibstring, AssignmentOperatorFromCString ) {
 	}
 }
 
-TEST( klibstring, AppendOperatorString ) {
-	// Testing: string& operator+=( string const& str );
-	// Ensure that the size and length of the string are correct, and
-	// that C functions confirm that. Emptiness check should be correct.
-}
-
-TEST( klibstring, AppendOperatorCString ) {
-}
-
-TEST( klibstring, AppendOperatorChar ) {
-}
-
-TEST( klibstring, AppendOperatorInt ) {
-}
-
 TEST( klibstring, IndexOperatorRead ) {
 	// Testing: char const& operator[]( size_t pos ) const;
 	// Ensure that the characters read are the ones expected.
@@ -277,11 +262,11 @@ TEST( klibstring, IndexOperatorWrite ) {
 	// it.
 	klib::string s( "TTest." );
 	s[0] = 'Q';
-	EXPECT_EQ( s[0], 'Q' ) << "Inequal at index 0.\n";
+	EXPECT_EQ( s.c_str()[0], 'Q' ) << "Inequal at index 0.\n";
 	s[1] = 'u';
-	EXPECT_EQ( s[1], 'u' ) << "Inequal at index 1.\n";
+	EXPECT_EQ( s.c_str()[1], 'u' ) << "Inequal at index 1.\n";
 	s[5] = '!';
-	EXPECT_EQ( s[5], '!' ) << "Inequal at index 5.\n";
+	EXPECT_EQ( s.c_str()[5], '!' ) << "Inequal at index 5.\n";
 }
 
 TEST( klibstring, IndexOperatorSpecialWrite ) {
@@ -304,9 +289,6 @@ TEST( klibstring, IndexOperatorSpecialWrite ) {
 	EXPECT_EQ( s[2], 'T' ) << "Value at index 2 set incorrectly.\n";
 	EXPECT_TRUE( s == "A T" ) << "Strings are unequal for  ==.\n";
 	EXPECT_STREQ( s.c_str(), "A T" ) << "Strings are unequal for STREQ.\n";
-}
-
-TEST( klibstring, EqualityOperators ) {
 }
 
 TEST( klibstring, Empty ) {

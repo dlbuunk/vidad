@@ -79,9 +79,8 @@ class string {
 	string operator+( char const* cstrPtr ) const; //--
 	string operator+( const char c ) const; //--
 	string operator+( const unsigned int num ) const; //--
-	// Returns either a char or a reference to a char, depending on
-	// whether the reference should be writeable or not.
-	char operator[]( size_t pos ) const; //-
+	// Returns a (const) reference to a char.
+	const char& operator[]( size_t pos ) const; //-
 	char& operator[]( size_t pos ); //-
 	// Compares the string with another string or a C string for
 	// (in)equality. The entire string is compared, even if it contains

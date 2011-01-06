@@ -3,6 +3,7 @@
 namespace klib {
 
 void string::reserve( size_t size ) {
+	(void)size;
 }
 
 void string::clear() {
