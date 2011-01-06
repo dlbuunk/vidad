@@ -66,6 +66,6 @@ namespace IO
 			}
 		}
 		if ((status & 0x04) && outcode > 0x60 && outcode < 0x7B) outcode -= 0x20; // handle CAPS lock
-		out->feed_code(outcode | (status<<8));
+		out->feed_code(outcode | ((status&0xE0)<<8));
 	};
 };
