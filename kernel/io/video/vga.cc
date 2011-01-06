@@ -105,6 +105,8 @@ namespace IO
 			case 3 : { set_reg2(vga_mode_t); set_regs(vga_mode3); } break;
 			case 4 : { set_reg2(vga_mode_t); set_regs(vga_mode4); } break;
 			case 5 : { set_reg2(vga_mode_t); set_regs(vga_mode5); } break;
+			case 6 : { set_reg2(vga_mode_t); set_regs(vga_mode6); } break;
+			case 7 : { set_reg2(vga_mode_t); set_regs(vga_mode7); } break;
 			default: return(0);
 		}
 		current_mode = mode;

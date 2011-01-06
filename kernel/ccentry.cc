@@ -19,7 +19,7 @@ void operator delete[](void *p)
 
 // back up function for pure virtual functions
 extern "C" void __cxa_pure_virtual()
-{	kerror("Fatal error: cannot make pure virtual function call\n", WHITE_GREEN);
+{	kerror("Fatal error: cannot make pure virtual function call\n", 0x2F);
 };
 
 // kernel entry function
@@ -40,7 +40,7 @@ extern "C" void kerror(char *str, byte color)
 	if (term)
 	{	term->set_color(color);
 		term->puts_err(str);
-		term->puts_err("\nSYSTEM_HALTED");
+		term->puts_err("\nSYSTEM HALTED");
 	}
 	else
 	{	memstow(0xB8000, 2000, 0x0020 | (color<<8));

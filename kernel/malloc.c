@@ -24,7 +24,7 @@ void alloc_init(dword heap_base, dword top_of_mem)
 };
 
 void alloc_error()
-{	kerror("Fatal error: out of memory", WHITE_GREEN);
+{	kerror("Fatal error: out of memory", 0x2F);
 };
 
 void *malloc(dword size)

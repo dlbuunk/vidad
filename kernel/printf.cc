@@ -6,7 +6,9 @@
 char print_buffer[0x100];
 
 void print(char *str, char **form)
-{	char *format;
+{	char *str_orig;
+	str_orig = str;
+	char *format;
 	format = *form;
 	dword *varg;
 	varg = (dword *) form;
@@ -27,7 +29,19 @@ void print(char *str, char **form)
 			}
 			if (*format == '\0') break;
 			switch (*format)
-			{	case 's' : //string
+			{	case 'c' : //char
+				{	if (*((char *) varg) == '\b')
+					{	if (str != str_orig) str--;
+						*str = '\0';
+					}
+					else
+					{	*str = *((char *) varg);
+						str++;
+					}
+					format++;
+					varg++;
+				} break;
+				case 's' : //string
 				{	while (**((char **) varg))
 					{	*str = **((char **) varg);
 						str++;
@@ -69,6 +83,11 @@ void print(char *str, char **form)
 				} break;
 			}
 		}
+		else if (*format == '\b')
+		{	if (str != str_orig) str--;
+			*str = '\0';
+			format++;
+		}
 		else
 		{	out: *str = *format;
 			str++;
@@ -85,5 +104,5 @@ void sprintf(char *str, char *format, ...)
 void printf(char *format, ...)
 {	print(print_buffer, &format);
 	if (kterm) kterm->puts(print_buffer);
-	else kprints(print_buffer, W);
+	else kprints(print_buffer, 0x07);
 };
