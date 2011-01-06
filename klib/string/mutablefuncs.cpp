@@ -2,13 +2,13 @@
 
 namespace klib {
 
-void string::reserve( size_t size = 0 ) {
+void string::reserve( size_t size ) {
 }
 
 void string::clear() {
 }
 
-void string::free() {
+void string::drop() {
 }
 
 } // namespace klib

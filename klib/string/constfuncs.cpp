@@ -2,19 +2,19 @@
 
 namespace klib {
 
-const char* c_str() const {
+const char* string::c_str() const {
 }
 
-bool empty() const {
+bool string::empty() const {
 }
 
-size_t length() const {
+size_t string::length() const {
 }
 
-size_t size() const {
+size_t string::size() const {
 }
 
-size_t capacity() const {
+size_t string::capacity() const {
 }
 
 } // namespace klib
