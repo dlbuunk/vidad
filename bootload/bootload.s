@@ -70,6 +70,92 @@ writeFIFO:
 	out	%al,%dx
 	ret
 
+	# seek function, takes cylinder as argument (in cl)
+seek:	mov	$0x0F,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	%cl,%ah
+	call	writeFIFO
+	call	waitfloppy
+
+	mov	$0x08,%ah
+	call	writeFIFO
+	call	readFIFO
+	call	readFIFO
+	cmp	%cl,%al
+	jne	seek
+	ret
+
+	# DMA setup function
+	# ah : page
+	# bx : offset
+	# cx : count
+dma:	mov	$0x06,%al
+	out	%al,$0x0A
+	mov	$0xFF,%al
+	out	%al,$0x0C
+	mov	%bl,%al
+	out	%al,$0x04
+	mov	%bh,%al
+	out	%al,$0x04
+	mov	%ah,%al
+	out	%al,$0x81
+
+	dec	%cx
+	mov	$0xFF,%al
+	out	%al,$0x0C
+	mov	%cl,%al
+	out	%al,$0x05
+	mov	%ch,%al
+	out	%al,$0x05
+
+	mov	$0x46,%al
+	out	%al,$0x0B
+	mov	$0x0A,%al
+	out	%al,$0x0F
+	ret
+
+	# floppy read function (multitrack)
+	# cl : cylinder
+read:	push	%cx
+	mov	$0x0005,%cx
+	call	timer
+	pop	%cx
+
+	mov	$0xC6,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	%cl,%ah
+	call	writeFIFO
+	mov	$0x00,%ah
+	call	writeFIFO
+	mov	$0x01,%ah
+	call	writeFIFO
+	mov	$0x02,%ah
+	call	writeFIFO
+	mov	$0x12,%ah
+	call	writeFIFO
+	mov	$0x1B,%ah
+	call	writeFIFO
+	mov	$0xFF,%ah
+	call	writeFIFO
+
+	call	waitfloppy
+
+	mov	$0x0007,%cx
+rf:	call	readFIFO
+	loop	rf
+	ret
+
+error:
+	mov	$0x0E21,%ax
+	mov	$0x0007,%bx
+	int	$0x10
+	cli
+	hlt
+
 start:
 	movw	$IRQ0,0x0020
 	movw	$0x00,0x0022
@@ -112,15 +198,7 @@ start:
 	out	%al,$0xCF
 	out	%al,$0x0F
 
-	# wait 3 secs
 	sti
-	mov	$0x003C,%cx
-	call	timer
-
-	# vIdad
-	mov	$0x0E49,%ax
-	mov	$0x0007,%bx
-	int	$0x10
 
 	#FDC init
 
@@ -155,11 +233,6 @@ start:
 	mov	$0x000D,%cx
 	call	timer
 
-	# viDad
-	mov	$0x0E44,%ax
-	mov	$0x0007,%bx
-	int	$0x10
-
 	# calibrate
 
 cal:	mov	$0x07,%ah
@@ -175,156 +248,72 @@ cal:	mov	$0x07,%ah
 	cmp	$0x00,%al
 	jne	cal
 
-	# set up DMA (track 0)
+	# vIdad
+	mov	$0x0E49,%ax
+	mov	$0x0007,%bx
+	int	$0x10
 
-	mov	$0xFF,%al
-	out	%al,$0x0C
-	mov	$0x00,%al
-	out	%al,$0x04
-	mov	$0x7C,%al
-	out	%al,$0x04
-	mov	$0x00,%al
-	out	%al,$0x81
-
-	mov	$0xFF,%al
-	out	%al,$0x0C
-#	mov	$0xFF,%al
-	out	%al,$0x05
-	mov	$0x47,%al
-	out	%al,$0x05
-
-	mov	$0x46,%al
-	out	%al,$0x0B
-	mov	$0x0A,%al
-	out	%al,$0x0F
-
-	# floppy read (track 0)
-
-	mov	$0x0005,%cx
-	call	timer
-
-	mov	$0xC6,%ah
-	call	writeFIFO
+	# load track 0
+	mov	$0x00,%cl
+	call	seek
 	mov	$0x00,%ah
-	call	writeFIFO
-#	mov	$0x00,%ah
-	call	writeFIFO
-#	mov	$0x00,%ah
-	call	writeFIFO
+	mov	$0x7C00,%bx
+	mov	$0x4800,%cx
+	call	dma
+	mov	$0x00,%cl
+	call	read
+
+	# viDad
+	mov	$0x0E44,%ax
+	mov	$0x0007,%bx
+	int	$0x10
+
+	# load track 1
+	mov	$0x01,%cl
+	call	seek
 	mov	$0x01,%ah
-	call	writeFIFO
-	mov	$0x02,%ah
-	call	writeFIFO
-	mov	$0x12,%ah
-	call	writeFIFO
-	mov	$0x1B,%ah
-	call	writeFIFO
-	mov	$0xFF,%ah
-	call	writeFIFO
+	mov	$0x0000,%bx
+	mov	$0x4800,%cx
+	call	dma
+	mov	$0x01,%cl
+	call	read
 
-	call	waitfloppy
+	# relocate the data just read from 0x10000 to 0x0C400
+	push	%es
+	push	%ds
+	mov	$0x0C40,%ax
+	mov	%ax,%es
+	mov	$0x1000,%ax
+	mov	%ax,%ds
+	xor	%si,%si
+	xor	%di,%di
 
-	mov	$0x0007,%cx
-rf0:	call	readFIFO
-	loop	rf0
+	# space is up, jump to 0x7E00
+	nop
+	jmp	0x7E00
+	.word	0xAA55
+
+	. = 0x7E00;
+
+	mov	$0x4800,%cx
+	rep	movsb
+	pop	%ds
+	pop	%es
 
 	# vidAd
 	mov	$0x0E41,%ax
 	mov	$0x0007,%bx
 	int	$0x10
 
-	# seek track 1
-	
-seek1:	mov	$0x0F,%ah
-	call	writeFIFO
-	mov	$0x00,%ah
-	call	writeFIFO
+	#load track 2
+	mov	$0x02,%cl
+	call	seek
 	mov	$0x01,%ah
-	call	writeFIFO
-	call	waitfloppy
-
-	mov	$0x08,%ah
-	call	writeFIFO
-	call	readFIFO
-	call	readFIFO
-	cmp	$0x01,%al
-	jne	seek1
-	
-	# set up DMA (track 1)
-
-	mov	$0x06,%al
-	out	%al,$0x0A
-	mov	$0xFF,%al
-	out	%al,$0x0C
-	mov	$0x00,%al
-	out	%al,$0x04
-	mov	$0x00,%al
-	out	%al,$0x04
-	mov	$0x01,%al
-	out	%al,$0x81
-
-	mov	$0xFF,%al
-	out	%al,$0x0C
-#	mov	$0xFF,%al
-	out	%al,$0x05
-	mov	$0x47,%al
-	out	%al,$0x05
-
-	mov	$0x46,%al
-	out	%al,$0x0B
-	mov	$0x0A,%al
-	out	%al,$0x0F
-
-	# floppy read (track 1)
-
-	mov	$0x0005,%cx
-	call	timer
-
-	mov	$0xC6,%ah
-	call	writeFIFO
-	mov	$0x00,%ah
-	call	writeFIFO
-	mov	$0x01,%ah
-	call	writeFIFO
-	mov	$0x00,%ah
-	call	writeFIFO
-	mov	$0x01,%ah
-	call	writeFIFO
-	mov	$0x02,%ah
-
-	# space is up, jump over bootsector signature
-
-	jmp	0x7E00
-	.word	0xAA55
-
-	. = 0x7E00;
-	call	writeFIFO
-	mov	$0x12,%ah
-	call	writeFIFO
-	mov	$0x1B,%ah
-	call	writeFIFO
-	mov	$0xFF,%ah
-	call	writeFIFO
-
-	call	waitfloppy
-
-	mov	$0x0007,%cx
-rf1:	call	readFIFO
-	loop	rf1
-
-	# relocate the loaded part of the kernel from 0x10000 to 0x0C400
-	push	%es
-	push	%ds
-	mov	$0x1000,%ax
-	mov	%ax,%ds
-	mov	$0x0c40,%ax
-	mov	%ax,%es
-	xor	%si,%si
-	xor	%di,%di
+	mov	$0x0C00,%bx
 	mov	$0x4800,%cx
-	rep	movsb
-	pop	%ds
-	pop	%es
+	call	dma
+	mov	$0x02,%cl
+	call	read
 
 	# vidaD
 	mov	$0x0E44,%ax
@@ -337,6 +326,29 @@ rf1:	call	readFIFO
 	out	%al,%dx
 	mov	$0x000D,%cx
 	call	timer
+
+	# exit FDC
+	mov	$0x00,%al
+	out	%al,%dx
+
+	# exit DMA
+	mov	$0x0F,%al
+	out	%al,$0x0F
+	out	%al,$0xCF
+	mov	$0x04,%al
+	out	%al,$0x08
+	out	%al,$0xC8
+
+	# exit PIC
+	mov	$0xFF,%al
+	out	%al,$0x21
+
+	# all interrupts off (including NMI)
+	in	$0x70,%al
+	or	$0x80,%al
+	out	%al,$0x70
+
+	cli
 
 	# get BIOS info (store at 0x6006, move later to 0x8006)
 
@@ -367,22 +379,6 @@ rf1:	call	readFIFO
 useax:
 	mov	%ax,0x600A
 	mov	%bx,0x600C
-
-	# exit FDC
-	mov	$0x00,%al
-	out	%al,%dx
-
-	# exit DMA
-	mov	$0x0F,%al
-	out	%al,$0x0F
-	out	%al,$0xCF
-	mov	$0x04,%al
-	out	%al,$0x08
-	out	%al,$0xC8
-
-	# exit PIC
-	mov	$0xFF,%al
-	out	%al,$0x21
 
 	# CPUID
 
@@ -430,16 +426,7 @@ useax:
 	xor	%ecx,%eax
 	je	end_cpuid
 	movb	$0x05,0x6007
-
-end_cpuid:
-
-	# all interrupts off (including NMI)
-	in	$0x70,%al
-	or	$0x80,%al
-	out	%al,$0x70
-	cli
-
-	jmp	A20
+	jmp	end_cpuid
 
 waitA:
 	in	$0x64,%al
@@ -453,14 +440,7 @@ waitB:
 	jz	waitB
 	ret
 
-error:
-	mov	$0x0E21,%ax
-	mov	$0x0007,%bx
-	int	$0x10
-	cli
-	hlt
-
-A20:	# turn A20 line on to get access to more than 1 MiB
+end_cpuid:
 
 	call	waitA
 	mov	$0xAD,%al
