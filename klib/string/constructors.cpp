@@ -4,6 +4,7 @@
 //
 //==-----------------------------------------------------------------------==>
 #include "string.h"
+#include <cstring>
 
 namespace klib {
 
@@ -34,6 +35,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
     nullval_( '\0' ) {
 	if( num ) {
 		// The user wants a specific number of characters copied.
+		strSize_ = num; // This'll be the size of the final string.
 
 		// If res is set, we should allocate as little space as we can.
 		// Used to simplify the if structure.
@@ -55,6 +57,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
 			// char.
 			if( res <= num )
 				res = num + 1;
+			++strSize_; // Need to add one character for \0
 		}
 		// Okay, we now know that res is large enough. Should we add
 		// some for later?
@@ -65,7 +68,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
 			// res = (res / roundto) * roundto + roundto;
 			// Please note that this is much faster, but that it
 			// needs roundto to be a power of 2 to work.
-			res = ( res & (roundto_ - 1) ) + roundto_;
+			res = ( res & ~(roundto_ - 1) ) + roundto_;
 		}
 		// Okay, done with preparation, create everything.
 		// At the moment:
@@ -76,8 +79,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
 		// specified (it avoids one copy).
 		strPtr_ = new char[res];
 		allocSize_ = res;
-		strSize_ = res;
-		strncpy( strPtr_, cstrPtr, num );
+		memcpy( strPtr_, cstrPtr, num );
 		if( !nullterm )
 			// The string is not null-terminated, let's fix that.
 			strPtr_[num] = '\0';
@@ -94,7 +96,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
 		// res = (strSize / roundto) * roundto + roundto;
 		// Please note that this is much faster, but that it needs
 		// roundto to be a power of 2 to work.
-		res = ( strSize_ & (roundto_ - 1) ) + roundto_;
+		res = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
 	}
 	// Okay, done with preparation, create everything.
 	// At the moment:
@@ -102,7 +104,7 @@ string::string( char const* cstrPtr, size_t num, size_t res ) :
 	// - strSize_ is the length of the string
 	strPtr_ = new char[res];
 	allocSize_ = res;
-	strcpy( strPtr_, cstrPtr );
+	memcpy( strPtr_, cstrPtr, strSize_ );
 }
 
 } // namespace klib

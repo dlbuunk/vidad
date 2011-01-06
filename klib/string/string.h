@@ -1,13 +1,13 @@
-//==---==  klib/string/string.h  ==--------------------==  *- C++ -*  ==---==>
+//==---==  klib/string/string.h  ==----------------------==  *- C++ -*  ==---==>
 //
 // This header contains the string class definition and the inline
 // functions that it provides. 
 //
-//==-----------------------------------------------------------------------==>
+//==-------------------------------------------------------------------------==>
 #ifndef STRING_H
 #define STRING_H
 
-typedef unsigned int size_t;
+#include <cstddef>
 
 namespace klib {
 
@@ -94,6 +94,9 @@ class string {
 	bool operator!=( char const* cstrPtr ) const; //--
 
 		// Non-const functions:
+	// Returns a pointer to the beginning of the string. This pointer will
+	// stay valid at least until a non-const member function is called.
+	const char* c_str(); //--
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
 	void reserve( size_t size = 0 ); //--
@@ -118,9 +121,6 @@ class string {
 	void appendOctal( unsigned int o ); //---
 	
 		// Const functions:
-	// Returns a pointer to the beginning of the string. This pointer will
-	// stay valid at least until a non-const member function is called.
-	const char* c_str(); //--
 	// Returns true if the string is empty, false otherwise.
 	bool empty() const; //
 	// Returns the size of the string, with the \0 on the end.
@@ -136,14 +136,6 @@ class string {
 	// going on until the next \0.
 	string substr( size_t pos, size_t len = 0 ) const; //---
 
-		// Static functions (until we get a proper C library
-		// implementation, they'll be here, they do exactly the same
-		// thing the C ones do).
-	static size_t strlen( char const* cstr ); //
-	static char* strcpy( char* dest, char const* src ); //--
-	static char* strncpy( char* dest, char const* src, size_t num ); //--
-	static int strcmp( char const* cstrA, char const* cstrB ); //
-
     private:
 	// Size of the currently stored string.
 	size_t strSize_;
@@ -158,9 +150,10 @@ class string {
 	static const size_t roundto_ = 32;
 };
 
-#include "inline.h"
+} // namespace klib
 
-}
+#include "../string/inline.h"
+
 
 #endif // STRING_H
 

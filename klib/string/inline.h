@@ -4,15 +4,18 @@
 //
 //==-----------------------------------------------------------------------==>
 
+#include <cstring>
+
+namespace klib {
+
 inline const char& string::operator[]( size_t pos ) const {
-	(void)pos;
-	return nullval_;
+	if( !allocSize_ )
+		return nullval_ = '\0';
+	if( pos >= strSize_ )
+		return nullval_ = '\0';
+	return strPtr_[pos];
 }
 
-inline char& string::operator[]( size_t pos ) {
-	(void)pos;
-	return nullval_;
-}
 
 inline bool string::operator==( string const& str ) const {
 	(void)str;
@@ -20,13 +23,13 @@ inline bool string::operator==( string const& str ) const {
 }
 
 inline bool string::operator==( char const* cstr ) const {
-	if( klib::string::strlen( cstr ) != (strSize_ - 1) )
+	if( strlen( cstr ) != (strSize_ - 1) )
 		return false;
 	// | If nothing is allocated, and the lengths are equal, both must be
 	// v empty.
 	if( !allocSize_ ) 
 		return true;
-	return !(klib::string::strcmp( strPtr_, cstr ));
+	return !( strcmp( strPtr_, cstr ));
 }
 
 inline bool string::operator!=( string const& str ) const {
@@ -38,4 +41,6 @@ inline bool string::operator!=( char const* str ) const {
 	(void)str;
 	return false;
 }
+
+} // namespace klib
 

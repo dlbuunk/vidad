@@ -8,16 +8,6 @@
 
 namespace klib {
 
-const char* string::c_str() {
-	if( !strPtr_ ) { // If we don't have a string, let's make one.
-		strPtr_ = new char[roundto_];
-		strPtr_[0] = '\0';
-		allocSize_ = roundto_;
-		// strSize_ should already by 1.
-	}
-	return strPtr_;
-}
-
 bool string::empty() const {
 	// If the string isn't faked, check whether it's full of \0s.
 	if ( allocSize_ ) { 
