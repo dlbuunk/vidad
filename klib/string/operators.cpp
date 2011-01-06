@@ -59,4 +59,14 @@ string string::operator+( const unsigned int num ) const {
 	return string();
 }
 
+char& string::operator[]( size_t pos ) {
+	if( pos >= strSize_ )
+		return nullval_;
+	if( !allocSize_ ) {
+		strPtr_ = new char[roundto_];
+		allocSize_ = roundto_;
+	}
+	return strPtr_[pos];
+}
+
 } // namespace klib
