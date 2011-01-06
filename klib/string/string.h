@@ -21,7 +21,9 @@ namespace klib {
 //       ensure that it works as expected. It may be used in tests, but may not
 //       yet be written.
 // -   : function has tests for it, but does not pass all the tests, or the
-//       writer/maintainer feels like it is not yet ready.
+//       writer/maintainer feels like it is not yet ready. NOTE: If the tests
+//       fail due to the absence/bugginess of a different function, this may be
+//       omitted.
 // +   : function is ready to be used in other code.
 // ++  : function is fairly complete, and unlikely to change in the coming time.
 // ??? : function is dubious, maintainer should look at it.
@@ -30,7 +32,7 @@ class string {
 		// Constructors::
 	// Constructs an empty string, with res bytes reserved. If res is zero,
 	// the string is not yet allocated.
-	string( size_t res = 0 ); //-
+	string( size_t res = 0 ); //
 	// Simple explanation: Will copy the string. If res is non-zero, it will
 	// try to limit itself to res bytes, but will allocate more (although
 	// still as few as possible) if necessary.
@@ -61,7 +63,7 @@ class string {
 	string( char const* cstrPtr, size_t num = 0, size_t res = 0 ); //-
     	
 		// Destructor:
-	~string(); //-
+	~string(); //--
 
 		// Operators:
 	// Set the string contents from another string or C string.
@@ -86,7 +88,7 @@ class string {
 	// (in)equality. The entire string is compared, even if it contains
 	// \0 bytes, so a string containing "A\0B\0" will not be equal to
 	// the C string "A\0".
-	bool operator==( string const& str ) const; //--
+	bool operator==( string const& str ) const; //
 	bool operator==( char const* cstrPtr ) const; //--
 	bool operator!=( string const& str ) const; //--
 	bool operator!=( char const* cstrPtr ) const; //--
@@ -120,14 +122,14 @@ class string {
 	// stay valid at least until a non-const member function is called.
 	const char* c_str(); //--
 	// Returns true if the string is empty, false otherwise.
-	bool empty() const; //-
+	bool empty() const; //
 	// Returns the size of the string, with the \0 on the end.
-	size_t size() const; //-
+	size_t size() const; //
 	// Returns the length of the string, without the \0 on the end.
-	size_t length() const; //-
+	size_t length() const; //
 	// Returns the size of the allocated storage. Please do not depend on
 	// this being a certain size unless you call reserve() for it.
-	size_t capacity() const; //-
+	size_t capacity() const; //
 	// If len is non-zero, returns a string of length len, starting from
 	// position pos.
 	// If len is zero, returns a string starting from position pos, and
@@ -137,10 +139,10 @@ class string {
 		// Static functions (until we get a proper C library
 		// implementation, they'll be here, they do exactly the same
 		// thing the C ones do).
-	static size_t strlen( char const* cstr ); //--
+	static size_t strlen( char const* cstr ); //
 	static char* strcpy( char* dest, char const* src ); //--
 	static char* strncpy( char* dest, char const* src, size_t num ); //--
-	static int strcmp( char const* cstrA, char const* cstrB ); //-
+	static int strcmp( char const* cstrA, char const* cstrB ); //
 
     private:
 	// Size of the currently stored string.
@@ -152,6 +154,7 @@ class string {
 	// This is a character that is returned when an out-of-bounds access
 	// is performed. May be removed later on.
 	mutable char nullval_;
+	// The size to round to. This NEEDS to be a power of two!
 	static const size_t roundto_ = 32;
 };
 

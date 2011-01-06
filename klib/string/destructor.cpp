@@ -8,6 +8,7 @@
 namespace klib {
 
 string::~string() {
+	delete[] strPtr_;
 }
 
 } // namespace klib
