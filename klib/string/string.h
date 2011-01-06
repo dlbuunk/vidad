@@ -30,7 +30,7 @@ class string {
 		// Constructors::
 	// Constructs an empty string, with res bytes reserved. If res is zero,
 	// the string is not yet allocated.
-	string( size_t res = 0 ); //--
+	string( size_t res = 0 ); //-
 	// Simple explanation: Will copy the string. If res is non-zero, it will
 	// try to limit itself to res bytes, but will allocate more (although
 	// still as few as possible) if necessary.
@@ -39,7 +39,7 @@ class string {
 	// number of bytes equal to the size of the string are allocated,
 	// whichever is greater. If res is zero, the constructor may decide how
 	// many bytes it wishes to allocate itself.
-	string( string const& str, size_t res = 0 ); //--
+	string( string const& str, size_t res = 0 ); //-
 	// Simple explanation: copies the C string pointed to by cstrPtr. If
 	// num is non-zero, copies that many characters then null-terminates if
 	// necessary. If res is non-zero, the constructor tries to allocate
@@ -58,15 +58,15 @@ class string {
 	// will be allocated, whichever is greater. If res is non-zero and the
 	// last byte is a \0, either res or num bytes will be allocated.
 	// NOTE: If you want to unallocate the string, use drop() instead.
-	string( char const* cstrPtr, size_t num = 0, size_t res = 0 ); //--
+	string( char const* cstrPtr, size_t num = 0, size_t res = 0 ); //-
     	
 		// Destructor:
-	~string(); //--
+	~string(); //-
 
 		// Operators:
 	// Set the string contents from another string or C string.
-	string& operator=( string const& str ); //--
-	string& operator=( char const* cstrPtr ); //--
+	string& operator=( string const& str ); //-
+	string& operator=( char const* cstrPtr ); //-
 	// Append another string, a C string, a single character or an integer
 	// (hexadecimal).
 	string& operator+=( string const& str ); //--
@@ -118,7 +118,7 @@ class string {
 		// Const functions:
 	// Returns a pointer to the beginning of the string. This pointer will
 	// stay valid at least until a non-const member function is called.
-	const char* c_str() const; //--
+	const char* c_str(); //--
 	// Returns true if the string is empty, false otherwise.
 	bool empty() const; //-
 	// Returns the size of the string, with the \0 on the end.
@@ -137,10 +137,10 @@ class string {
 		// Static functions (until we get a proper C library
 		// implementation, they'll be here, they do exactly the same
 		// thing the C ones do).
-	static size_t strlen( char const* str ); //---
-	static char* strcpy( char* dest, char const* src ); //---
-	static char* strncpy( char* dest, char const* src, size_t num ); //---
-	static char* strcmp( char* dest, char const* src ); //---
+	static size_t strlen( char const* cstr ); //--
+	static char* strcpy( char* dest, char const* src ); //--
+	static char* strncpy( char* dest, char const* src, size_t num ); //--
+	static int strcmp( char const* cstrA, char const* cstrB ); //-
 
     private:
 	// Size of the currently stored string.
@@ -152,6 +152,7 @@ class string {
 	// This is a character that is returned when an out-of-bounds access
 	// is performed. May be removed later on.
 	mutable char nullval_;
+	static const size_t roundto_ = 32;
 };
 
 #include "inline.h"
