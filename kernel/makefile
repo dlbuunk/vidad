@@ -39,7 +39,7 @@ kmain.o: kmain.c
 	as -o kmain.o kmain.s
 
 ccentry.o: ccentry.cc
-	gcc $(CCF) -S -o ccentry.s ccentry.cc
+	gcc $(CCF) -S -o ccentry.s ccentry.cc -I/root/vidad/include
 	as -o ccentry.o ccentry.s
 
 printf.o: printf.cc

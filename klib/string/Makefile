@@ -1,6 +1,6 @@
 DEBUG_FLAGS = -Wall -Wextra -O0 -pedantic
 CFLAGS      = $(DEBUG_FLAGS) -nostdlib -nostartfiles -nodefaultlibs -nostdinc
-CXXFLAGS    = $(CFLAGS) -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -std=gnu++0x -I../include
+CXXFLAGS    = $(CFLAGS) -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -std=gnu++0x -I/root/vidad/include
 CC          = gcc
 CXX         = g++
 

@@ -149,7 +149,7 @@ class string {
 
 } // namespace klib
 
-#include "../string/inline.h"
+#include "../klib/string/inline.h"
 
 
 #endif // STRING_H

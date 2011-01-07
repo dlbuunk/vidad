@@ -1,5 +1,5 @@
 #include "io/io.h"
-#include "../klib/include/string"
+#include <string>
 using namespace klib;
 
 // kernel terminal
