@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include <kernel.h>
 
 word kprint_pos = 0;
 
@@ -18,8 +18,8 @@ void kprint(char ch, byte color)
 	outportb(0x03D5, (byte) kprint_pos);
 	outportb(0x03D4, 0x0E);
 	outportb(0x03D5, (byte) (kprint_pos>>8));
-};
+}
 
 void kprints(char *str, byte color)
 {	do kprint(*str, color); while (*++str);
-};
+}

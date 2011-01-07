@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 namespace IO
 {	VGA::VGA()
@@ -38,14 +39,14 @@ namespace IO
 		inportb(ac_reset);
 		outportb(ac_index, 0x20);
 		r += 2; //skip ahead to 0x40
-	};
+	}
 
 	VGA::~VGA()
 	{	// restore VGA state
 		// always restore the second set of regs first, as set_reg2() messes with the MISC register
 		set_reg2(vga_state + 32);
 		set_regs(vga_state);
-	};
+	}
 
 	void VGA::set_reg2(byte *regs)
 	{	byte i;
@@ -63,7 +64,7 @@ namespace IO
 		}
 		inportb(ac_index);
 		outportb(ac_index, 0x20);
-	};
+	}
 
 	void VGA::set_regs(byte *regs)
 	{	byte i;
@@ -96,7 +97,7 @@ namespace IO
 		// end sync reset
 		outportb(seq_index, 0x00);
 		outportb(seq_data, 0x03);
-	};
+	}
 
 	dword VGA::set_mode(dword mode)
 	{	switch (mode)
@@ -113,5 +114,5 @@ namespace IO
 		}
 		current_mode = mode;
 		return(mode);
-	};
-};
+	}
+}

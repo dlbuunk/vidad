@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 // Keyboard control center, can be put in 3 modes:
 // mode 1: relay everything untouched except Alt-SysReq and Control-Alt-Delete
@@ -11,11 +12,11 @@ namespace IO
 {	Keyboard::Keyboard()
 	{	buffer = 0;
 		shift_state = 0;
-	};
+	}
 
 	Keyboard::~Keyboard()
 	{
-	};
+	}
 
 	void Keyboard::feed_code(word code)
 	{	if (code == 0xD200) // control-alt-delete pressed, reset the CPU by triple-faulting
@@ -46,10 +47,10 @@ namespace IO
 			} break;
 		}
 		if (buffer) buffer->write(code);
-	};
+	}
 
 	void Keyboard::set_user(WordBuffer *buffer, int new_mode)
 	{	this->buffer = buffer;
 		mode = new_mode;
-	};
-};
+	}
+}

@@ -42,4 +42,4 @@ namespace IO
 		private : int mode;
 		private : int shift_state;
 	};
-};
+}

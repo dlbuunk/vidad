@@ -1,4 +1,5 @@
-#include "io/io.h"
+#include <kernel.h>
+#include <io/io.h>
 #include <string>
 using namespace klib;
 
@@ -8,21 +9,21 @@ IO::Terminal *kterm;
 // overload new and delete
 void *operator new(dword size)
 {	return calloc(1, size);
-};
+}
 void *operator new[](dword size)
 {	return calloc(1, size);
-};
+}
 void operator delete(void *p)
 {	return free(p);
-};
+}
 void operator delete[](void *p)
 {	return free(p);
-};
+}
 
 // back up function for pure virtual functions
 extern "C" void __cxa_pure_virtual()
 {	kerror("Fatal error: cannot make pure virtual function call\n", 0x2F);
-};
+}
 
 // kernel entry function
 extern "C" void ccentry(struct kheader *kh, dword dma_buff)
@@ -38,7 +39,7 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 	for (;;) { kterm->puts(kterm->gets(str)); kterm->puts("\n"); }
 	for (;;) asm("hlt"); // cool down cpu
 	delete init;
-};
+}
 
 // function to print out fatal error messages
 extern "C" void kerror(char *str, byte color)
@@ -58,4 +59,4 @@ extern "C" void kerror(char *str, byte color)
 	}
 	asm("cli");
 	asm("hlt");
-};
+}

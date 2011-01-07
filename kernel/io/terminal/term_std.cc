@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 extern IO::Terminal *kterm;
 
@@ -12,9 +13,9 @@ namespace IO
 		out = stdout;
 		in = stdin;
 		current_color = 0x07;
-	};
+	}
 
-	Term_Std::~Term_Std() {};
+	Term_Std::~Term_Std() {}
 
 	void Term_Std::puts_err(char *str)
 	{	if (err == 0) return;
@@ -35,7 +36,7 @@ namespace IO
 			}
 		}
 		err->vid->redraw(err->buffer, err->cursor_pos);
-	};
+	}
 
 	void Term_Std::puts(char *str)
 	{	if (out == 0) return;
@@ -56,13 +57,13 @@ namespace IO
 			}
 		}
 		out->vid->redraw(out->buffer, out->cursor_pos);
-	};
+	}
 
 	char *Term_Std::gets(char *str)
 	{	int ch;
 		char *start_str;
 		start_str = str;
-		while (ch = in->read())
+		while ((ch = in->read()))
 		{	if (ch == -1) continue;
 			*str = (char) ch;
 			switch (*str)
@@ -90,14 +91,15 @@ namespace IO
 				out->cursor_pos -= out->num_col;
 			}
 		}
-	};
+		return(start_str);
+	}
 
 	void Term_Std::set_active()
 	{	out->vid->current_buffer = out->buffer;
 		out->vid->redraw(out->buffer, out->cursor_pos);
-	};
+	}
 
 	void Term_Std::set_color(byte color)
 	{	current_color = color;
-	};
-};
+	}
+}

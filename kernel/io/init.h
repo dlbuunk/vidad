@@ -22,4 +22,4 @@ namespace IO
 		Term_Buf *term_buf;
 		Term_Std *term_std;
 	};
-};
+}

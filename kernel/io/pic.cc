@@ -1,4 +1,5 @@
-#include "io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 namespace IO
 {	PIC::PIC()
@@ -19,12 +20,12 @@ namespace IO
 		outportb(0x00A1, 0x00);
 		asm("sti");
 		printf("Programmable Interrupt Controller: INIT and unmask all irq's.\n");
-	};
+	}
 
 	PIC::~PIC()
 	{	// mask everything
 		outportb(0x0021, 0xFF);
 		outportb(0x00A1, 0xFF);
 		printf("Programmable Interrupt Controller: turned off.\n");
-	};
-};
+	}
+}

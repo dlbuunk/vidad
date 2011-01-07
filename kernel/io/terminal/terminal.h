@@ -37,4 +37,4 @@ namespace IO
 		private : WordBuffer *in;
 		private : byte current_color;
 	};
-};
+}

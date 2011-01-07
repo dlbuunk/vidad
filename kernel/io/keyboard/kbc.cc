@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 // port 0x64 is command/status
 // port 0x60 is data
@@ -52,7 +53,7 @@ namespace IO
 		}
 
 		set_leds(0);
-	};
+	}
 
 	KBC::~KBC()
 	{	// remove irq handle
@@ -61,15 +62,15 @@ namespace IO
 		wait_write();
 		outportb(0x64, 0xAD);
 		printf("Keyboard, KBC: keyboard disabled.\n");
-	};
+	}
 
 	void KBC::wait_read()
 	{	while (! (inportb(0x64) & 0x01));
-	};
+	}
 
 	void KBC::wait_write()
 	{	while (inportb(0x64) & 0x02);
-	};
+	}
 
 	void KBC::handle_irq(dword ptr)
 	{	KBC *th;
@@ -77,18 +78,18 @@ namespace IO
 		th->wait_read();
 		if (th->tl) th->tl->feed_scancode(inportb(0x60));
 		else inportb(0x60);
-	};
+	}
 
 	void KBC::set_leds(byte status)
 	{	wait_write();
 		outportb(0x60, 0xED);
 		wait_write();
 		outportb(0x60, status);
-	};
+	}
 
 	void KBC::set_translator(Key_Translate *new_tl)
 	{	tl = new_tl;
-	};
+	}
 
 	void KBC::set_keyset(int set)
 	{	if (set == 0)
@@ -125,5 +126,5 @@ namespace IO
 		outportb(0x60, outputport);
 		asm("cli");
 		asm("hlt");
-	};
-};
+	}
+}

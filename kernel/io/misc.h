@@ -11,7 +11,7 @@ namespace IO
 		public : void set_chan2(float freq);
 		private : static void callback(dword ptr);
 		private : int int_num;
-		private : static const dword num_entries = 16;
+		private : static const int num_entries = 16;
 		private : dword cb[num_entries][3];
 	};
-};
+}

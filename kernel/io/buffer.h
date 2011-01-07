@@ -62,4 +62,4 @@ namespace IO
 		private : dword wc; // write count
 		private : dword rc; // read count
 	};
-};
+}

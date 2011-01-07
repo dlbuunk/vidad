@@ -1,4 +1,5 @@
-#include "io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 namespace IO
 {	Init::Init() // IO init function, should start all devices
@@ -34,7 +35,7 @@ namespace IO
 		kterm->set_color(0x0E);
 		kterm->puts("Kernel terminal active.\n"); // and test it
 		kterm->set_color(0x07);
-	};
+	}
 	
 	Init::~Init() // IO exit function, should run everything in Init::Init() in REVERSE ORDER!
 	{	// close kernel terminal
@@ -49,5 +50,5 @@ namespace IO
 		// close misc devices
 		delete timer;
 		delete pic;
-	};
-};
+	}
+}

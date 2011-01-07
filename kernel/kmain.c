@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include <kernel.h>
 
 void kmain(struct kheader *kh, dword stack_base)
 {	word memsize;
@@ -24,4 +24,4 @@ void kmain(struct kheader *kh, dword stack_base)
 
 	/* call the c++ entry function */
 	ccentry(kh, (memsize-1)<<15);
-};
+}

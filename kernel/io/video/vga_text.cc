@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 namespace IO
 {	VGA_Text::VGA_Text(dword mode)
@@ -15,17 +16,17 @@ namespace IO
 			case 8 :
 			case 9 : set_font(system_font16, 16); break;
 		}
-	};
+	}
 
 	VGA_Text::~VGA_Text()
 	{
-	};
+	}
 
 	void VGA_Text::redraw(word *buffer, word cursor_pos)
 	{	if (current_buffer != buffer) return;
 		memcpyw(0xB8000, 2000, (dword) buffer);
 		set_cursor(cursor_pos);
-	};
+	}
 
 	byte VGA_Text::get_num_col()
 	{	switch (current_mode)
@@ -41,7 +42,8 @@ namespace IO
 			case 11: return(90);
 		}
 		return(0);
-	};
+	}
+
 	byte VGA_Text::get_num_row()
 	{	switch (current_mode)
 		{	case 2 :
@@ -56,14 +58,14 @@ namespace IO
 			case 11: return(60);
 		}
 		return(0);
-	};
+	}
 
 	void VGA_Text::set_cursor(word cursor_pos)
 	{	outportb(crtc_index, 0x0E);
 		outportb(crtc_data, cursor_pos>>8);
 		outportb(crtc_index, 0x0F);
 		outportb(crtc_data, cursor_pos);
-	};
+	}
 
 	void VGA_Text::set_font(const byte *font, byte height)
 	{	byte seq2, seq4, gc4, gc5, gc6;
@@ -104,5 +106,5 @@ namespace IO
 		outportb(seq_data, seq4);
 		outportb(seq_index, 0x02);
 		outportb(seq_data, seq2);
-	};
-};
+	}
+}

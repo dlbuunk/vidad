@@ -106,7 +106,7 @@ extern void kerror(char *str, byte color);
 */
 
 #ifdef __cplusplus
-};
+}
 #undef NUM_ENTRIES
 
 /* functions in printf.cc */

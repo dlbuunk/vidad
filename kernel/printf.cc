@@ -1,4 +1,5 @@
-#include "io/io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 // basic (s)printf functions
 // currently it only supports chars, strings, hex and unsigned decimal
@@ -95,14 +96,14 @@ void print(char *str, char **form)
 		}
 	}
 	*str = '\0';
-};
+}
 
 void sprintf(char *str, char *format, ...)
 {	print(str, &format);
-};
+}
 
 void printf(char *format, ...)
 {	print(print_buffer, &format);
 	if (kterm) kterm->puts(print_buffer);
 	else kprints(print_buffer, 0x07);
-};
+}

@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include <kernel.h>
 
 /* bug in this implementation:
 * malloc() breaks when trying to allocate in the upper 2GB of memory
@@ -21,11 +21,11 @@ void alloc_init(dword heap_base, dword top_of_mem)
 	alloc_top = top_of_mem;
 	*((dword *) alloc_base) = 0;
 	*((dword *) (alloc_base + 4)) = 0;
-};
+}
 
 void alloc_error()
 {	kerror("Fatal error: out of memory", 0x2F);
-};
+}
 
 void *malloc(dword size)
 {	dword ptr;
@@ -72,7 +72,7 @@ void *malloc(dword size)
 		/* No, set ptr to next block and try again */
 		ptr = FORW;
 	}
-};
+}
 
 void free(void *block)
 {	dword ptr;
@@ -101,7 +101,7 @@ void free(void *block)
 	{	NEXT_BACK = BACK;
 		PREV_FORW = FORW;
 	}
-};
+}
 
 void *calloc(dword n, dword size)
 {	void *ptr;
@@ -109,4 +109,4 @@ void *calloc(dword n, dword size)
 	ptr = malloc(size);
 	memstob((dword) ptr, size, 0);
 	return(ptr);
-};
+}

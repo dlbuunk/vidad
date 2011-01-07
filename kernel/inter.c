@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include <kernel.h>
 
 /* TODO:
 * write specific info about the exceptions, but only after bootloader rewrite, much strings.
@@ -15,7 +15,7 @@ void inter_init()
 		{	inter_callback[i][j][0] = inter_callback[i][j][1] = 0;
 		}
 	}
-};
+}
 
 /* called by handle_int */
 void inter_main(byte int_num)
@@ -53,7 +53,7 @@ void inter_main(byte int_num)
 	}
 	/* routine for unhandled INTS, 0x30-0x3F */
 	kerror("Unhandled interrupt", 0x2F);
-};
+}
 
 /* register a callback function */
 int inter_reg(dword addr, dword obj, dword irq)
@@ -63,9 +63,9 @@ int inter_reg(dword addr, dword obj, dword irq)
 	inter_callback[irq][i][0] = addr;
 	inter_callback[irq][i][1] = obj;
 	return(i);
-};
+}
 
 /* de-register a callback function */
 void inter_dereg(dword irq, int num)
 {	inter_callback[irq][num][0] = 0;
-};
+}

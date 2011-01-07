@@ -1,12 +1,10 @@
-#include "../kernel.h"
+#include <io/buffer.h>
+#include <io/misc.h>
+#include <io/video.h>
+#include <io/keyboard.h>
+#include <io/terminal.h>
 
-#include "buffer.h"
-#include "misc.h"
-#include "video/video.h"
-#include "keyboard/keyboard.h"
-#include "terminal/terminal.h"
-
-#include "init.h"
+#include <io/init.h>
 
 extern IO::Terminal *kterm;
 

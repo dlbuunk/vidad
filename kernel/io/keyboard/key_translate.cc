@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 // BUGS:
 // printscreen is turned into an 8
@@ -10,11 +11,11 @@ namespace IO
 		kbc->set_translator(this);
 		status = 0;
 		this->out = out;
-	};
+	}
 
 	Key_Translate_Set1::~Key_Translate_Set1()
 	{
-	};
+	}
 
 	void Key_Translate_Set1::feed_scancode(byte incode)
 	{	word outcode = 0;
@@ -126,5 +127,5 @@ namespace IO
 		if (! outcode) return;
 		if ((status & 0x04) && outcode > 0x60 && outcode < 0x7B) outcode -= 0x20; // handle CAPS lock
 		out->feed_code(outcode | ((status&0xE0)<<8));
-	};
-};
+	}
+}

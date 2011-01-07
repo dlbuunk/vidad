@@ -43,4 +43,4 @@ namespace IO
 		private : void set_cursor(word cursor_pos);
 		private : void set_font(const byte *font, byte height);
 	};
-};
+}

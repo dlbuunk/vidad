@@ -1,4 +1,5 @@
-#include "../io.h"
+#include <kernel.h>
+#include <io/io.h>
 
 namespace IO
 {	Term_Buf::Term_Buf(Video_Text *video, byte col, byte row)
@@ -8,9 +9,9 @@ namespace IO
 		cursor_pos = 0;
 		num_col = col;
 		num_row = row;
-	};
+	}
 
 	Term_Buf::~Term_Buf()
 	{	delete buffer;
-	};
-};
+	}
+}
