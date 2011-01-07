@@ -28,7 +28,7 @@ namespace IO
 		public : ~Key_Translate_Set1();
 		public : void feed_scancode(byte code);
 		private : Keyboard *out;
-		private : word status; // CTRL ALT BREAK 0 0 CAPS NUM SCROLL
+		private : word status; // CTRL ALT BREAK 0 ESCAPE CAPS NUM SCROLL
 		private : KBC *kbc;
 	};
 

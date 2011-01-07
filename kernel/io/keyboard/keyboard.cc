@@ -18,11 +18,11 @@ namespace IO
 	};
 
 	void Keyboard::feed_code(word code)
-	{	if (code == 0xD22E) // control-alt-delete pressed, reset the CPU by triple-faulting
+	{	if (code == 0xD200) // control-alt-delete pressed, reset the CPU by triple-faulting
 		{	asm("xorl %%eax,%%eax\n\tmovw %%ax,0x6008\n\tlidt 0x6008\n\tint $0xFF\n\t" : : : "%eax");
 		}
 		if ((code & ~0xC000) == 0x1100) // SysReq pressed, now, kill the kernel, later, handle it
-		{	kerror("SYSREQ pressed, \"and you thought that it would rescue your system, think again.\"", WHITE_BLUE);
+		{	kerror("\nSYSREQ pressed, \"and you thought that it would rescue your system, think again.\"", WHITE_BLUE);
 			return;
 		}
 		switch (mode)
