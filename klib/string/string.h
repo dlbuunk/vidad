@@ -32,7 +32,7 @@ class string {
 		// Constructors::
 	// Constructs an empty string, with res bytes reserved. If res is zero,
 	// the string is not yet allocated.
-	string( size_t res = 0 ); //
+	string( size_t res = 0 ); //+
 	// Simple explanation: Will copy the string. If res is non-zero, it will
 	// try to limit itself to res bytes, but will allocate more (although
 	// still as few as possible) if necessary.
@@ -41,7 +41,7 @@ class string {
 	// number of bytes equal to the size of the string are allocated,
 	// whichever is greater. If res is zero, the constructor may decide how
 	// many bytes it wishes to allocate itself.
-	string( string const& str, size_t res = 0 ); //-
+	string( string const& str, size_t res = 0 ); //+
 	// Simple explanation: copies the C string pointed to by cstrPtr. If
 	// num is non-zero, copies that many characters then null-terminates if
 	// necessary. If res is non-zero, the constructor tries to allocate
@@ -63,7 +63,7 @@ class string {
 	string( char const* cstrPtr, size_t num = 0, size_t res = 0 ); //-
     	
 		// Destructor:
-	~string(); //--
+	~string(); //+
 
 		// Operators:
 	// Set the string contents from another string or C string.
@@ -82,13 +82,13 @@ class string {
 	string operator+( const char c ) const; //--
 	string operator+( const unsigned int num ) const; //--
 	// Returns a (const) reference to a char.
-	const char& operator[]( size_t pos ) const; //-
+	const char& operator[]( size_t pos ) const; //+
 	char& operator[]( size_t pos ); //-
 	// Compares the string with another string or a C string for
 	// (in)equality. The entire string is compared, even if it contains
 	// \0 bytes, so a string containing "A\0B\0" will not be equal to
 	// the C string "A\0".
-	bool operator==( string const& str ) const; //
+	bool operator==( string const& str ) const; //+
 	bool operator==( char const* cstrPtr ) const; //--
 	bool operator!=( string const& str ) const; //--
 	bool operator!=( char const* cstrPtr ) const; //--
@@ -96,6 +96,8 @@ class string {
 		// Non-const functions:
 	// Returns a pointer to the beginning of the string. This pointer will
 	// stay valid at least until a non-const member function is called.
+	// NOTE: Although this function is not tested by itself, it has been
+	// tested together with other functions, and should /usually/ work.
 	const char* c_str(); //--
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
@@ -122,14 +124,14 @@ class string {
 	
 		// Const functions:
 	// Returns true if the string is empty, false otherwise.
-	bool empty() const; //
+	bool empty() const; //+
 	// Returns the size of the string, with the \0 on the end.
-	size_t size() const; //
+	size_t size() const; //+
 	// Returns the length of the string, without the \0 on the end.
-	size_t length() const; //
+	size_t length() const; //+
 	// Returns the size of the allocated storage. Please do not depend on
 	// this being a certain size unless you call reserve() for it.
-	size_t capacity() const; //
+	size_t capacity() const; //+
 	// If len is non-zero, returns a string of length len, starting from
 	// position pos.
 	// If len is zero, returns a string starting from position pos, and

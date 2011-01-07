@@ -45,6 +45,29 @@ TEST( klibstringConstructorDefault, NoReserve ) {
 	    "Accessing fails to return a null.\n";
 }
 
+TEST( klibstringConstructorDefault, NoReserveDynamic ) {
+	// Ensure that the string is constructed and behaves like an empty
+	// string, but no memory is allocated.
+	klib::string *s = new klib::string;
+	EXPECT_EQ( s->size(), 1 ) <<
+	    "String is of an unexpected size.\n";
+	EXPECT_EQ( s->length(), 0 ) <<
+	    "String is of an unexpected length\n";
+	EXPECT_EQ( s->capacity(), 0 ) <<
+	    "String is not faked.\n";
+	EXPECT_TRUE( s->empty() ) <<
+	    "String is not empty.\n";
+	EXPECT_EQ( std::strlen( s->c_str() ), 0 ) <<
+	    "std::strlen() evaluates the string length incorrectly.\n";
+	EXPECT_TRUE( *s == "" ) <<
+	    "String does not consider itself equal to an empty string.\n";
+	EXPECT_STREQ( s->c_str(), "" ) <<
+	    "String does not seem to be equal to an empty string.\n";
+	EXPECT_EQ( (*s)[0], '\0' ) << 
+	    "Accessing fails to return a null.\n";
+	delete s;
+}
+
 TEST( klibstringConstructorDefault, WithReserve ) {
 	// Ensure the string is constructed and behaves like an empty string,
 	// and res bytes are reserved.
@@ -120,6 +143,25 @@ TEST( klibstringConstructorFromCString, AutoLengthNoReserve ) {
 	    "String does not consider itself equal with p.\n";
 	EXPECT_STREQ( s.c_str(), p ) <<
 	    "String does not compare as equal to p.\n";
+}
+
+TEST( klibstringConstructorFromCString, AutoLengthNoReserveDynamic ) {
+	char const* p = "Testing string.";
+	klib::string* s = new klib::string( p );
+	ASSERT_EQ( s->size(), std::strlen( p ) + 1 ) <<
+	    "Size mismatch.\n"; 
+	EXPECT_EQ( s->length(), std::strlen( p ) ) <<
+	    "Length mismatch.\n";
+	EXPECT_LE( s->size(), s->capacity() ) <<
+	    "Capacity is lower than size.\n";
+	EXPECT_FALSE( s->empty() ) <<
+	    "String is unexpectedly empty.\n";
+	EXPECT_TRUE( *s == p ) <<
+	    "String does not consider itself equal with p.\n";
+	EXPECT_STREQ( s->c_str(), p ) <<
+	    "String does not compare as equal to p.\n";
+	EXPECT_EQ( (*s)[3], 't' ) <<
+	    "Accessing fourth element fails.\n";
 }
 
 TEST( klibstringConstructorFromCString, AutoLengthNoReserveLong ) {
