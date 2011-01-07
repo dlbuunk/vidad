@@ -1,4 +1,5 @@
 all: force_look
+	make -C klib
 	make -C kernel
 	cp kernel/kernel.bin .
 	make -C bootload
@@ -14,6 +15,7 @@ clean:
 	rm -f *.bin image
 	make -C bootload clean
 	make -C kernel clean
+	make -C klib clean
 
 .PHONY: force_look
 force_look:

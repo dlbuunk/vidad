@@ -24,7 +24,10 @@ tests.o : tests.cpp
 test : tests.o libstring.a tests.cpp constfuncs.cpp constructors.cpp destructor.cpp mutablefuncs.cpp operators.cpp 
 	$(CPP) $(COMMON_FLAGS) -o test tests.o -lgtest -L. -lstring -L../lib -lcstring
 
+installlib : libstring.a
+	cp libstring.a ../lib/
+
 .PHONY: clean
 clean:
-	rm -f *.o libstring.a test
+	rm -f *.o libstring.a test ../lib/libstring.a
 
