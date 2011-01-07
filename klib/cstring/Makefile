@@ -1,6 +1,6 @@
 COMMON_FLAGS = -Wall -Wextra -O0 -pedantic
-CFLAGS = $(COMMON_FLAGS) -nostdlib -nostartfiles -nodefaultlibs
-CPPFLAGS = $(CFLAGS) -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -I../include
+CFLAGS = $(COMMON_FLAGS) -nostdlib -nostartfiles -nodefaultlibs -nostdinc
+CPPFLAGS = $(CFLAGS) -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector -std=gnu++0x -I../include
 CC = gcc
 CPP = g++
 

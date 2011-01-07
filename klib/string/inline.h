@@ -18,8 +18,11 @@ inline const char& string::operator[]( size_t pos ) const {
 
 
 inline bool string::operator==( string const& str ) const {
-	(void)str;
-	return false;
+	if( strSize_ != str.strSize_ )
+		return false;
+	if( !allocSize_ )
+		return true;
+	return !( strcmp( strPtr_, str.strPtr_ ) );
 }
 
 inline bool string::operator==( char const* cstr ) const {

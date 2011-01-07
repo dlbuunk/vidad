@@ -1,7 +1,7 @@
 //==---==  klib/cstring/cstring.cpp ==-------------------==  *- C++ -*  ==---==>
 //
-// This source file contains the string functions that do not modify the
-// string (mostly queries about the size and state).
+// This source file contains the functions for the C string-related functions.
+// All should behave exactly as the standard requires them to.
 //
 //==-------------------------------------------------------------------------==>
 #include <cstddef>
@@ -29,12 +29,21 @@ int strcmp( char const* cstrA, char const* cstrB ) {
 }
 
 void* memcpy( void* dest, void const* src, size_t num ) {
-	char* destp = reinterpret_cast< char* > ( dest );
-	char const* srcp = reinterpret_cast< char const* > ( src );
+	byte* destp = reinterpret_cast< byte* > ( dest );
+	byte const* srcp = reinterpret_cast< byte const* > ( src );
 	while( num-- )
+		// No need to make another copy of src, so we just ask the
+		// compiler to treat it as a char*. Other than that, this
+		// next line copies the 8-bit value
 		*(destp++) = *(srcp++); 
 	return dest;
 }
 
-} // namespace klib
+char* strcpy( char* dest, char const* src ) {
+	char* orig = dest;
+	while(( *dest++ = *src++ )); 
+	return orig;
+}
+
+}
 

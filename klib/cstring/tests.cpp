@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include "cstring.h"
 
-// |- Test: size_t strlen( char const* cstr ); --------------------------------|
+// |- Test: size_t klib::strlen( char const* cstr ); --------------------------|
 TEST( klibcstringLength, Normal ) {
 	// Ensure that if the string contains no \0, the number of chars is
 	// returned.
@@ -24,9 +24,9 @@ TEST( klibcstringLength, EarlyNull ) {
 	// not counted.
 	EXPECT_EQ( klib::strlen( "\0Test." ), 0 );
 }
-// |- Done: size_t strlen( char const* cstr ); --------------------------------|
+// |- Done: size_t klib::strlen( char const* cstr ); --------------------------|
 
-// |- Test: int strcmp( char const* cstrA, char const* cstrB ); ---------------|
+// |- Test: int klib::strcmp( char const* cstrA, char const* cstrB ); ---------|
 TEST( klibcstringCompare, Equal ) {
 	// Ensure that if two identical C strings are inputted, 0 is returned.
 	EXPECT_EQ( klib::strcmp( "Test.", "Test." ), 0 ) <<
@@ -67,15 +67,15 @@ TEST( klibcstringCompare, EarlyNullTermination ) {
 	EXPECT_EQ( klib::strcmp( "Test\0ing", "Test" ), 0 ) <<
 	    "A null and an empty string compare as unequal.\n";
 }
-// |- Done: int strcmp( char const* cstrA, char const* cstrB ); ---------------|
+// |- Done: int klib::strcmp( char const* cstrA, char const* cstrB ); ---------|
 
-// |- Test: void* memcpy( void* dest, void const* src, size_t num ); ----------|
+// |- Test: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
 TEST( klibcstringMemCopy, Char ) {
 	// Ensure that a single character is copied correctly, and that the
 	// address returned is equal to the address of the destination.
 	char src = 'A';
 	char dest;
-	char* check = (char*) memcpy( &dest, &src, 1 );
+	char* check = (char*) klib::memcpy( &dest, &src, 1 );
 	EXPECT_EQ( dest, 'A' ) << "Copy failed.\n";
 	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
 }
@@ -85,7 +85,7 @@ TEST( klibcstringMemCopy, UnsignedShort ) {
 	// address returned is equal to the address of the destination.
 	unsigned short src = 0xDDD;
 	unsigned short dest;
-	unsigned short* check = (unsigned short*) memcpy( &dest, &src, 2 );
+	unsigned short* check = (unsigned short*)klib::memcpy( &dest, &src, 2 );
 	EXPECT_EQ( dest, 0xDDD ) << "Copy failed.\n";
 	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
 }
@@ -95,7 +95,7 @@ TEST( klibcstringMemCopy, UnsignedInt ) {
 	// address returned is equal to the address of the destination.
 	unsigned int src = 0xFFFFFFFF;
 	unsigned int dest;
-	unsigned int* check = (unsigned int*) memcpy( &dest, &src, 4 );
+	unsigned int* check = (unsigned int*) klib::memcpy( &dest, &src, 4 );
 	EXPECT_EQ( dest, 0xFFFFFFFF ) << "Copy failed.\n";
 	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
 }
@@ -105,14 +105,40 @@ TEST( klibcstringMemCopy, IntArray ) {
 	// address returned is equal to the address of the destination.
 	unsigned int src[4] = { 0xFFFFFFFF, 0, 0xDD, 0x10 };
 	unsigned int dest[4];
-	unsigned int* check = (unsigned int*) memcpy( dest, src, 16 );
+	unsigned int* check = (unsigned int*) klib::memcpy( dest, src, 16 );
 	EXPECT_EQ( dest[0], 0xFFFFFFFF ) << "Copy failed.\n";
 	EXPECT_EQ( dest[1], 0 ) << "Copy failed.\n";
 	EXPECT_EQ( dest[2], 0xDD ) << "Copy failed.\n";
 	EXPECT_EQ( dest[3], 0x10 ) << "Copy failed.\n";
 	EXPECT_EQ( dest, check ) << "Return value incorrect.\n";
 }
-// |- Done: void* memcpy( void* dest, void const* src, size_t num ); ----------|
+// |- Done: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
+
+// |- Test: char* klib::strcpy( char* dest, char const* src -------------------|
+TEST( klibcstringStringCopy, Normal ) {
+	// Ensure that a normal string gets copied correctly.
+	char src[10] = "Test.";
+	char dest[10];
+	klib::strcpy( dest, src );
+	EXPECT_STREQ( dest, src );
+}
+
+TEST( klibcstringStringCopy, Empty ) {
+	// Ensure that a normal string gets copied correctly.
+	char src[10] = "";
+	char dest[10];
+	klib::strcpy( dest, src );
+	EXPECT_STREQ( dest, src );
+}
+
+TEST( klibcstringStringCopy, EarlyEnd ) {
+	// Ensure that a normal string gets copied correctly.
+	char src[32] = "Test.\0More.";
+	char dest[32];
+	klib::strcpy( dest, src );
+	EXPECT_STREQ( dest, src );
+}
+// |- Done: char* klib::strcpy( char* dest, char const* src -------------------|
 
 GTEST_API_ int main( int argc, char **argv ) {
 	testing::InitGoogleTest( &argc, argv );
