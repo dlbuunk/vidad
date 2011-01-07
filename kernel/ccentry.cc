@@ -1,4 +1,6 @@
 #include "io/io.h"
+#include "../klib/include/string"
+using namespace klib;
 
 // kernel terminal
 IO::Terminal *kterm;
@@ -28,6 +30,9 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 	(void) dma_buff;
 	kterm = 0; // do this in order to make things like 'if (kterm)' work
 	IO::Init *init = new IO::Init;
+	string *str = new string("Hello, world!");
+	for (int i=0; i<50; i++) printf("%c", (*str)[i]);
+	delete str;
 	for (;;) asm("hlt"); // cool down cpu
 	delete init;
 };

@@ -18,6 +18,9 @@ INPUT(
 	io/video/vga_text.o
 	io/terminal/term_buf.o
 	io/terminal/term_std.o
+
+	../klib/lib/libstring.a
+	../klib/lib/libcstring.a
 )
 OUTPUT(kernel.tmp)
 SECTIONS
