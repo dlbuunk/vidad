@@ -15,7 +15,7 @@ void kmain(struct kheader *kh, dword stack_base)
 
 	/* we need 32 KB for heap and 32 KB for DMA buffer */
 	if (memsize < (stack_base>>15) + 2)
-	{	kprints("Error: not enough low memory, ViDad will not run this system.\n", 0x04);
+	{	kprints("Error: not enough low memory, ViDad will not run on this system.\n", 0x04);
 		return;
 	}
 
