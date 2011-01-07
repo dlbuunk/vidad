@@ -1,3 +1,7 @@
+# bootloader for VIDAD
+# can load 6 tracks (107 KiB kernel image)
+# loads 3 tracks (53 KiB kernel image)
+
 	.text
 	.code16
 	.global bootload_entry
@@ -149,10 +153,15 @@ rf:	call	readFIFO
 	loop	rf
 	ret
 
-error:
-	mov	$0x0E21,%ax
+print:
+	mov	$0x0E,%ah
 	mov	$0x0007,%bx
 	int	$0x10
+	ret
+
+error:
+	mov	$0x21,%al
+	call	print
 	cli
 	hlt
 
@@ -163,9 +172,8 @@ start:
 	movw	$0x00,0x003A
 
 	# Vidad
-	mov	$0x0E56,%ax
-	mov	$0x0007,%bx
-	int	$0x10
+	mov	$0x56,%al
+	call	print
 
 	#PIC (master)
 	mov	$0x11,%al
@@ -249,9 +257,8 @@ cal:	mov	$0x07,%ah
 	jne	cal
 
 	# vIdad
-	mov	$0x0E49,%ax
-	mov	$0x0007,%bx
-	int	$0x10
+	mov	$0x49,%al
+	call	print
 
 	# load track 0
 	mov	$0x00,%cl
@@ -264,9 +271,8 @@ cal:	mov	$0x07,%ah
 	call	read
 
 	# viDad
-	mov	$0x0E44,%ax
-	mov	$0x0007,%bx
-	int	$0x10
+	mov	$0x44,%al
+	call	print
 
 	# load track 1
 	mov	$0x01,%cl
@@ -287,23 +293,22 @@ cal:	mov	$0x07,%ah
 	mov	%ax,%ds
 	xor	%si,%si
 	xor	%di,%di
+	mov	$0x4800,%cx
+	rep	movsb
 
 	# space is up, jump to 0x7E00
-	nop
+
 	jmp	0x7E00
 	.word	0xAA55
 
 	. = 0x7E00;
 
-	mov	$0x4800,%cx
-	rep	movsb
 	pop	%ds
 	pop	%es
 
 	# vidAd
-	mov	$0x0E41,%ax
-	mov	$0x0007,%bx
-	int	$0x10
+	mov	$0x41,%al
+	call	print
 
 	#load track 2
 	mov	$0x02,%cl
@@ -316,9 +321,64 @@ cal:	mov	$0x07,%ah
 	call	read
 
 	# vidaD
-	mov	$0x0E44,%ax
-	mov	$0x0007,%bx
-	int	$0x10
+	mov	$0x44,%al
+	call	print
+
+	#load track 3
+#	mov	$0x03,%cl
+#	call	seek
+#	mov	$0x01,%ah
+#	mov	$0x5400,%bx
+#	mov	$0x4800,%cx
+#	call	dma
+#	mov	$0x03,%cl
+#	call	read
+
+	# print '.'
+#	mov	$0x2E,%al
+#	call	print
+
+	#load track 4
+#	mov	$0x04,%cl
+#	call	seek
+#	mov	$0x01,%ah
+#	mov	$0x9C00,%bx
+#	mov	$0x4800,%cx
+#	call	dma
+#	mov	$0x04,%cl
+#	call	read
+
+	# print '.'
+#	mov	$0x2E,%al
+#	call	print
+
+	#load track 5
+#	mov	$0x05,%cl
+#	call	seek
+#	mov	$0x02,%ah
+#	mov	$0x0000,%bx
+#	mov	$0x4800,%cx
+#	call	dma
+#	mov	$0x05,%cl
+#	call	read
+
+	# relocate the data just read from 0x20000 to 0x1E400
+#	push	%es
+#	push	%ds
+#	mov	$0x1E40,%ax
+#	mov	%ax,%es
+#	mov	$0x2000,%ax
+#	mov	%ax,%ds
+#	xor	%si,%si
+#	xor	%di,%di
+#	mov	$0x4800,%cx
+#	rep	movsb
+#	pop	%ds
+#	pop	%es
+
+	# print '.'
+#	mov	$0x2E,%al
+#	call	print
 
 	# floppy motor off
 	mov	$0x03F2,%dx
