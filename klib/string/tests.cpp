@@ -22,7 +22,7 @@
 #include <cstring>
 #include "string.h"
 
-// |- Test: klib::string::string( size_t res = 0 ); ---------------------------|
+// |- Test: string( size_t res = 0 ); -----------------------------------------|
 TEST( klibstringConstructorDefault, NoReserve ) {
 	// Ensure that the string is constructed and behaves like an empty
 	// string, but no memory is allocated.
@@ -89,9 +89,9 @@ TEST( klibstringConstructorDefault, WithReserve ) {
 	EXPECT_EQ( s[0], '\0' ) <<
 	    "Accessing fails to return a null.\n";
 }
-// |- Done: klib::string::string( size_t res = 0 ); --------------------------|
+// |- Done: string( size_t res = 0 ); ----------------------------------------|
 
-// |- Test: klib::string::string( klib::string const &str, size_t res = 0 ); -|
+// |- Test: string( string const &str, size_t res = 0 ); ---------------------|
 TEST( klibstringConstructorFromString, NoReserve ) {
 	// Ensure that the constructed string contains str. 
 	char const *p = "Testing string.";
@@ -149,13 +149,11 @@ TEST( klibstringConstructorFromString, FromUnallocated ) {
 	EXPECT_TRUE( s == t ) << "Strings are unequal.\n";
 	EXPECT_STREQ( s.c_str(), t.c_str() ) << "C strings are unequal.\n";
 }
-// |- Done: klib::string::string( klib::string const &str, size_t res = 0 ); -|
+// |- Done: string( string const &str, size_t res = 0 ); ---------------------|
 
-// |- Test: klib::string::string( char const *cstrPtr, size_t num = 0 ) ------|
-// Ensure that the resulting string 
-// must be equal to num.
-// In any case, the size may not exceed the the capacity.
+// |- Test: string( char const *cstrPtr, size_t num = 0 ) --------------------|
 TEST( klibstringConstructorFromCString, NoReserve ) {
+	// Ensure that the constructed string contains the original.
 	char const* p = "Testing string.";
 	klib::string s( p );
 	ASSERT_EQ( s.size(), std::strlen( p ) + 1 ) <<
@@ -210,7 +208,6 @@ but hey why not try it for the sake of making sure testing string.";
 }
 
 TEST( klibstringConstructorFromCString, NoReserveEmpty ) {
-	// klib::string may fake the memory allocation.
 	char const* p = "";
 	klib::string s( p );
 	ASSERT_EQ( s.size(), 1 ) <<
@@ -298,9 +295,9 @@ but hey why not try it for the sake of making sure testing string.";
 	EXPECT_STREQ( s.c_str(), p ) <<
 	    "String does not compare as equal to p.\n";
 }
-// |- Done: klib::string::string( char const *cstrPtr, size_t res = 0 ); ------|
+// |- Done: string( char const *cstrPtr, size_t res = 0 ); --------------------|
 
-// |- Test: klib::string& klib::string::operator=( klib::string const &str ); -|
+// |- Test: string& operator=( string const &str ); ---------------------------|
 TEST( klibstringAssignmentOperatorFromString, Normal ) {
 	// Ensure that the string is copied correctly.
 	char const *p = "Testing string.";
@@ -361,9 +358,9 @@ enough to have more memory allocated for it." );
 	EXPECT_STREQ( s.c_str(), t.c_str() ) <<
 	    "Strings do not compare as equal.\n";
 }
-// |- Done: klib::string& klib::string::operator=( klib::string const &str ); -|
+// |- Done: string& operator=( string const &str ); ---------------------------|
 
-// |- Test: klib::string::operator=( char const *cstrPtr ); -------------------|
+// |- Test: string& operator=( char const *cstrPtr ); -------------------------|
 TEST( klibstringAssignmentOperatorFromCString, Normal ) {
 	// Ensure that the string stored is identical to the provided string,
 	// and that the size and length are correct. Make sure whether it is
@@ -421,7 +418,65 @@ enough to have more memory allocated for it." );
 	EXPECT_TRUE( s == p ) << "Strings do not compare as equal.\n";
 	EXPECT_STREQ( s.c_str(), p ) << "Strings do not compare as equal.\n";
 }
-// |- Done: klib::string::operator=( char const *cstrPtr ); -------------------|
+// |- Done: string& operator=( char const *cstrPtr ); ------------------------|
+
+// |- Test: string& operator+=( const char c ); ------------------------------|
+TEST( klibstringAppendOperatorChar, Normal ) {
+	// Ensure that appending a char to a string that is not empty and can
+	// fit that char works.
+	klib::string s( "Test" );
+	s += '.';
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 5 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Test." ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Test." ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorChar, NormalButFull ) {
+	// Ensure that appending a char to a string that is not empty and has
+	// no more free space works.
+	klib::string s( "Test", 1 );
+	s += '?';
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 5 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Test?" ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Test?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorChar, EmptyWithReserves ) {
+	// Ensure that appending a char to a string that is empty but has
+	// reserved space works.
+	klib::string s( 16 );
+	s += '?';
+	EXPECT_EQ( s.size(), 2 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 1 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "?" ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorChar, EmptyWithoutReserves ) {
+	// Ensure that appending a char to a string that is empty and has
+	// no space reserved works.
+	klib::string s;
+	s += '?';
+	EXPECT_EQ( s.size(), 2 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 1 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "?" ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& operator+=( const char c ); ------------------------------|
 
 // |- Test: char const& operator[]( size_t pos ) const; ----------------------|
 TEST( klibstringIndexOperatorRead, Normal ) {

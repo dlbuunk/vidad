@@ -47,7 +47,20 @@ string& string::operator+=( char const* str ) {
 }
 
 string& string::operator+=( const char c ) {
-	(void)c;
+	if( !allocSize_ ) {
+		// If we don't have a string yet, make one.
+		allocSize_ = roundto_;
+		strPtr_ = new char[allocSize_];
+	}
+	if( strSize_ >= allocSize_ ) {
+		allocSize_ += 32;
+		char* tmpPtr = new char[allocSize_];
+		strcpy( tmpPtr, strPtr_ );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
+	}
+	strPtr_[strSize_ - 1 ] = c; 
+	strPtr_[strSize_++] = '\0'; // Only increment the size here
 	return *this;
 }
 
