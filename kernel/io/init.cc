@@ -7,16 +7,16 @@ namespace IO
 		timer = new Timer(256.0);
 
 		// create VGA video output
-		video = vga_text = new VGA_Text(6);
-		printf("VGA set to mode 6, 50 rows, 80 cols, 8 pixel high fonts.\n");
+		video = vga_text = new VGA_Text(9);
+		printf("VGA set to mode 9, 30 rows, 90 cols, 16 pixel high fonts.\n");
 
 		// open kernel terminal
 		byte num_col = video->get_num_col(); // without this the
 		byte num_row = video->get_num_row(); // constuctor fails
 
 		term_buf = new Term_Buf(video, num_col, num_row); // open buffer
-		memcpyw((dword) term_buf->buffer, 2000, 0xB8000); // copy video memory to buffer
-		term_buf->cursor_pos = kprint_pos; // and set the cursor position with the value kprint ended with
+		for (int i=0; i<25; i++) memcpyw((dword) term_buf->buffer + 180*i, 80, 0xB8000 + 160*i); // copy video memory to buffer
+		term_buf->cursor_pos = (kprint_pos/80)*90; // and set the cursor position with the value kprint ended with
 
 		kterm = term_std = new Term_Std(term_buf, term_buf); // open terminal with both stderr and stdout set to the same buffer
 		kterm->set_active(); // and set it active

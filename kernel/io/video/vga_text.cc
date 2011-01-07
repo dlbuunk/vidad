@@ -11,7 +11,9 @@ namespace IO
 			case 6 :
 			case 7 : set_font(system_font8, 8); break;
 			case 4 :
-			case 5 : set_font(system_font16, 16); break;
+			case 5 :
+			case 8 :
+			case 9 : set_font(system_font16, 16); break;
 		}
 	};
 
