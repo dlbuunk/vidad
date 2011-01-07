@@ -4,26 +4,10 @@ INPUT(
 	startup.o
 	helper.o
 	kernel_data.o
-	kprint.o
-	malloc.o
-	inter.o
-	kmain.o
-	ccentry.o
-	printf.o
+	kernel.o
 
-	io/init.o
-	io/pic.o
-	io/timer.o
-	io/video/vga.o
-	io/video/vga_text.o
-	io/keyboard/kbc.o
-	io/keyboard/key_translate.o
-	io/keyboard/keyboard.o
-	io/terminal/term_buf.o
-	io/terminal/term_std.o
-
-	../klib/lib/libstring.a
-	../klib/lib/libcstring.a
+	../lib/libstring.a
+	../lib/libcstring.a
 )
 OUTPUT(kernel.tmp)
 SECTIONS
