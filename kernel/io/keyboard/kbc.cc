@@ -28,6 +28,13 @@ namespace IO
 		if (! result) printf("Keyboard, KBC: interface test OK.\n");
 		else printf("Keyboard, KBC: interface test error, error code 0x%2X.\n", result);
 
+		// echo
+		wait_write();
+		outportb(0x60, 0xEE);
+		wait_read();
+		if (0xEE == inportb(0x60)) printf("Keyboard, KBC: echo OK.\n");
+		else printf("Keyboard, KBC: echo not OK, keyboard not connected?\n");
+
 		// set command byte to 0x65, translate, keyboard, no mouse
 		wait_write();
 		outportb(0x64, 0x60);
@@ -82,6 +89,29 @@ namespace IO
 	void KBC::set_translator(Key_Translate *new_tl)
 	{	tl = new_tl;
 	};
+
+	void KBC::set_keyset(int set)
+	{	if (set == 0)
+		{	wait_write();
+			outportb(0x64, 0x60);
+			wait_write();
+			outportb(0x60, 0x65);
+			wait_write();
+			outportb(0x64, 0x20);
+		}
+		else
+		{	wait_write();
+			outportb(0x60, 0xF0);
+			wait_write();
+			outportb(0x60, set);
+			wait_write();
+			outportb(0x64, 0x60);
+			wait_write();
+			outportb(0x60, 0x25);
+			wait_write();
+			outportb(0x64, 0x20);
+		}
+	}
 
 	void KBC::reset_cpu()
 	{	byte outputport;

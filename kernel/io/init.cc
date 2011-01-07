@@ -12,6 +12,8 @@ namespace IO
 
 		// setup keyboard
 		kbc = new KBC;
+		kbc->set_keyset(2);
+		kbc->set_keyset(0);
 		keyb = new Keyboard;
 		key_translate = key_trans1 = new Key_Translate_Set1(keyb, kbc);
 

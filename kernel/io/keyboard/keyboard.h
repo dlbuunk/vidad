@@ -8,6 +8,7 @@ namespace IO
 	{	public : KBC();
 		public : ~KBC();
 		public : void reset_cpu();
+		public : void set_keyset(int set);
 		public : void set_leds(byte status);
 		public : void set_translator(Key_Translate *new_tl);
 		private : void wait_write();
