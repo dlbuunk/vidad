@@ -442,6 +442,8 @@ waitB:
 
 end_cpuid:
 
+	# unforce A20 line
+
 	call	waitA
 	mov	$0xAD,%al
 	out	%al,$0x64
@@ -462,33 +464,6 @@ end_cpuid:
 	pop	%ax
 	or	$0x03,%al
 	out	%al,$0x60
-
-	# checksum
-
-	mov	0x8014,%cx
-	shr	$0x02,%cx
-	xor	%ax,%ax
-	xor	%dx,%dx
-	mov	$0x8000,%si
-sum:	add	(%si),%ax
-	inc	%si
-	inc	%si
-	adc	(%si),%dx
-	inc	%si
-	inc	%si
-	loop	sum
-	cmp	%ax,%dx
-	jne	error
-	xor	%dx,%dx
-	cmp	%ax,%dx
-	jne	error
-
-	# reloc BIOS info
-
-	mov	$0x6006,%si
-	mov	$0x8006,%di
-	mov	$0x000A,%cx
-	rep	movsb
 
 	# init tables
 
