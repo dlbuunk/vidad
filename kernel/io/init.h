@@ -12,6 +12,12 @@ namespace IO
 		Video_Text *video;
 		VGA_Text *vga_text;
 
+		// keyboard
+		KBC *kbc;
+		Keyboard *keyb;
+		Key_Translate *key_translate;
+		Key_Translate_Set1 *key_trans1;
+
 		// terminal
 		Term_Buf *term_buf;
 		Term_Std *term_std;

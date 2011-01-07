@@ -3,6 +3,7 @@ CCF = -fno-builtin -fno-exceptions -fno-rtti -fno-stack-protector $(CF)
 
 all: init.o pic.o timer.o force_look
 	make -C video
+	make -C keyboard
 	make -C terminal
 
 init.o: init.cc
@@ -18,6 +19,7 @@ timer.o: timer.cc
 clean:
 	rm -f *.o
 	make -C video clean
+	make -C keyboard clean
 	make -C terminal clean
 
 .PHONY: force_look

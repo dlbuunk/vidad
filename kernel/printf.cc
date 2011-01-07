@@ -1,7 +1,7 @@
 #include "io/io.h"
 
 // basic (s)printf functions
-// currently it only supports strings, hex and unsigned decimal
+// currently it only supports chars, strings, hex and unsigned decimal
 // width supported, no other optional stuff.
 char print_buffer[0x100];
 

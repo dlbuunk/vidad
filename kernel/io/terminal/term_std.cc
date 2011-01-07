@@ -3,13 +3,14 @@
 extern IO::Terminal *kterm;
 
 // TODO:
-// create gets()
+// add support for arrow keys
 // make the entire thing resizeable
 
 namespace IO
-{	Term_Std::Term_Std(Term_Buf *stderr, Term_Buf *stdout)
+{	Term_Std::Term_Std(Term_Buf *stderr, Term_Buf *stdout, WordBuffer *stdin)
 	{	err = stderr;
 		out = stdout;
+		in = stdin;
 		current_color = 0x07;
 	};
 
@@ -57,7 +58,39 @@ namespace IO
 		out->vid->redraw(out->buffer, out->cursor_pos);
 	};
 
-	char *Term_Std::gets(char *str) { return(str); };
+	char *Term_Std::gets(char *str)
+	{	int ch;
+		char *start_str;
+		start_str = str;
+		while (ch = in->read())
+		{	if (ch == -1) continue;
+			*str = (char) ch;
+			switch (*str)
+			{	case '\n' :
+				{	out->cursor_pos = (out->cursor_pos/out->num_col + 1) * out->num_col;
+					*str = '\0';
+					return(start_str);
+				}
+				case '\t' : out->cursor_pos = ((out->cursor_pos>>3) + 1) << 3; break;
+				case '\b' :
+				{	if (str != start_str) { str--; out->cursor_pos--; }
+					out->buffer[out->cursor_pos] = (current_color<<8) | 0x20;
+					*str = '\0';
+					str--;
+				} break;
+				default :
+				{	out->buffer[out->cursor_pos] = (current_color<<8) | *str;
+					out->cursor_pos++;
+				}
+			}
+			out->vid->redraw(out->buffer, out->cursor_pos);
+			str++;
+			if (out->cursor_pos >= out->num_col*out->num_row)
+			{	memcpyw((dword) out->buffer, (out->num_row) * out->num_col , (dword) out->buffer + (out->num_col<<1));
+				out->cursor_pos -= out->num_col;
+			}
+		}
+	};
 
 	void Term_Std::set_active()
 	{	out->vid->current_buffer = out->buffer;
