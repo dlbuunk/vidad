@@ -31,7 +31,8 @@ namespace IO
 			}
 			str++;
 			if (err->cursor_pos >= err->num_col*err->num_row)
-			{	memcpyw((word *) err->buffer, (word *) err->buffer + (err->num_col<<1), err->num_col * err->num_row);
+			{	// Add a comment for the next line, please.
+				memcpyw((word *) err->buffer, (word *) err->buffer + (err->num_col<<1), err->num_col * err->num_row);
 				err->cursor_pos -= err->num_col;
 			}
 		}

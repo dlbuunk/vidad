@@ -50,7 +50,7 @@ class string {
 	string( char const* cstrPtr, size_t res = 0 ); //++
     	
 		// Destructor:
-	~string(); //+
+	~string(); //++
 
 		// Operators:
 	// Set the string contents from another string or C string.
@@ -59,8 +59,8 @@ class string {
 	// Append another string, a C string, a single character or an integer
 	// (hexadecimal).
 	string& operator+=( string const& str ); //--
-	string& operator+=( char const* cstrPtr ); //--
-	string& operator+=( const char c ); //
+	string& operator+=( char const* cstrPtr ); //++
+	string& operator+=( const char c ); //++
 	string& operator+=( const unsigned int num ); //--
 	// Create a new string from this string and another string, a C string,
 	// a character or an integer (hexadecimal).
@@ -69,8 +69,8 @@ class string {
 	string operator+( const char c ) const; //--
 	string operator+( const unsigned int num ) const; //--
 	// Returns a (const) reference to a char.
-	const char& operator[]( size_t pos ) const; //+
-	char& operator[]( size_t pos ); //+
+	const char& operator[]( size_t pos ) const; //++
+	char& operator[]( size_t pos ); //++
 	// Compares the string with another string or a C string for
 	// (in)equality. The entire string is compared, even if it contains
 	// \0 bytes, so a string containing "A\0B\0" will not be equal to
@@ -149,7 +149,7 @@ class string {
 
 } // namespace klib
 
-#include "../klib/string/inline.h"
+#include <klib/string_inline.h>
 
 
 #endif // STRING_H
