@@ -875,6 +875,15 @@ TEST( klibstringInsertChar, Normal ){
 	    "String does not compare as equal.\n";
 }
 
+TEST( klibstringInsertChar, WithoutReserves ){
+	// Ensure that inserting a char somewhere works.
+	klib::string s( "Testng string.", 1 );
+	s.insert( 'i', 4 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
 TEST( klibstringInsertChar, AtEnd ){
 	// Ensure that inserting a char somewhere works.
 	klib::string s( "Testing string" );
