@@ -77,5 +77,17 @@ inline string string::operator+( const char c ) const {
 	return tmp;
 }
 
+inline string& string::append( string const& str ) {
+	return (*this += str );
+}
+
+inline string& string::append( char const* cstrPtr ) {
+	return (*this += cstrPtr );
+}
+
+inline string& string::append( char c ) {
+	return (*this += c );
+}
+
 } // namespace klib
 

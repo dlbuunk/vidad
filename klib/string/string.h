@@ -112,11 +112,11 @@ class string {
 	// Truncates the string at position pos (i.e. keeping pos characters).
 	string& truncateAt( size_t pos ); //+
 	// Appends a string to the string.
-	string& append( string const& str ); //---
+	string& append( string const& str ); //+
 	// Appends a C string to the string.
-	string& append( char const* cstrPtr ); //---
+	string& append( char const* cstrPtr ); //+
 	// Appends a character to the string.
-	string& append( char c ); //---
+	string& append( char c ); //+
 	// Appends an int in decimal to the string.
 	string& appendDecimal( int d ); //---
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
