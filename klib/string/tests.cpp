@@ -419,9 +419,101 @@ enough to have more memory allocated for it." );
 	EXPECT_TRUE( s == p ) << "Strings do not compare as equal.\n";
 	EXPECT_STREQ( s.c_str(), p ) << "Strings do not compare as equal.\n";
 }
-// |- Done: string& operator=( char const *cstrPtr ); ------------------------|
+// |- Done: string& operator=( char const* cstrPtr ); -------------------------|
 
-// |- Test: string& operator+=( const char* cstrPtr ); -----------------------|
+// |- Test: string& operator+=( string const& str ); --------------------------|
+TEST( klibstringAppendOperatorString, Normal ) {
+	// Ensure that appending a string to a string that is not empty and
+	// has plenty of free space works.
+	klib::string s( "Test" );
+	s += klib::string( "ing." );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 8 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Testing." ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Testing." ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorString, NormalButFull ) {
+	// Ensure that appending a string to a string that is not empty and has
+	// no more free space works.
+	klib::string s( "Test", 1 );
+	s += klib::string( "ing?" );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 8 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Testing?" ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Testing?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorString, NormalAndOneOverfull ) {
+	// Ensure that appending a string when the resulting capacity is 32
+	// greater than the original capacity works.
+	klib::string s( "Testing string," );
+	s += klib::string( " which is specifically made to be 64 bytes long." );
+	EXPECT_EQ( s.size(), 64 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 63 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s ==
+"Testing string, which is specifically made to be 64 bytes long." ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(),
+"Testing string, which is specifically made to be 64 bytes long." ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorString, EmptyWithPlentyReserves ) {
+	// Ensure that appending a string to a string that is empty and has
+	// more than enough reserved space works.
+	klib::string s( 32 );
+	s += klib::string( "Testing string." );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 15 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorString, EmptyWithBarelyEnoughReserves ) {
+	// Ensure that appending a string to a string that is empty and has
+	// just enough reserved space works.
+	klib::string s( 16 );
+	s += klib::string( "Testing string." );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 15 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorString, NormalWithEmpty) {
+	// Ensure that appending an empty string works.
+	klib::string s("Test?");
+	s += klib::string( "" );
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 5 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Test?" ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Test?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& operator+=( string const& str ); --------------------------|
+
+// |- Test: string& operator+=( char const* cstrPtr ); ------------------------|
 TEST( klibstringAppendOperatorCString, Normal ) {
 	// Ensure that appending a C string to a string that is not empty and
 	// has plenty of free space.
@@ -527,9 +619,22 @@ TEST( klibstringAppendOperatorCString, EmptyWithoutReserves ) {
 	EXPECT_STREQ( s.c_str(), "Test?" ) <<
 	    "Strings do not compare as equal.\n";
 }
-// |- Done: string& operator+=( const char* cstrPtr ); -----------------------|
 
-// |- Test: string& operator+=( const char c ); ------------------------------|
+TEST( klibstringAppendOperatorCString, NormalWithEmpty) {
+	// Ensure that appending an empty C string works.
+	klib::string s("Test?");
+	s += "";
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 5 ) << "Length mismatch.\n";
+	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
+	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
+	EXPECT_TRUE( s == "Test?" ) << "Strings do not compare as equal.\n";
+	EXPECT_STREQ( s.c_str(), "Test?" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& operator+=( const char* cstrPtr ); ------------------------|
+
+// |- Test: string& operator+=( const char c ); -------------------------------|
 TEST( klibstringAppendOperatorChar, Normal ) {
 	// Ensure that appending a char to a string that is not empty and can
 	// fit that char works.

@@ -94,6 +94,9 @@ class string {
 	// Clears the string and unallocates the memory, equivalent to clear()
 	// followed by reserve().
 	void drop(); //--
+	// Checks whether the string contains any \0 characters, and truncates
+	// at them if it does.
+	string& checkValid(); //---
 	// Truncates the string at position pos (i.e. keeping pos characters).
 	string& truncateAt( size_t pos ); //---
 	// Appends a string to the string.

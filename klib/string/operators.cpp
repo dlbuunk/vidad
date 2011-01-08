@@ -32,12 +32,29 @@ string& string::operator=( char const* cstrPtr ) {
 		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
 		strPtr_ = new char[allocSize_];
 	}
-	strcpy( strPtr_ , cstrPtr );
+	strcpy( strPtr_, cstrPtr );
 	return *this;
 }
 
 string& string::operator+=( string const& str ) {
-	(void)str;
+	// Note the position of the last character of this string.
+	size_t pos = --strSize_;
+	strSize_ += str.strSize_;
+	if( strSize_ > allocSize_ ) {
+		// If we don't have enough memory, let's make some.
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		if( strPtr_ ) {
+			// If we have anything, let's copy it over.
+			char* tmpPtr = new char[allocSize_];
+			strcpy( tmpPtr, strPtr_ );
+			delete[] strPtr_;
+			strPtr_ = tmpPtr;
+		} else {
+			// If we don't, just make some memory.
+			strPtr_ = new char[allocSize_];
+		}
+	}
+	strcpy( strPtr_ + pos, str.strPtr_ );
 	return *this;
 }
 
