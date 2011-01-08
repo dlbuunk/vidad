@@ -124,12 +124,12 @@ class string {
 	string& appendBinary( unsigned int b ); //---
 	// Appends an unsigned int in octal to the string.
 	string& appendOctal( unsigned int o ); //---
-	// Inserts the first num characters of string str at position pos. If
-	// num is zero, inserts the entire string.
-	string& insert( string const& str, size_t pos, size_t num = 0 ); //---
-	// Inserts the first num characters of C string cstrPtr at position pos.
-	// If num is zero, inserts until the first \0.
-	string& insert( char const* cstrPtr, size_t pos, size_t num = 0 ); //---
+	// Inserts string str into this string, starting at positino pos.
+	string& insert( string const& str, size_t pos ); //---
+	// Inserts C string cstrPTr into this string, starting at position pos.
+	string& insert( char const* cstrPtr, size_t pos ); //---
+	// Inserts char c at position pos.
+	string& insert( char c, size_t pos ); //+
 	
 		// Const functions:
 	// Returns a pointer to the beginning of the string. This pointer will
