@@ -41,8 +41,16 @@ string& string::operator+=( string const& str ) {
 	return *this;
 }
 
-string& string::operator+=( char const* str ) {
-	(void)str;
+string& string::operator+=( char const* cstrPtr ) {
+	size_t pos = strSize_ - 1;
+	strSize_ += strlen( cstrPtr );
+	if( strSize_ > allocSize_ ) {
+		// If we don't have enough memory, let's make some.
+		delete[] strPtr_;
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		strPtr_ = new char[allocSize_];
+	}
+	strcpy( strPtr_ + pos, cstrPtr );
 	return *this;
 }
 

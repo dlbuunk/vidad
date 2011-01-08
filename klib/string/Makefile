@@ -15,15 +15,17 @@ operators.o : operators.cpp string.h
 libstring.a : constfuncs.o constructors.o destructor.o mutablefuncs.o operators.o constfuncs.cpp constructors.cpp destructor.cpp mutablefuncs.cpp operators.cpp string.h inline.h
 	ar rcs libstring.a constfuncs.o constructors.o destructor.o mutablefuncs.o operators.o 
 
-tests.o : tests.cpp string.h inline.h
+string.h.gen : string.h
+	cpp -P -o string.h.gen -I$(ROOT_DIR)/include/ string.h
+tests.o : tests.cpp string.h string.h.gen inline.h
 	$(CXX) $(COMMON_FLAGS) -std=c++0x -c -o tests.o tests.cpp
 test : tests.o libstring.a tests.cpp constfuncs.cpp constructors.cpp destructor.cpp mutablefuncs.cpp operators.cpp string.h inline.h
-	$(CXX) $(COMMON_FLAGS) -o test tests.o -lgtest -L. -lstring -L../lib -lcstring
+	$(CXX) $(COMMON_FLAGS) -o test tests.o -lgtest -L. -L$(ROOT_DIR)/lib/ -lcstring -lstring 
 
 installlib : libstring.a
-	cp libstring.a ../../lib/
+	cp libstring.a $(ROOT_DIR)/lib/
 
 .PHONY: clean
 clean:
-	rm -f *.o libstring.a test ../lib/libstring.a
+	rm -f *.o string.h.gen libstring.a $(ROOT_DIR)/lib/libstring.a test 
 
