@@ -126,11 +126,11 @@ class string {
 	// Appends an unsigned int in octal to the string.
 	string& appendOctal( unsigned int o ); //---
 	// Inserts string str into this string, starting at positino pos.
-	string& insert( string const& str, size_t pos ); //---
+	void insert( string const& str, size_t pos ); //---
 	// Inserts C string cstrPTr into this string, starting at position pos.
-	string& insert( char const* cstrPtr, size_t pos ); //---
+	void insert( char const* cstrPtr, size_t pos ); //+
 	// Inserts char c at position pos.
-	string& insert( char c, size_t pos ); //+
+	void insert( char c, size_t pos ); //+
 	
 		// Const functions:
 	// Returns a pointer to the beginning of the string. This pointer will

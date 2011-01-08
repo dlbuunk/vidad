@@ -865,6 +865,53 @@ TEST( klibstringTruncateAt, EmptyElsewhere ) {
 }
 // |- Done: string& truncateAt( size_t pos ); ---------------------------------|
 
+// |- Test: void insert( char* cstrPtr, size_t pos ); -------------------------|
+TEST( klibstringInsertCString, Normal ){
+	// Ensure that inserting a char somewhere works.
+	klib::string s( "Test string." );
+	s.insert( "ing", 4 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertCString, WithoutReserves ){
+	// Ensure that inserting a C string somewhere with no free space works.
+	klib::string s( "Test string.", 1 );
+	s.insert( "ing", 4 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertCString, AtEnd ){
+	// Ensure that inserting a C string at the end works.
+	klib::string s( "Testing" );
+	s.insert( " string.", 7 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertCString, PastEnd ){
+	// Ensure that inserting a C string past the end doesn't work.
+	klib::string s( "Testing string." );
+	s.insert( "Oh really?", 100 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertCString, EmptyString ){
+	// Ensure that inserting a C string at pos 0 of an empty string.
+	klib::string s;
+	s.insert( "Test?", 0 );
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Test?" ) <<
+	    "String does not compare as equal.\n";
+}
+// |- Done: void insert( char c, size_t pos ); --------------------------------|
+
 // |- Test: string& insert( char c, size_t pos ); -----------------------------|
 TEST( klibstringInsertChar, Normal ){
 	// Ensure that inserting a char somewhere works.
