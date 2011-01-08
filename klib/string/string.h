@@ -59,7 +59,7 @@ class string {
 	// Append another string, a C string, a single character or an integer
 	// (hexadecimal).
 	string& operator+=( string const& str ); //--
-	string& operator+=( char const* cstrPtr ); //-
+	string& operator+=( char const* cstrPtr ); //++
 	string& operator+=( const char c ); //++
 	string& operator+=( const unsigned int num ); //--
 	// Create a new string from this string and another string, a C string,

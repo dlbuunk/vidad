@@ -6,6 +6,8 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned int dword;
 typedef unsigned long long qword;
-#define NULL 0
+#ifdef __cplusplus
+	#define NULL 0
+#endif
 
 #endif // CSTDDEF_H

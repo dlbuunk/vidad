@@ -6,6 +6,10 @@
 // width supported, no other optional stuff.
 char print_buffer[0x100];
 
+// As far as I can tell, this function takes a target string and a pointer
+// to the format args (the first of which is a string of the format, and
+// the next are parameters to be added to the format.
+// Unclear: Why is form not a char* const* ?
 void print(char *str, char **form)
 {	char *str_orig;
 	str_orig = str;

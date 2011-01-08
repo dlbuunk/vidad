@@ -22,6 +22,7 @@
 #include <cstring>
 #include "string.h.gen"
 
+#ifndef SKIPSUCCESSFUL
 // |- Test: string( size_t res = 0 ); -----------------------------------------|
 TEST( klibstringConstructorDefault, NoReserve ) {
 	// Ensure that the string is constructed and behaves like an empty
@@ -426,8 +427,8 @@ TEST( klibstringAppendOperatorCString, Normal ) {
 	// has plenty of free space.
 	klib::string s( "Test" );
 	s += "ing.";
-	EXPECT_EQ( s.size(), 8 ) << "Size mismatch.\n";
-	EXPECT_EQ( s.length(), 7 ) << "Length mismatch.\n";
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 8 ) << "Length mismatch.\n";
 	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
 	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
 	EXPECT_TRUE( s == "Testing." ) <<
@@ -441,8 +442,8 @@ TEST( klibstringAppendOperatorCString, NormalButFull ) {
 	// no more free space works.
 	klib::string s( "Test", 1 );
 	s += "ing?";
-	EXPECT_EQ( s.size(), 8 ) << "Size mismatch.\n";
-	EXPECT_EQ( s.length(), 7 ) << "Length mismatch.\n";
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_EQ( s.length(), 8 ) << "Length mismatch.\n";
 	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
 	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
 	EXPECT_TRUE( s == "Testing?" ) <<
@@ -507,7 +508,7 @@ TEST( klibstringAppendOperatorCString, EmptyWithInsufficientReserves ) {
 	EXPECT_EQ( s.length(), 15 ) << "Length mismatch.\n";
 	EXPECT_LE( s.size(), s.capacity() ) << "Size exceeds capacity.\n";
 	EXPECT_FALSE( s.empty() ) << "String is empty.\n";
-	EXPECT_TRUE( s == "Testring string." ) <<
+	EXPECT_TRUE( s == "Testing string." ) <<
 	    "Strings do not compare as equal.\n";
 	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
 	    "Strings do not compare as equal.\n";
@@ -803,6 +804,7 @@ TEST( klibstringCapacity, CStringConstructorWithReserve ) {
 	    "Size exceeds capacity.\n";
 }
 // |- Done: size_t capacity() const; ------------------------------------------|
+#endif // SKIPSUCCESSFUL
 
 GTEST_API_ int main( int argc, char **argv ) {
 	testing::InitGoogleTest( &argc, argv );

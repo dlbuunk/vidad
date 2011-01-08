@@ -6,10 +6,8 @@
 */
 
 /* typedefs used everywhere in the C/C++ code */
-typedef unsigned char byte;
-typedef unsigned short int word;
-typedef unsigned int dword;
-typedef unsigned long long int qword;
+/* Also has NULL defined for C++ */
+#include <cstddef>
 
 #ifdef __cplusplus
 extern "C" {

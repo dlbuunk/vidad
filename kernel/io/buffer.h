@@ -1,6 +1,10 @@
 namespace IO
 {	// should these be all-inline classes?
-
+	// Yes, though probably should.
+	// It may be a good idea to write a better interface for them, you will
+	// probably want to write more than a single byte at a time, and it may
+	// be nice to be able to resize them. Oh, and overloading an operator
+	// or two would certainly be nice (<< and >>, for example). -- Sevis
 	class ByteBuffer // circular buffer (byte)
 	{	public : ByteBuffer(dword size)
 		{	this->size = size;
