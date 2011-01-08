@@ -3,6 +3,22 @@
 // This source file contains the functions for the C string-related functions.
 // All should behave exactly as the standard requires them to.
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-------------------------------------------------------------------------==>
 #include <cstddef>
 #include "cstring.h"
@@ -28,21 +44,41 @@ int strcmp( char const* cstrA, char const* cstrB ) {
 	return 0;
 }
 
-void* memcpy( void* dest, void const* src, size_t num ) {
-	byte* destp = reinterpret_cast< byte* > ( dest );
-	byte const* srcp = reinterpret_cast< byte const* > ( src );
-	while( num-- )
-		// No need to make another copy of src, so we just ask the
-		// compiler to treat it as a char*. Other than that, this
-		// next line copies the 8-bit value
-		*(destp++) = *(srcp++); 
-	return dest;
-}
-
 char* strcpy( char* dest, char const* src ) {
 	char* orig = dest;
 	while(( *dest++ = *src++ )); 
 	return orig;
+}
+
+void* memcpy( void* dest, void const* src, size_t num ) {
+	byte* destp = reinterpret_cast< byte* > ( dest );
+	byte const* srcp = reinterpret_cast< byte const* > ( src );
+	while( num-- )
+		*(destp++) = *(srcp++); 
+	return dest;
+}
+
+void* memmove( void* dest, void const* src, size_t num ) {
+	if( dest == src )
+		return dest;
+	byte* destp = reinterpret_cast< byte* > ( dest );
+	byte const* srcp = reinterpret_cast< byte const* > ( src );
+	if( dest < src ) {
+		// If destination is below source, we can just copy.
+		while( num-- )
+			*(destp++) = *(srcp++); 
+	} else {
+		// If it is above the source, however, we need to reverse-copy
+		// Set the pointers to the top of where they should copy.
+		destp += num;
+		srcp += num;
+		// Have them move downwards. Decrementing destp in the
+		// while statement avoids having to decrement after
+		// adding num.
+		while( --destp >= dest )
+			*destp = *(--srcp);
+	}
+	return dest;
 }
 
 }

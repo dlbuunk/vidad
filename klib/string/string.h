@@ -3,6 +3,22 @@
 // This header contains the string class definition and the inline
 // functions that it provides. 
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-------------------------------------------------------------------------==>
 #ifndef STRING_H
 #define STRING_H
@@ -140,7 +156,7 @@ class string {
 	// are available will be given.
 	// NOTE: May have strange results if string contains \0 chars, so run
 	// validate() first if you're not sure.
-	string subStr( size_t pos, size_t len = 0 ) const; //---
+	string subStr( size_t pos, size_t len = 0 ) const; //+
 
     private:
 	// Size of the currently stored string.

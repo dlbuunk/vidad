@@ -3,9 +3,25 @@
 // This source file provides the tests for making sure that the functions in
 // cstring (header file) work as expected.
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-------------------------------------------------------------------------==>
 #include <gtest/gtest.h>
-#include "cstring.h"
+#include "cstring.h.gen"
 
 // |- Test: size_t klib::strlen( char const* cstr ); --------------------------|
 TEST( klibcstringLength, Normal ) {
@@ -69,51 +85,6 @@ TEST( klibcstringCompare, EarlyNullTermination ) {
 }
 // |- Done: int klib::strcmp( char const* cstrA, char const* cstrB ); ---------|
 
-// |- Test: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
-TEST( klibcstringMemCopy, Char ) {
-	// Ensure that a single character is copied correctly, and that the
-	// address returned is equal to the address of the destination.
-	char src = 'A';
-	char dest;
-	char* check = (char*) klib::memcpy( &dest, &src, 1 );
-	EXPECT_EQ( dest, 'A' ) << "Copy failed.\n";
-	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
-}
-
-TEST( klibcstringMemCopy, UnsignedShort ) {
-	// Ensure that a single unsigned short is copied correctly, and that the
-	// address returned is equal to the address of the destination.
-	unsigned short src = 0xDDD;
-	unsigned short dest;
-	unsigned short* check = (unsigned short*)klib::memcpy( &dest, &src, 2 );
-	EXPECT_EQ( dest, 0xDDD ) << "Copy failed.\n";
-	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
-}
-
-TEST( klibcstringMemCopy, UnsignedInt ) {
-	// Ensure that a single unsigned int is copied correctly, and that the
-	// address returned is equal to the address of the destination.
-	unsigned int src = 0xFFFFFFFF;
-	unsigned int dest;
-	unsigned int* check = (unsigned int*) klib::memcpy( &dest, &src, 4 );
-	EXPECT_EQ( dest, 0xFFFFFFFF ) << "Copy failed.\n";
-	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
-}
-
-TEST( klibcstringMemCopy, IntArray ) {
-	// Ensure that the arrays of ints are copied correctly, and that the
-	// address returned is equal to the address of the destination.
-	unsigned int src[4] = { 0xFFFFFFFF, 0, 0xDD, 0x10 };
-	unsigned int dest[4];
-	unsigned int* check = (unsigned int*) klib::memcpy( dest, src, 16 );
-	EXPECT_EQ( dest[0], 0xFFFFFFFF ) << "Copy failed.\n";
-	EXPECT_EQ( dest[1], 0 ) << "Copy failed.\n";
-	EXPECT_EQ( dest[2], 0xDD ) << "Copy failed.\n";
-	EXPECT_EQ( dest[3], 0x10 ) << "Copy failed.\n";
-	EXPECT_EQ( dest, check ) << "Return value incorrect.\n";
-}
-// |- Done: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
-
 // |- Test: char* klib::strcpy( char* dest, char const* src -------------------|
 TEST( klibcstringStringCopy, Normal ) {
 	// Ensure that a normal string gets copied correctly.
@@ -139,6 +110,115 @@ TEST( klibcstringStringCopy, EarlyEnd ) {
 	EXPECT_STREQ( dest, src );
 }
 // |- Done: char* klib::strcpy( char* dest, char const* src -------------------|
+
+// |- Test: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
+TEST( klibcstringMemCopy, Char ) {
+	// Ensure that a single character is copied correctly, and that the
+	// address returned is equal to the address of the destination.
+	char src = 'A';
+	char dest;
+	char* check = (char*) klib::memcpy( &dest, &src, 1 );
+	EXPECT_EQ( dest, 'A' ) << "Copy failed.\n";
+	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemCopy, UnsignedShort ) {
+	// Ensure that a single word is copied correctly, and that the
+	// address returned is equal to the address of the destination.
+	word src = 0xDDD;
+	word dest;
+	word* check = (word*)klib::memcpy( &dest, &src, 2 );
+	EXPECT_EQ( dest, 0xDDD ) << "Copy failed.\n";
+	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemCopy, UnsignedInt ) {
+	// Ensure that a single dword is copied correctly, and that the
+	// address returned is equal to the address of the destination.
+	dword src = 0xFFFFFFFF;
+	dword dest;
+	dword* check = (dword*) klib::memcpy( &dest, &src, 4 );
+	EXPECT_EQ( dest, 0xFFFFFFFF ) << "Copy failed.\n";
+	EXPECT_EQ( &dest, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemCopy, IntArray ) {
+	// Ensure that the arrays of ints are copied correctly, and that the
+	// address returned is equal to the address of the destination.
+	dword src[4] = { 0xFFFFFFFF, 0, 0xDD, 0x10 };
+	dword dest[4];
+	dword* check = (dword*) klib::memcpy( dest, src, 16 );
+	EXPECT_EQ( dest[0], 0xFFFFFFFF ) << "Copy failed.\n";
+	EXPECT_EQ( dest[1], 0 ) << "Copy failed.\n";
+	EXPECT_EQ( dest[2], 0xDD ) << "Copy failed.\n";
+	EXPECT_EQ( dest[3], 0x10 ) << "Copy failed.\n";
+	EXPECT_EQ( dest, check ) << "Return value incorrect.\n";
+}
+// |- Done: void* klib::memcpy( void* dest, void const* src, size_t num ); ----|
+
+// |- Test: void* klib::memmove( void* dest, void const* src, size_t num ); ---|
+TEST( klibcstringMemMove, SeparateArrays ) {
+	// Ensure that moving four bytes one backwards one byte works.
+	byte src[8] = { 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 };
+	byte dest[8];
+	byte* check = (byte*) klib::memmove( dest, src, 8 );
+	EXPECT_EQ( (dword) dest[0], 0x88 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[1], 0x77 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[2], 0x66 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[3], 0x55 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[4], 0x44 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[5], 0x33 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[6], 0x22 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) dest[7], 0x11 ) << "Value incorrect.\n";
+	EXPECT_EQ( dest, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemMove, FourBytesTwoUp ) {
+	// Ensure that moving four bytes one backwards one byte works.
+	byte arr[8] = { 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 };
+	byte* check = (byte*) klib::memmove( arr+2, arr, 4 );
+	EXPECT_EQ( (dword) arr[0], 0x88 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[1], 0x77 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[2], 0x88 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[3], 0x77 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[4], 0x66 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[5], 0x55 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[6], 0x22 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[7], 0x11 ) << "Value changed.\n";
+	EXPECT_EQ( arr+2, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemMove, FourBytesTwoDown ) {
+	// Ensure that moving four bytes down two bytes works.
+	byte arr[8] = { 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 };
+	byte* check = (byte*) klib::memmove( arr, arr+2, 4 );
+	EXPECT_EQ( (dword) arr[0], 0x66 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[1], 0x55 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[2], 0x44 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[3], 0x33 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[4], 0x44 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[5], 0x33 ) << "Value incorrect.\n";
+	EXPECT_EQ( (dword) arr[6], 0x22 ) << "Value changed.\n";
+	EXPECT_EQ( (dword) arr[7], 0x11 ) << "Value changed.\n";
+	EXPECT_EQ( arr, check ) << "Return value incorrect.\n";
+}
+
+TEST( klibcstringMemMove, FourDWordsTwoDown ) {
+	// Ensure that moving four dwords down two dwords works.
+	dword arr[8] = { 0x88888888, 0x77777777, 0x66666666, 0x55555555,
+	                 0x44444444, 0x33333333, 0x22222222, 0x11111111 };
+	dword* check = (dword*) klib::memmove( arr, arr+2, 16 );
+	EXPECT_EQ( arr[0], 0x66666666 ) << "Value changed.\n";
+	EXPECT_EQ( arr[1], 0x55555555 ) << "Value changed.\n";
+	EXPECT_EQ( arr[2], 0x44444444 ) << "Value incorrect.\n";
+	EXPECT_EQ( arr[3], 0x33333333 ) << "Value incorrect.\n";
+	EXPECT_EQ( arr[4], 0x44444444 ) << "Value incorrect.\n";
+	EXPECT_EQ( arr[5], 0x33333333 ) << "Value incorrect.\n";
+	EXPECT_EQ( arr[6], 0x22222222 ) << "Value changed.\n";
+	EXPECT_EQ( arr[7], 0x11111111 ) << "Value changed.\n";
+	EXPECT_EQ( arr, check ) << "Return value incorrect.\n";
+}
+// |- Done: void* klib::memmove( void* dest, void const* src, size_t num ); ---|
 
 GTEST_API_ int main( int argc, char **argv ) {
 	testing::InitGoogleTest( &argc, argv );
