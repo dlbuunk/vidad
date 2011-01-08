@@ -692,6 +692,9 @@ TEST( klibstringAppendOperatorChar, EmptyWithoutReserves ) {
 }
 // |- Done: string& operator+=( const char c ); ------------------------------|
 
+// |- Test: string operator+( string const& str ) const; ---------------------|
+// |- Done: string operator+( string const& str ) const; ---------------------|
+
 // |- Test: char const& operator[]( size_t pos ) const; ----------------------|
 TEST( klibstringIndexOperatorRead, Normal ) {
 	// Ensure that the characters read are the ones expected.
@@ -792,8 +795,118 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 	EXPECT_TRUE( s == "" );
 	EXPECT_FALSE( s == "Test." );
 }
-// |- Done: bool operator==( char const* cstrPtr ) const; --------------------|
+// |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
 
+// |- Test: void validate(); --------------------------------------------------|
+TEST( klibstringValidate, Normal ) {
+	// Ensure this doesn't do anything.
+	klib::string p( "Test." );
+	p.validate();
+	EXPECT_EQ( p.size(), 6 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 5 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "Test." ) << "String does not compare as equal.\n";
+}
+
+TEST( klibstringValidate, Empty ) {
+	// Ensure this doesn't do anything.
+	klib::string p;
+	p.validate();
+	EXPECT_EQ( p.size(), 1 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 0 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "" ) << "String does not compare as equal.\n";
+}
+
+TEST( klibstringValidate, NeedsFixing ) {
+	// Ensure this doesn't do anything.
+	klib::string p( "Testing string" );
+	p[4] = '\0';
+	p.validate();
+	EXPECT_EQ( p.size(), 5 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 4 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "Test" ) << "String does not compare as equal.\n";
+}
+// |- Done: void validate(); --------------------------------------------------|
+
+// |- Test: string& truncateAt( size_t pos ); ---------------------------------|
+TEST( klibstringTruncateAt, Normal ) {
+	// Ensure that truncating somewhere in the middle of a string works.
+	klib::string s( "Testing." );
+	s.truncateAt( 4 );
+	EXPECT_EQ( s.size(), 5 ) << "Size mismatch.\n";
+	EXPECT_TRUE( s == "Test" ) << "String does not compare as equal.\n";
+}
+TEST( klibstringTruncateAt, PastEnd ) {
+	// Ensure that truncating somewhere after the end of a string works.
+	klib::string s( "Testing." );
+	s.truncateAt( 16 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_TRUE( s == "Testing." ) << "String does not compare as equal.\n";
+}
+TEST( klibstringTruncateAt, AtEnd ) {
+	// Ensure that truncating at the \0 works.
+	klib::string s( "Testing." );
+	s.truncateAt( 8 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_TRUE( s == "Testing." ) << "String does not compare as equal.\n";
+}
+TEST( klibstringTruncateAt, EmptyAtZero ) {
+	// Ensure that truncating an empty string at zero works.
+	klib::string s;
+	s.truncateAt( 0 );
+	EXPECT_EQ( s.size(), 1 ) << "Size mismatch.\n";
+	EXPECT_TRUE( s == "" ) << "String does not compare as equal.\n";
+}
+TEST( klibstringTruncateAt, EmptyElsewhere ) {
+	// Ensure that truncating an empty string anywhere works.
+	klib::string s;
+	s.truncateAt( 5 );
+	EXPECT_EQ( s.size(), 1 ) << "Size mismatch.\n";
+	EXPECT_TRUE( s == "" ) << "String does not compare as equal.\n";
+}
+// |- Done: string& truncateAt( size_t pos ); ---------------------------------|
+#endif // SKIPSUCCESSFUL
+
+// |- Test: string subStr( size_t pos, size_t len = 0); -----------------------|
+TEST( klibstringSubStr, NormalWithoutLen ) {
+	// Ensure that taking a substring until the end of a string works.
+	klib::string t( "Testing string." );
+	klib::string p( t.subStr( 8 ) );
+	EXPECT_EQ( p.size(), 8 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 7 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "string." ) << "String does not compare as equal.\n";
+}
+
+TEST( klibstringSubStr, NormalWithLen ) {
+	// Ensure that taking a substring of a certain number of characters
+	// works.
+	klib::string t( "Testing string." );
+	klib::string p( t.subStr( 8, 3 ) );
+	EXPECT_EQ( p.size(), 4 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 3 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "str" ) << "String does not compare as equal.\n";
+}
+
+TEST( klibstringSubStr, NormalWithPosOverflow ) {
+	// Ensure that taking a substring until the end of a string works.
+	klib::string t( "Testing string." );
+	klib::string p( t.subStr( 32 ) );
+	EXPECT_EQ( p.size(), 1 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 0 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "" ) << "String does not compare as equal.\n";
+}
+
+TEST( klibstringSubStr, NormalWithLenOverflow ) {
+	// Ensure that taking a substring until the end of a string works.
+	klib::string t( "Testing string." );
+	klib::string p( t.subStr( 8, 16 ) );
+	EXPECT_EQ( p.size(), 8 ) << "Size mismatch.\n";
+	EXPECT_EQ( p.length(), 7 ) << "Length mismatch.\n";
+	EXPECT_TRUE( p == "string." ) << "String does not compare as equal.\n";
+}
+
+// |- Done: string subStr( size_t pos, size_t len = 0); -----------------------|
+
+#ifndef SKIPSUCCESSFUL
 // |- Test: bool empty() const; ----------------------------------------------|
 TEST( klibstringEmpty, DefaultConstructor ) {
 	// Ensure that a string created with the default constructor is empty.
@@ -848,7 +961,7 @@ TEST( klibstringSize, Empty ) {
 	EXPECT_EQ( s.size(), 1 ) <<
 	    "Size mismatch.\n";
 }
-// |- Test: size_t size() const; ----------------------------------------------|
+// |- Done: size_t size() const; ----------------------------------------------|
 
 // |- Test: size_t length() const; --------------------------------------------|
 TEST( klibstringLength, Normal ) {
@@ -863,7 +976,7 @@ TEST( klibstringLength, Empty ) {
 	klib::string s;
 	EXPECT_EQ( s.length(), 0 );
 }
-// |- Test: size_t length() const; --------------------------------------------|
+// |- Done: size_t length() const; --------------------------------------------|
 
 // |- Test: size_t capacity() const; ------------------------------------------|
 // |- Due to relying on internal workings of the class, these tests should be -|

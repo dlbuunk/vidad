@@ -8,6 +8,16 @@
 
 namespace klib {
 
+const char* string::c_str() const {
+	if( !strPtr_ ) { // If we don't have a string, let's make one.
+		strPtr_ = new char[roundto_]; // Allowed thanks to mutable
+		strPtr_[0] = '\0';
+		allocSize_ = roundto_;
+		// strSize_ should already by 1.
+	}
+	return strPtr_;
+}
+
 bool string::empty() const {
 	// If the string isn't faked, check whether it's full of \0s.
 	if ( allocSize_ ) { 
@@ -29,6 +39,20 @@ size_t string::size() const {
 
 size_t string::capacity() const {
 	return allocSize_;
+}
+
+string string::subStr( size_t pos, size_t len ) const {
+	if( pos >= strSize_ ) 
+		// User has requested something past the end of the string.
+		return string();
+	if( len && pos + len >= strSize_ )
+		// User has asked for more chars than we can give, so
+		// we'll just give him all.
+		len = 0;
+	string tmp( c_str() + pos ); 
+	if( len ) // If the user wants it truncated...
+		tmp.truncateAt( len );
+	return tmp;
 }
 
 } // namespace klib

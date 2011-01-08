@@ -58,7 +58,7 @@ class string {
 	string& operator=( char const* cstrPtr ); //++
 	// Append another string, a C string, a single character or an integer
 	// (hexadecimal).
-	string& operator+=( string const& str ); //--
+	string& operator+=( string const& str ); //++
 	string& operator+=( char const* cstrPtr ); //++
 	string& operator+=( const char c ); //++
 	string& operator+=( const unsigned int num ); //--
@@ -81,11 +81,6 @@ class string {
 	bool operator!=( char const* cstrPtr ) const; //--
 
 		// Non-const functions:
-	// Returns a pointer to the beginning of the string. This pointer will
-	// stay valid at least until a non-const member function is called.
-	// NOTE: Although this function is not tested by itself, it has been
-	// tested together with other functions, and should /usually/ work.
-	const char* c_str(); //--
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
 	void reserve( size_t size = 0 ); //--
@@ -96,9 +91,9 @@ class string {
 	void drop(); //--
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
-	string& checkValid(); //---
+	void validate(); //+
 	// Truncates the string at position pos (i.e. keeping pos characters).
-	string& truncateAt( size_t pos ); //---
+	string& truncateAt( size_t pos ); //+
 	// Appends a string to the string.
 	string& appendString( string const& str ); //---
 	// Appends a C string to the string.
@@ -121,6 +116,11 @@ class string {
 	string& insert( char const* cstrPtr, size_t pos, size_t num = 0 ); //---
 	
 		// Const functions:
+	// Returns a pointer to the beginning of the string. This pointer will
+	// stay valid at least until a non-const member function is called.
+	// NOTE: Although this function is not tested by itself, it has been
+	// tested together with other functions, and should /usually/ work.
+	const char* c_str() const; //--
 	// Returns true if the string is empty, false otherwise.
 	bool empty() const; //++
 	// Returns the size of the string, with the \0 on the end.
@@ -131,18 +131,24 @@ class string {
 	// this being a certain size unless you call reserve() for it.
 	size_t capacity() const; //++
 	// If len is non-zero, returns a string of length len, starting from
-	// position pos.
+	// position pos. 
 	// If len is zero, returns a string starting from position pos, and
-	// going on until the next \0.
-	string substr( size_t pos, size_t len = 0 ) const; //---
+	// going on until the end of the string.
+	// If pos is greater than the length of the string, this returns an
+	// empty string. If len requires for characters past the end of the
+	// string to be given, the request will be ignored and only as many as
+	// are available will be given.
+	// NOTE: May have strange results if string contains \0 chars, so run
+	// validate() first if you're not sure.
+	string subStr( size_t pos, size_t len = 0 ) const; //---
 
     private:
 	// Size of the currently stored string.
 	size_t strSize_;
 	// Size of the allocated string.
-	size_t allocSize_;
+	mutable size_t allocSize_;
 	// Pointer to the beginning of the string.
-	char* strPtr_;
+	mutable char* strPtr_;
 	// This is a character that is returned when an out-of-bounds access
 	// is performed. May be removed later on.
 	mutable char nullval_;
