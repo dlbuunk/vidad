@@ -1,0 +1,72 @@
+Plans for the Vidad operating system project.
+Written by D.L.Buunk on the eight of January, in the year two-thousand-and-eleven.
+
+These plans have no dates with them, as i have no idea how fast a given thing might be written.
+These are the plans for the kernel only.
+
+===== These are the short term plans, in chronological order (i hope to have this finished in a week or two): =====
+
+0) turn on the cache (but only if we detect a 486 or better)
+
+1) Add scancode sets 2 and 3 to the keyboard driver. \
+		(this will hopefully solve some problems with modern keys, set 1 is about 30 years old)
+
+2) Convert everything (excpecially the Term_Std class) to use proper C++ strings, as written by Anton.
+
+3a) Add CMOS driver to read the floppy disk type and the current time.
+3b) Make the Timer class keep track of the time (needed for filesystem support).
+
+4) Write a driver for the PC-BEEP, so i can make sounds, this is spread out over the Timer and KBC classes.
+
+5) Write a DMA driver as preparation of floppy driver.
+
+6) add licencing info (GPL for kernel, LGPL for klib)
+
+7) Create the control subdir and the Control namspace, \
+		in here i will write a few classes/functions that fake a multithreading environement. \
+		( this is needed because the block devices need to assume that we ARE multithreading )
+
+===== Plans for the intermediate future (may take a half year or so): =====
+
+Write the drivers for block devices, these will be in the namespace IO::Block
+
+Low level drivers (both read and write, for FDD also format):
+1) Floppy disk
+2) ATA hard disk
+3) SCSI hard disk ?
+
+Mid level drivers:
+
+1) Splitting a hard drive into logical volumes.
+2) Bufferring (both read and write, this is different from the DMA buffer the floppy disk needs)
+
+High level drivers:
+1) Central system for working with mountpoints (if we are going to have those).
+2) Own filesystem ?
+3) FAT (ms-dos)
+4) Minix fs ?
+5) ext2
+
+Apart from the block devices a simple in-kernel command-interpreter will be developed. \
+		( Sevis, if you like it, you are more than welcome to do this )
+
+===== Plans for the later future (years, decades?) =====
+
+0) Writing more drivers.
+1) Loading and running ELF files, multiple threads.
+2) Writing code that handles system calls.
+3) C standard library.
+4) Writing or porting a simple shell and a very simple editor.
+5) Dynamic linking.
+6) (N)curses.
+7) A better editor (porting vim?)
+8) C++ standard library.
+9) Porting the following (sets of) programs:
+	a) Bash
+	b) Coreutils
+	c) Gnu make
+	d) Binutils
+	e) GCC
+10) Because of 9e, we are self-hosting.
+11) Continue writing drivers and porting programs.
+12) Writing a windowing system (in-kernel, for speed)
