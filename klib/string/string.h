@@ -80,9 +80,9 @@ class string {
 	string& operator+=( const unsigned int num ); //--
 	// Create a new string from this string and another string, a C string,
 	// a character or an integer (hexadecimal).
-	string operator+( string const& str ) const; //--
-	string operator+( char const* cstrPtr ) const; //--
-	string operator+( const char c ) const; //--
+	string operator+( string const& str ) const; //+
+	string operator+( char const* cstrPtr ) const; //+
+	string operator+( const char c ) const; //+
 	string operator+( const unsigned int num ) const; //--
 	// Returns a (const) reference to a char.
 	const char& operator[]( size_t pos ) const; //++
@@ -93,17 +93,18 @@ class string {
 	// the C string "A\0".
 	bool operator==( string const& str ) const; //++
 	bool operator==( char const* cstrPtr ) const; //++
-	bool operator!=( string const& str ) const; //--
-	bool operator!=( char const* cstrPtr ) const; //--
+	bool operator!=( string const& str ) const; //++
+	bool operator!=( char const* cstrPtr ) const; //++
 
 		// Non-const functions:
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
 	void reserve( size_t size = 0 ); //--
-	// Sets the string to contain a single null byte.
-	void clear(); //--
-	// Clears the string and unallocates the memory, equivalent to clear()
-	// followed by reserve().
+	// Sets the string to contain a single null byte. Equivalent to
+	// truncateAt( 0 ), but does not return anything.
+	void clear(); //+
+	// Clears the string and unallocates the memory, equivalent to
+	// truncateAt( 0 ) followed by reserve().
 	void drop(); //--
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
@@ -111,11 +112,11 @@ class string {
 	// Truncates the string at position pos (i.e. keeping pos characters).
 	string& truncateAt( size_t pos ); //+
 	// Appends a string to the string.
-	string& appendString( string const& str ); //---
+	string& append( string const& str ); //---
 	// Appends a C string to the string.
-	string& appendString( char const* cstrPtr ); //---
+	string& append( char const* cstrPtr ); //---
 	// Appends a character to the string.
-	string& appendChar( char c ); //---
+	string& append( char c ); //---
 	// Appends an int in decimal to the string.
 	string& appendDecimal( int d ); //---
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
@@ -136,7 +137,7 @@ class string {
 	// stay valid at least until a non-const member function is called.
 	// NOTE: Although this function is not tested by itself, it has been
 	// tested together with other functions, and should /usually/ work.
-	const char* c_str() const; //--
+	const char* c_str() const; //+
 	// Returns true if the string is empty, false otherwise.
 	bool empty() const; //++
 	// Returns the size of the string, with the \0 on the end.

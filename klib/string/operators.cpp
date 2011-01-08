@@ -102,21 +102,6 @@ string& string::operator+=( const unsigned int num ) {
 	return *this;
 }
 
-string string::operator+( string const& str ) const {
-	(void)str;
-	return string();
-}
-
-string string::operator+( char const* str ) const {
-	(void)str;
-	return string();
-}
-
-string string::operator+( const char c ) const {
-	(void)c;
-	return string();
-}
-
 string string::operator+( const unsigned int num ) const {
 	(void)num;
 	return string();

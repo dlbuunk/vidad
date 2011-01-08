@@ -52,13 +52,29 @@ inline bool string::operator==( char const* cstr ) const {
 }
 
 inline bool string::operator!=( string const& str ) const {
-	(void)str;
-	return false;
+	return !(*this == str);
 }
 
-inline bool string::operator!=( char const* str ) const {
-	(void)str;
-	return false;
+inline bool string::operator!=( char const* cstrPtr ) const {
+	return !(*this == cstrPtr);
+}
+
+inline string string::operator+( string const& str ) const {
+	string tmp( *this );
+	tmp += str;
+	return tmp;
+}
+
+inline string string::operator+( char const* cstrPtr ) const {
+	string tmp( *this );
+	tmp += cstrPtr;
+	return tmp;
+}
+
+inline string string::operator+( const char c ) const {
+	string tmp( *this );
+	tmp += c;
+	return tmp;
 }
 
 } // namespace klib
