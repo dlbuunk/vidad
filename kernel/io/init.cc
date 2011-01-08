@@ -29,12 +29,13 @@ namespace IO
 		term_buf = new Term_Buf(video, num_col, num_row); // open buffer
 		for (int i=0; i<25; i++) memcpyw((dword) term_buf->buffer + 180*i, 80, 0xB8000 + 160*i); // copy video memory to buffer
 		term_buf->cursor_pos = (kprint_pos/80)*90; // and set the cursor position with the value kprint ended with
+		term_buf->vid->current_buffer = term_buf->buffer; // set active
+		term_buf->vid->redraw(term_buf->buffer, term_buf->cursor_pos); // redraw
 
 		kterm = term_std = new Term_Std(term_buf, term_buf, key_buf); // open terminal with both stderr and stdout set to the same buffer
-		kterm->set_active(); // and set it active
-		kterm->set_color(0x0E);
+		kterm->set_color(0x0E); // yellow
 		kterm->puts("Kernel terminal active.\n"); // and test it
-		kterm->set_color(0x07);
+		kterm->set_color(0x07); // white
 	}
 	
 	Init::~Init() // IO exit function, should run everything in Init::Init() in REVERSE ORDER!

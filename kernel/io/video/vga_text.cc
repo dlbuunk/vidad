@@ -24,7 +24,7 @@ namespace IO
 
 	void VGA_Text::redraw(word *buffer, word cursor_pos)
 	{	if (current_buffer != buffer) return;
-		memcpyw(0xB8000, 2000, (dword) buffer);
+		memcpyw(0xB8000, get_num_col()*(get_num_row()+1), (dword) buffer);
 		set_cursor(cursor_pos);
 	}
 
