@@ -3,6 +3,22 @@
 // This source file contains the operators that for some reason haven't been
 // made inline.
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-----------------------------------------------------------------------==>
 #include "string.h"
 
@@ -32,12 +48,29 @@ string& string::operator=( char const* cstrPtr ) {
 		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
 		strPtr_ = new char[allocSize_];
 	}
-	strcpy( strPtr_ , cstrPtr );
+	strcpy( strPtr_, cstrPtr );
 	return *this;
 }
 
 string& string::operator+=( string const& str ) {
-	(void)str;
+	// Note the position of the last character of this string.
+	size_t pos = --strSize_;
+	strSize_ += str.strSize_;
+	if( strSize_ > allocSize_ ) {
+		// If we don't have enough memory, let's make some.
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		if( strPtr_ ) {
+			// If we have anything, let's copy it over.
+			char* tmpPtr = new char[allocSize_];
+			strcpy( tmpPtr, strPtr_ );
+			delete[] strPtr_;
+			strPtr_ = tmpPtr;
+		} else {
+			// If we don't, just make some memory.
+			strPtr_ = new char[allocSize_];
+		}
+	}
+	strcpy( strPtr_ + pos, str.strPtr_ );
 	return *this;
 }
 
@@ -83,21 +116,6 @@ string& string::operator+=( const char c ) {
 string& string::operator+=( const unsigned int num ) {
 	(void)num;
 	return *this;
-}
-
-string string::operator+( string const& str ) const {
-	(void)str;
-	return string();
-}
-
-string string::operator+( char const* str ) const {
-	(void)str;
-	return string();
-}
-
-string string::operator+( const char c ) const {
-	(void)c;
-	return string();
 }
 
 string string::operator+( const unsigned int num ) const {

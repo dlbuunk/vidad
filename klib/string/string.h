@@ -3,6 +3,22 @@
 // This header contains the string class definition and the inline
 // functions that it provides. 
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-------------------------------------------------------------------------==>
 #ifndef STRING_H
 #define STRING_H
@@ -58,15 +74,15 @@ class string {
 	string& operator=( char const* cstrPtr ); //++
 	// Append another string, a C string, a single character or an integer
 	// (hexadecimal).
-	string& operator+=( string const& str ); //--
+	string& operator+=( string const& str ); //++
 	string& operator+=( char const* cstrPtr ); //++
 	string& operator+=( const char c ); //++
 	string& operator+=( const unsigned int num ); //--
 	// Create a new string from this string and another string, a C string,
 	// a character or an integer (hexadecimal).
-	string operator+( string const& str ) const; //--
-	string operator+( char const* cstrPtr ) const; //--
-	string operator+( const char c ) const; //--
+	string operator+( string const& str ) const; //+
+	string operator+( char const* cstrPtr ) const; //+
+	string operator+( const char c ) const; //+
 	string operator+( const unsigned int num ) const; //--
 	// Returns a (const) reference to a char.
 	const char& operator[]( size_t pos ) const; //++
@@ -77,31 +93,30 @@ class string {
 	// the C string "A\0".
 	bool operator==( string const& str ) const; //++
 	bool operator==( char const* cstrPtr ) const; //++
-	bool operator!=( string const& str ) const; //--
-	bool operator!=( char const* cstrPtr ) const; //--
+	bool operator!=( string const& str ) const; //++
+	bool operator!=( char const* cstrPtr ) const; //++
 
 		// Non-const functions:
-	// Returns a pointer to the beginning of the string. This pointer will
-	// stay valid at least until a non-const member function is called.
-	// NOTE: Although this function is not tested by itself, it has been
-	// tested together with other functions, and should /usually/ work.
-	const char* c_str(); //--
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
 	void reserve( size_t size = 0 ); //--
-	// Sets the string to contain a single null byte.
-	void clear(); //--
-	// Clears the string and unallocates the memory, equivalent to clear()
-	// followed by reserve().
+	// Sets the string to contain a single null byte. Equivalent to
+	// truncateAt( 0 ), but does not return anything.
+	void clear(); //+
+	// Clears the string and unallocates the memory, equivalent to
+	// truncateAt( 0 ) followed by reserve().
 	void drop(); //--
+	// Checks whether the string contains any \0 characters, and truncates
+	// at them if it does.
+	void validate(); //+
 	// Truncates the string at position pos (i.e. keeping pos characters).
-	string& truncateAt( size_t pos ); //---
+	string& truncateAt( size_t pos ); //+
 	// Appends a string to the string.
-	string& appendString( string const& str ); //---
+	string& append( string const& str ); //---
 	// Appends a C string to the string.
-	string& appendString( char const* cstrPtr ); //---
+	string& append( char const* cstrPtr ); //---
 	// Appends a character to the string.
-	string& appendChar( char c ); //---
+	string& append( char c ); //---
 	// Appends an int in decimal to the string.
 	string& appendDecimal( int d ); //---
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
@@ -110,14 +125,19 @@ class string {
 	string& appendBinary( unsigned int b ); //---
 	// Appends an unsigned int in octal to the string.
 	string& appendOctal( unsigned int o ); //---
-	// Inserts the first num characters of string str at position pos. If
-	// num is zero, inserts the entire string.
-	string& insert( string const& str, size_t pos, size_t num = 0 ); //---
-	// Inserts the first num characters of C string cstrPtr at position pos.
-	// If num is zero, inserts until the first \0.
-	string& insert( char const* cstrPtr, size_t pos, size_t num = 0 ); //---
+	// Inserts string str into this string, starting at positino pos.
+	void insert( string const& str, size_t pos ); //---
+	// Inserts C string cstrPTr into this string, starting at position pos.
+	void insert( char const* cstrPtr, size_t pos ); //+
+	// Inserts char c at position pos.
+	void insert( char c, size_t pos ); //+
 	
 		// Const functions:
+	// Returns a pointer to the beginning of the string. This pointer will
+	// stay valid at least until a non-const member function is called.
+	// NOTE: Although this function is not tested by itself, it has been
+	// tested together with other functions, and should /usually/ work.
+	const char* c_str() const; //+
 	// Returns true if the string is empty, false otherwise.
 	bool empty() const; //++
 	// Returns the size of the string, with the \0 on the end.
@@ -128,18 +148,24 @@ class string {
 	// this being a certain size unless you call reserve() for it.
 	size_t capacity() const; //++
 	// If len is non-zero, returns a string of length len, starting from
-	// position pos.
+	// position pos. 
 	// If len is zero, returns a string starting from position pos, and
-	// going on until the next \0.
-	string substr( size_t pos, size_t len = 0 ) const; //---
+	// going on until the end of the string.
+	// If pos is greater than the length of the string, this returns an
+	// empty string. If len requires for characters past the end of the
+	// string to be given, the request will be ignored and only as many as
+	// are available will be given.
+	// NOTE: May have strange results if string contains \0 chars, so run
+	// validate() first if you're not sure.
+	string subStr( size_t pos, size_t len = 0 ) const; //+
 
     private:
 	// Size of the currently stored string.
 	size_t strSize_;
 	// Size of the allocated string.
-	size_t allocSize_;
+	mutable size_t allocSize_;
 	// Pointer to the beginning of the string.
-	char* strPtr_;
+	mutable char* strPtr_;
 	// This is a character that is returned when an out-of-bounds access
 	// is performed. May be removed later on.
 	mutable char nullval_;

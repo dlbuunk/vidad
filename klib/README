@@ -1,0 +1,13 @@
+        ---------------
+        | vidad::klib |
+        ---------------
+
+  General:
+
+This is the in-kernel library used by vidad. 
+
+  Contact:
+
+At the moment, most of klib has been written by Anton Golov (Sevis). He can be
+reached by email at kdesevis@gmail.com. Feedback can also be submitted to the
+main vidad issue tracker on github (https://github.com/dlbuunk/vidad).

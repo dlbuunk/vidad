@@ -3,10 +3,36 @@
 // This source file contains the string functions that do not modify the
 // string (mostly queries about the size and state).
 //
+// Copyright:
+//   This file is part of vidad::klib.
+//
+//   vidad::klib is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as
+//   published by the Free Software Foundation, either version 3 of the
+//   License, or (at your option) any later version.
+//
+//   vidad::klib is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU Lesser General Public License for more details.
+//
+//   You should have received a copy of the GNU Lesser General Public License
+//   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
+//
 //==-----------------------------------------------------------------------==>
 #include "string.h"
 
 namespace klib {
+
+const char* string::c_str() const {
+	if( !strPtr_ ) { // If we don't have a string, let's make one.
+		strPtr_ = new char[roundto_]; // Allowed thanks to mutable
+		strPtr_[0] = '\0';
+		allocSize_ = roundto_;
+		// strSize_ should already by 1.
+	}
+	return strPtr_;
+}
 
 bool string::empty() const {
 	// If the string isn't faked, check whether it's full of \0s.
@@ -29,6 +55,20 @@ size_t string::size() const {
 
 size_t string::capacity() const {
 	return allocSize_;
+}
+
+string string::subStr( size_t pos, size_t len ) const {
+	if( pos >= strSize_ ) 
+		// User has requested something past the end of the string.
+		return string();
+	if( len && pos + len >= strSize_ )
+		// User has asked for more chars than we can give, so
+		// we'll just give him all.
+		len = 0;
+	string tmp( c_str() + pos ); 
+	if( len ) // If the user wants it truncated...
+		tmp.truncateAt( len );
+	return tmp;
 }
 
 } // namespace klib
