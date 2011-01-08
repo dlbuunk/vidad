@@ -7,6 +7,9 @@ void kmain(struct kheader *kh, dword stack_base)
 	kprint_pos = 0;
 	kprints("SYSTEM LOADED\n", 0x01);
 
+	/* turn on cache (if > 486) */
+	if (kh->cpu_type >= 4) asm("mov %%cr0,%%eax\n\tand $0x9FFFFFFF,%%eax\n\tmov %%eax,%%cr0\n\t" : : : "%eax");
+
 	/* initialise interrupt handling code */
 	inter_init();
 
