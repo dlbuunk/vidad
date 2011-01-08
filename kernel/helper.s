@@ -4,51 +4,55 @@
 	.code32
 
 	.global memstob
-	# void memstob(dword addr, dword count, byte val);
+	# void memstob(byte *addr, byte val, size_t count);
 memstob:
 	push	%ebp
 	mov	%esp,%ebp
 	mov	8(%ebp),%edi
-	mov	12(%ebp),%ecx
-	mov	16(%ebp),%al
+	mov	16(%ebp),%ecx
+	mov	12(%ebp),%al
+	jcxz	msb
 	rep	stosb
-	pop	%ebp
+msb:	pop	%ebp
 	ret
 
 	.global memstow
-	# void memstow(dword addr, dword count, word val);
+	# void memstow(word *addr, word val, size_t count);
 memstow:
 	push	%ebp
 	mov	%esp,%ebp
 	mov	8(%ebp),%edi
-	mov	12(%ebp),%ecx
-	mov	16(%ebp),%ax
+	mov	16(%ebp),%ecx
+	mov	12(%ebp),%ax
+	jcxz	msw
 	rep	stosw
-	pop	%ebp
+msw:	pop	%ebp
 	ret
 
 	.global memcpyb
-	# void memcpyb(dword to, dword count, dword from);
+	# void memcpyb(byte *to, byte *from, size_t count);
 memcpyb:
 	push	%ebp
 	mov	%esp,%ebp
 	mov	8(%ebp),%edi
-	mov	12(%ebp),%ecx
-	mov	16(%ebp),%esi
+	mov	16(%ebp),%ecx
+	mov	12(%ebp),%esi
+	jcxz	mcb
 	rep	movsb
-	pop	%ebp
+mcb:	pop	%ebp
 	ret
 
 	.global memcpyw
-	# void memcpyw(dword to, dword count, dword from);
+	# void memcpyw(word *to, word *from, size_t count);
 memcpyw:
 	push	%ebp
 	mov	%esp,%ebp
 	mov	8(%ebp),%edi
-	mov	12(%ebp),%ecx
-	mov	16(%ebp),%esi
+	mov	16(%ebp),%ecx
+	mov	12(%ebp),%esi
+	jcxz	mcw
 	rep	movsw
-	pop	%ebp
+mcw:	pop	%ebp
 	ret
 
 	.global inportb

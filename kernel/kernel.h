@@ -5,11 +5,7 @@
 * handle_int
 */
 
-/* typedefs used everywhere in the C/C++ code */
-typedef unsigned char byte;
-typedef unsigned short int word;
-typedef unsigned int dword;
-typedef unsigned long long int qword;
+#include <cstddef>
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,11 +13,11 @@ extern "C" {
 
 /* functions to be found in helper.s */
 
-extern void memstob(dword addr, dword count, byte val);
-extern void memstow(dword addr, dword count, word val);
+extern void memstob(byte *addr, byte val, size_t count);
+extern void memstow(word *addr, word val, size_t count);
 
-extern void memcpyb(dword to, dword count, dword from);
-extern void memcpyw(dword to, dword count, dword from);
+extern void memcpyb(byte *to, byte *from, size_t count);
+extern void memcpyw(word *to, word *from, size_t count);
 
 extern byte inportb(word port);
 extern void outportb(word port, byte val);

@@ -24,7 +24,7 @@ namespace IO
 
 	void VGA_Text::redraw(word *buffer, word cursor_pos)
 	{	if (current_buffer != buffer) return;
-		memcpyw(0xB8000, get_num_col()*(get_num_row()+1), (dword) buffer);
+		memcpyw((word *) 0xB8000, buffer,  get_num_col()*(get_num_row()+1));
 		set_cursor(cursor_pos);
 	}
 
@@ -91,7 +91,7 @@ namespace IO
 
 		// write font data
 		for (i=0; i<256; i++)
-		{	memcpyb(0xB8000 + (i<<5), height, (dword) font);
+		{	memcpyb((byte *) 0xB8000 + (i<<5), (byte *) font, height);
 			font += height;
 		}
 

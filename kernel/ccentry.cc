@@ -52,7 +52,7 @@ extern "C" void kerror(char *str, byte color)
 		term->puts_err("\nSYSTEM HALTED");
 	}
 	else
-	{	memstow(0xB8000, 2000, 0x0020 | (color<<8));
+	{	memstow((word *) 0xB8000, 0x0020 | (color<<8), 2000);
 		kprint_pos = 0;
 		kprints(str, color);
 		kprints("\nSYSTEM HALTED", color);

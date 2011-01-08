@@ -31,7 +31,7 @@ namespace IO
 			}
 			str++;
 			if (err->cursor_pos >= err->num_col*err->num_row)
-			{	memcpyw((dword) err->buffer, (err->num_row) * err->num_col , (dword) err->buffer + (err->num_col<<1));
+			{	memcpyw((word *) err->buffer, (word *) err->buffer + (err->num_col<<1), err->num_col * err->num_row);
 				err->cursor_pos -= err->num_col;
 			}
 		}
@@ -52,7 +52,7 @@ namespace IO
 			}
 			str++;
 			if (out->cursor_pos >= out->num_col*out->num_row)
-			{	memcpyw((dword) out->buffer, (out->num_row) * out->num_col , (dword) out->buffer + (out->num_col<<1));
+			{	memcpyw((word *) out->buffer, (word *) out->buffer + (out->num_col<<1), out->num_row * out->num_col);
 				out->cursor_pos -= out->num_col;
 			}
 		}
@@ -87,7 +87,7 @@ namespace IO
 			out->vid->redraw(out->buffer, out->cursor_pos);
 			str++;
 			if (out->cursor_pos >= out->num_col*out->num_row)
-			{	memcpyw((dword) out->buffer, (out->num_row) * out->num_col , (dword) out->buffer + (out->num_col<<1));
+			{	memcpyw((word *) out->buffer, (word *) out->buffer + (out->num_col<<1), out->num_row * out->num_col);
 				out->cursor_pos -= out->num_col;
 			}
 		}

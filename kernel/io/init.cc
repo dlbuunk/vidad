@@ -27,7 +27,7 @@ namespace IO
 		byte num_row = video->get_num_row(); // constuctor fails
 
 		term_buf = new Term_Buf(video, num_col, num_row); // open buffer
-		for (int i=0; i<25; i++) memcpyw((dword) term_buf->buffer + 180*i, 80, 0xB8000 + 160*i); // copy video memory to buffer
+		for (int i=0; i<25; i++) memcpyw((word *) term_buf->buffer + 90*i, (word *) 0xB8000 + 80*i, 80); // copy video memory to buffer
 		term_buf->cursor_pos = (kprint_pos/80)*90; // and set the cursor position with the value kprint ended with
 		term_buf->vid->current_buffer = term_buf->buffer; // set active
 		term_buf->vid->redraw(term_buf->buffer, term_buf->cursor_pos); // redraw

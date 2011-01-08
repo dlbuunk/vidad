@@ -107,6 +107,6 @@ void *calloc(dword n, dword size)
 {	void *ptr;
 	size *= n;
 	ptr = malloc(size);
-	memstob((dword) ptr, size, 0);
+	memstob((byte *) ptr, 0, size);
 	return(ptr);
 }

@@ -3,7 +3,7 @@
 void kmain(struct kheader *kh, dword stack_base)
 {	word memsize;
 
-	memstow(0xB8000, 2000, 0x0720);
+	memstow((word *) 0xB8000, 0x0720, 2000);
 	kprint_pos = 0;
 	kprints("SYSTEM LOADED\n", 0x01);
 
