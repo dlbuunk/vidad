@@ -24,12 +24,23 @@ namespace IO
 		public : virtual void feed_scancode(byte code) = 0;
 	};
 
+	// these classes are similiar, as they all deal with the KBC,
+	// but there should be no merge of some sort, i might want to add a USB keyboard.
 	class Key_Translate_Set1: public Key_Translate
 	{	public : Key_Translate_Set1(Keyboard *out, KBC *kbc);
 		public : ~Key_Translate_Set1();
-		public : void feed_scancode(byte code);
+		public : void feed_scancode(byte incode);
 		private : Keyboard *out;
-		private : word status; // CTRL ALT BREAK 0 ESCAPE CAPS NUM SCROLL
+		private : word status; // CTRL ALT BREAK 0 ESCAPE0 CAPS NUM SCROLL
+		private : KBC *kbc;
+	};
+
+	class Key_Translate_Set2: public Key_Translate
+	{	public : Key_Translate_Set2(Keyboard *out, KBC *kbc);
+		public : ~Key_Translate_Set2();
+		public : void feed_scancode(byte incode);
+		private : Keyboard *out;
+		private : word status; // CTRL ALT BREAK ESCAPE1 ESCAPE0 CAPS NUM SCROLL
 		private : KBC *kbc;
 	};
 

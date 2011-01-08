@@ -24,6 +24,7 @@ extern void outportb(word port, byte val);
 
 /* data to be found in kernel_data.c */
 extern byte keyboard_mode1[];
+extern byte keyboard_mode2[];
 extern byte keyboard_shift[];
 
 extern const byte system_font8[];

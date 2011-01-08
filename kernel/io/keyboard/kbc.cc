@@ -1,6 +1,8 @@
 #include <kernel.h>
 #include <io/io.h>
 
+// TODO, make set_keyset() edit the command word, not overwrite it.
+
 // port 0x64 is command/status
 // port 0x60 is data
 namespace IO
@@ -93,7 +95,8 @@ namespace IO
 
 	void KBC::set_keyset(int set)
 	{	if (set == 0)
-		{	wait_write();
+		{	// translate ON
+			wait_write();
 			outportb(0x64, 0x60);
 			wait_write();
 			outportb(0x60, 0x65);
@@ -101,12 +104,14 @@ namespace IO
 			outportb(0x64, 0x20);
 		}
 		else
-		{	wait_write();
+		{	// set scanset
+			wait_write();
 			outportb(0x60, 0xF0);
 			wait_write();
 			outportb(0x60, set);
 			wait_write();
 			outportb(0x64, 0x60);
+			// translate OFF
 			wait_write();
 			outportb(0x60, 0x25);
 			wait_write();

@@ -1,6 +1,9 @@
 #include <kernel.h>
 #include <io/io.h>
 
+// NOTE:
+// the fact that this code looks messy is because scancode set 1 IS messy!
+
 // BUGS:
 // printscreen is turned into an 8
 // pause functions as a second num lock
