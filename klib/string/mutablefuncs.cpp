@@ -24,7 +24,21 @@
 namespace klib {
 
 void string::reserve( size_t size ) {
-	(void)size;
+	if( size < strSize_ )
+		size = strSize_; // Avoid requests that ask for too little.
+	if( size == allocSize_ )
+		return; // Avoid doing anything if nothing needs to be done.
+	allocSize_ = size; // We don't care how much was allocated before.
+	if( !strPtr_ ) { // In case we didn't have a string.
+		strPtr_ = new char[size];
+		strPtr_[0] = '\0';
+	} else {
+		// Standard procedure.
+		char* tmpPtr = new char[size];
+		memcpy( tmpPtr, strPtr_, strSize_ );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
+	}
 }
 
 void string::clear() {
@@ -57,6 +71,42 @@ string& string::truncateAt( size_t pos ) {
 		return *this;
 	strPtr_[pos] = '\0';
 	strSize_ = pos + 1;
+	return *this;
+}
+
+string& string::appendDecimal( int val, size_t digits ) {
+	if( digits > 10 )
+		digits = 10;
+	bool neg;
+	if( val < 0 ) { // Remember the sign.
+		val = -val;
+		neg = true;
+	} else {
+		neg = false;
+	}
+	char arr[12]; // We'll make a C string of the number.
+	arr[11] = '\0';
+	arr[0] = '-';
+	char* dptr = arr + 10; // Pointer to digit we're working with.
+	while( dptr != arr ) {
+		// Translate the number to a C string
+		// Need to decrement later, to allow space for the '-'
+		*(dptr--) = (val % 10) + '0'; // Oh, and convert to digits
+		val /= 10;
+	}
+	// Okay, now let's cut away unnecessary digits.
+	// Figuring out where to put the \0:
+	char* firstdigit = dptr = arr + 11 - digits;
+	while( --dptr != arr ) {
+		if( *dptr != '0' ) // Non-zero digit, set it to be the first.
+			firstdigit = dptr;
+	}
+	if( neg ) {
+		// Prepend a '-'
+		--firstdigit;
+		firstdigit[0] = '-';
+	}
+	*this += firstdigit;
 	return *this;
 }
 
@@ -134,6 +184,39 @@ string& string::appendBinary( unsigned int val, size_t digits ) {
 	}
 	*this += firstdigit;
 	return *this;
+}
+
+void string::insert( string const& str, size_t pos ) {
+	if( pos >= strSize_ )
+		// Out of bounds
+		return;
+	if( !allocSize_ ) {
+		strSize_ = str.strSize_;
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		strPtr_ = new char[allocSize_];
+		strcpy( strPtr_, str.strPtr_ );
+		return;
+	}
+	if( strSize_ + str.strSize_ - 1 > allocSize_ ) {
+		// We don't need the original size anymore.
+		strSize_ += str.strSize_ - 1;
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		char* tmpPtr = new char[allocSize_];
+		memcpy( tmpPtr, strPtr_, pos );
+		strcpy( tmpPtr + pos, str.strPtr_ );
+		strcpy( tmpPtr + pos + str.strSize_ - 1, strPtr_ + pos );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
+	} else {
+		// Move things up:
+		// By the length of the other string.
+		memmove( strPtr_ + pos + str.strSize_ - 1, 
+		         strPtr_ + pos  , // From the position inserted at.
+		         strSize_ - pos ); // This number of chars.
+		// Can't use strcpy here, as it would add a \0.
+		memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ - 1 );
+		strSize_ += str.strSize_ - 1;
+	}
 }
 
 void string::insert( char const* cstrPtr, size_t pos ) {

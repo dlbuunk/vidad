@@ -801,6 +801,32 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
 
+// |- Test: void reserve( size_t size = 0 ); ----------------------------------|
+TEST( klibstringReserve, Normal ) {
+	klib::string s( "Testing" );
+	s.reserve( 16 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, Empty ) {
+	klib::string s;
+	s.reserve( 16 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, TooLittle ) {
+	klib::string s( "Testing string." );
+	s.reserve( 8 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, ArgLess ) {
+	klib::string s( "Testing string." );
+	s.reserve( );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+// |- Done: void reserve( size_t size = 0 ); ----------------------------------|
+
 // |- Test: void clear(); -----------------------------------------------------|
 TEST( klibstringClear, Normal ) {
 	klib::string s( "Test." );
@@ -819,7 +845,6 @@ TEST( klibstringClear, Empty ) {
 }
 
 // |- Done: void clear(); -----------------------------------------------------|
-#endif // SKIPSUCCESSFUL
 
 // |- Test: void drop(); ------------------------------------------------------|
 TEST( klibstringDrop, Normal ) {
@@ -840,7 +865,6 @@ TEST( klibstringDrop, Empty ) {
 
 // |- Done: void drop(); ------------------------------------------------------|
 
-#ifndef SKIPSUCCESSFUL
 // |- Test: void validate(); --------------------------------------------------|
 TEST( klibstringValidate, Normal ) {
 	// Ensure this doesn't do anything.
@@ -908,6 +932,72 @@ TEST( klibstringTruncateAt, EmptyElsewhere ) {
 	EXPECT_TRUE( s == "" ) << "String does not compare as equal.\n";
 }
 // |- Done: string& truncateAt( size_t pos ); ---------------------------------|
+
+// |- Test: string& appendDecimal( unsigned int val, size_t digits = 0 ); -----|
+TEST( klibstringAppendDecimal, Normal ) {
+	klib::string s( "" );
+	s.appendDecimal( 1111111111 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "1111111111" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, Shorter ) {
+	klib::string s( "" );
+	s.appendDecimal( 123456 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, ExplicitlyNormal ) {
+	klib::string s( "" );
+	s.appendDecimal( 123456, 10 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0000123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, CharLength ) {
+	klib::string s( "" );
+	s.appendDecimal( 76 );
+	EXPECT_EQ( s.size(), 3 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "76" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, WithZeroInTheMiddle ) {
+	klib::string s( "" );
+	s.appendDecimal( 760054 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "760054" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, WithCutoff ) {
+	klib::string s( "" );
+	s.appendDecimal( 765432, 4 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, TooMuchRequested ) {
+	klib::string s( "" );
+	s.appendDecimal( 765432, 42 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0000765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, Signed ) {
+	klib::string s( "" );
+	s.appendDecimal( -1 );
+	EXPECT_EQ( s.size(), 3 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "-1" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Test: string& appendDecimal( unsigned int val, size_t digits = 0 ); -----|
 
 // |- Test: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
 TEST( klibstringAppendHex, Normal ) {
@@ -1095,7 +1185,54 @@ TEST( klibstringAppendBinary, Signed ) {
 }
 // |- Done: string& appendBinary( unsigned int val, size_t digits = 0 ); ------|
 
-// |- Test: void insert( char* cstrPtr, size_t pos ); -------------------------|
+// |- Test: void insert( string const& str, size_t pos ); ------------------|
+TEST( klibstringInsertString, Normal ){
+	// Ensure that inserting a C string somewhere works.
+	klib::string s( "Test string." );
+	s.insert( klib::string( "ing" ), 4 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertString, WithoutReserves ){
+	// Ensure that inserting a string somewhere with no free space works.
+	klib::string s( "Test string.", 1 );
+	s.insert( klib::string( "ing" ), 4 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertString, AtEnd ){
+	// Ensure that inserting a string at the end works.
+	klib::string s( "Testing" );
+	s.insert( klib::string( " string." ), 7 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertString, PastEnd ){
+	// Ensure that inserting a string past the end doesn't work.
+	klib::string s( "Testing string." );
+	s.insert( klib::string( "Oh really?" ),  100 );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) <<
+	    "String does not compare as equal.\n";
+}
+
+TEST( klibstringInsertString, EmptyString ){
+	// Ensure that inserting a string at pos 0 of an empty string works.
+	klib::string s;
+	s.insert( klib::string( "Test?" ), 0 );
+	EXPECT_EQ( s.size(), 6 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Test?" ) <<
+	    "String does not compare as equal.\n";
+}
+// |- Done: void insert( string const& str, size_t pos ); ---------------------|
+
+// |- Test: void insert( char const* cstrPtr, size_t pos ); -------------------|
 TEST( klibstringInsertCString, Normal ){
 	// Ensure that inserting a char somewhere works.
 	klib::string s( "Test string." );
@@ -1140,9 +1277,9 @@ TEST( klibstringInsertCString, EmptyString ){
 	EXPECT_TRUE( s == "Test?" ) <<
 	    "String does not compare as equal.\n";
 }
-// |- Done: void insert( char c, size_t pos ); --------------------------------|
+// |- Done: void insert( char const* cstrPtr, size_t pos ); -------------------|
 
-// |- Test: string& insert( char c, size_t pos ); -----------------------------|
+// |- Test: void insert( char c, size_t pos ); --------------------------------|
 TEST( klibstringInsertChar, Normal ){
 	// Ensure that inserting a char somewhere works.
 	klib::string s( "Testng string." );
@@ -1187,7 +1324,7 @@ TEST( klibstringInsertChar, EmptyString ){
 	EXPECT_TRUE( s == "?" ) <<
 	    "String does not compare as equal.\n";
 }
-// |- Done: string& insert( char c, size_t pos ); -----------------------------|
+// |- Done: void insert( char c, size_t pos ); --------------------------------|
 
 // |- Test: bool empty() const; -----------------------------------------------|
 TEST( klibstringEmpty, DefaultConstructor ) {

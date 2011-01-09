@@ -97,7 +97,7 @@ class string {
 		// Non-const functions:
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
-	void reserve( size_t size = 0 ); //--
+	void reserve( size_t size = 0 ); //++
 	// Sets the string to contain a single null byte. Equivalent to
 	// truncateAt( 0 ), but does not return anything.
 	void clear(); //++
@@ -106,18 +106,18 @@ class string {
 	void drop(); //++
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
-	void validate(); //+
+	void validate(); //++
 	// Truncates the string at position pos (i.e. keeping pos characters).
-	string& truncateAt( size_t pos ); //+
+	string& truncateAt( size_t pos ); //++
 	// Appends a string to the string.
-	string& append( string const& str ); //+
+	string& append( string const& str ); //++
 	// Appends a C string to the string.
-	string& append( char const* cstrPtr ); //+
+	string& append( char const* cstrPtr ); //++
 	// Appends a character to the string.
-	string& append( char c ); //+
+	string& append( char c ); //++
 	// Appends an int in decimal to the string. Digits is the minimal number
 	// of digits to append.
-	string& appendDecimal( int d, size_t digits = 0 ); //---
+	string& appendDecimal( int d, size_t digits = 0 ); //+
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
 	// Digits is the minimal number of digits to append.
 	string& appendHex( unsigned int val, size_t digits = 0 ); //+
@@ -128,7 +128,7 @@ class string {
 	// number of digits to append.
 	string& appendOctal( unsigned int o, size_t digits = 0 ); //+
 	// Inserts string str into this string, starting at positino pos.
-	void insert( string const& str, size_t pos ); //---
+	void insert( string const& str, size_t pos ); //+
 	// Inserts C string cstrPTr into this string, starting at position pos.
 	void insert( char const* cstrPtr, size_t pos ); //+
 	// Inserts char c at position pos.
