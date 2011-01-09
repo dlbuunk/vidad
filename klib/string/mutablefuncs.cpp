@@ -28,9 +28,19 @@ void string::reserve( size_t size ) {
 }
 
 void string::clear() {
+	if( !strPtr_ )
+		// String already not there.
+		return;
+	// Otherwise, we clear it.
+	strSize_ = 1;
+	strPtr_[0] = '\0';
 }
 
 void string::drop() {
+	delete[] strPtr_;
+	strPtr_ = 0;
+	allocSize_ = 0;
+	strSize_ = 1;
 }
 
 void string::validate() {
@@ -51,7 +61,10 @@ string& string::truncateAt( size_t pos ) {
 }
 
 string& string::appendHex( unsigned int val, size_t digits ) {
-	char arr[9] = { 0 }; // We'll make a C string of the number.
+	if( digits > 8 )
+		digits = 8;
+	char arr[9]; // We'll make a C string of the number.
+	arr[8] = '\0';
 	size_t a = 8;
 	while( a-- ) {
 		// Translate the number to a C string
@@ -69,6 +82,52 @@ string& string::appendHex( unsigned int val, size_t digits ) {
 	// Figuring out where to put the \0:
 	char* firstdigit = arr + 8 - digits;
 	a = 8 - digits;
+	while( a-- ) {
+		if( arr[a] != '0' ) // Non-zero digit, set it to be the first.
+			firstdigit = arr+a;
+	}
+	*this += firstdigit;
+	return *this;
+}
+
+string& string::appendOctal( unsigned int val, size_t digits ) {
+	if( digits > 11 )
+		digits = 11;
+	char arr[12]; // We'll make a C string of the number.
+	arr[11] = '\0';
+	size_t a = 11;
+	while( a-- ) {
+		// Translate the number to a C string
+		arr[a] = (val & 0x7) + '0'; // And convert right away
+		val >>= 3;
+	}
+	// Okay, now let's cut away unnecessary digits.
+	// Figuring out where to put the \0:
+	char* firstdigit = arr + 11 - digits;
+	a = 11 - digits;
+	while( a-- ) {
+		if( arr[a] != '0' ) // Non-zero digit, set it to be the first.
+			firstdigit = arr+a;
+	}
+	*this += firstdigit;
+	return *this;
+}
+
+string& string::appendBinary( unsigned int val, size_t digits ) {
+	if( digits > 32 )
+		digits = 32;
+	char arr[33]; // We'll make a C string of the number.
+	arr[32] = '\0';
+	size_t a = 32;
+	while( a-- ) {
+		// Translate the number to a C string
+		arr[a] = (val & 0x1) + '0'; // And convert right away
+		val >>= 1;
+	}
+	// Okay, now let's cut away unnecessary digits.
+	// Figuring out where to put the \0:
+	char* firstdigit = arr + 32 - digits;
+	a = 32 - digits;
 	while( a-- ) {
 		if( arr[a] != '0' ) // Non-zero digit, set it to be the first.
 			firstdigit = arr+a;

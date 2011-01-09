@@ -100,10 +100,10 @@ class string {
 	void reserve( size_t size = 0 ); //--
 	// Sets the string to contain a single null byte. Equivalent to
 	// truncateAt( 0 ), but does not return anything.
-	void clear(); //--
+	void clear(); //++
 	// Clears the string and unallocates the memory, equivalent to
 	// truncateAt( 0 ) followed by reserve().
-	void drop(); //--
+	void drop(); //++
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
 	void validate(); //+
@@ -123,10 +123,10 @@ class string {
 	string& appendHex( unsigned int val, size_t digits = 0 ); //+
 	// Appends an unsigned int in binary to the string. Digits is the
 	// minimal number of digits to append.
-	string& appendBinary( unsigned int b, size_t digits = 0 ); //---
+	string& appendBinary( unsigned int b, size_t digits = 0 ); //+
 	// Appends an unsigned int in octal to the string. Digits is the minimal
 	// number of digits to append.
-	string& appendOctal( unsigned int o, size_t digits = 0 ); //---
+	string& appendOctal( unsigned int o, size_t digits = 0 ); //+
 	// Inserts string str into this string, starting at positino pos.
 	void insert( string const& str, size_t pos ); //---
 	// Inserts C string cstrPTr into this string, starting at position pos.

@@ -33,6 +33,7 @@ libstring.a : constfuncs.o constructors.o destructor.o mutablefuncs.o \
               operators.o constfuncs.cpp constructors.cpp destructor.cpp \
               mutablefuncs.cpp operators.cpp string.h inline.h
 	ar rcs libstring.a constfuncs.o constructors.o destructor.o mutablefuncs.o operators.o 
+	ranlib libstring.a
 
 string.h.gen : string.h
 	cpp -P -o string.h.gen -I$(ROOT_DIR)/include/ string.h

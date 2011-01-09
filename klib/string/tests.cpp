@@ -22,6 +22,13 @@
 #include <cstring>
 #include "string.h.gen"
 
+TEST( klibstringEnsureLinking, EqualityOperator ) {
+	// This test is merely present to make sure everything links fine,
+	// there seems to be a bug if we don't use any inline functions.
+	klib::string s;
+	EXPECT_TRUE( s == "" );
+}
+
 #ifndef SKIPSUCCESSFUL
 // |- Test: string( size_t res = 0 ); -----------------------------------------|
 TEST( klibstringConstructorDefault, NoReserve ) {
@@ -692,65 +699,6 @@ TEST( klibstringAppendOperatorChar, EmptyWithoutReserves ) {
 }
 // |- Done: string& operator+=( const char c ); -------------------------------|
 
-// |- Test: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
-TEST( klibstringAppendOperatorUInt, Normal ) {
-	klib::string s( "0x" );
-	s.appendHex( 0xFFFFFFFF );
-	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
-	    "Strings do not compare as equal.\n";
-	EXPECT_TRUE( s == "0xFFFFFFFF" ); // Required for linking.
-}
-
-TEST( klibstringAppendOperatorUInt, Shorter ) {
-	klib::string s( "0x" );
-	s.appendHex( 0x123456 );
-	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0x123456" ) <<
-	    "Strings do not compare as equal.\n";
-}
-
-TEST( klibstringAppendOperatorUInt, ExplicitlyNormal ) {
-	klib::string s( "0x" );
-	s.appendHex( 0x123456, 8 );
-	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0x00123456" ) <<
-	    "Strings do not compare as equal.\n";
-}
-
-TEST( klibstringAppendOperatorUInt, CharLength ) {
-	klib::string s( "0x" );
-	s.appendHex( 0x76 );
-	EXPECT_EQ( s.size(), 5 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0x76" ) <<
-	    "Strings do not compare as equal.\n";
-}
-
-TEST( klibstringAppendOperatorUInt, WithZeroInTheMiddle ) {
-	klib::string s( "0x" );
-	s.appendHex( 0x760054 );
-	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0x760054" ) <<
-	    "Strings do not compare as equal.\n";
-}
-
-TEST( klibstringAppendOperatorUInt, WithCutoff ) {
-	klib::string s( "0x" );
-	s.appendHex( 0x765432, 4 );
-	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0x765432" ) <<
-	    "Strings do not compare as equal.\n";
-}
-
-TEST( klibstringAppendOperatorUInt, Signed ) {
-	klib::string s( "0x" );
-	s.appendHex( -1 );
-	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
-	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
-	    "Strings do not compare as equal.\n";
-}
-// |- Done: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
-
 // |- Test: char const& operator[]( size_t pos ) const; -----------------------|
 TEST( klibstringIndexOperatorRead, Normal ) {
 	// Ensure that the characters read are the ones expected.
@@ -853,6 +801,46 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
 
+// |- Test: void clear(); -----------------------------------------------------|
+TEST( klibstringClear, Normal ) {
+	klib::string s( "Test." );
+	s.clear();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_GT( s.capacity(), 0 ) << "Capacity was cleared.\n";
+}
+
+TEST( klibstringClear, Empty ) {
+	klib::string s;
+	s.clear();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "Space was allocated.\n";
+}
+
+// |- Done: void clear(); -----------------------------------------------------|
+#endif // SKIPSUCCESSFUL
+
+// |- Test: void drop(); ------------------------------------------------------|
+TEST( klibstringDrop, Normal ) {
+	klib::string s( "Test." );
+	s.drop();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "String was not unallocated.\n";
+}
+
+TEST( klibstringDrop, Empty ) {
+	klib::string s;
+	s.drop();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "Space was allocated.\n";
+}
+
+// |- Done: void drop(); ------------------------------------------------------|
+
+#ifndef SKIPSUCCESSFUL
 // |- Test: void validate(); --------------------------------------------------|
 TEST( klibstringValidate, Normal ) {
 	// Ensure this doesn't do anything.
@@ -920,6 +908,192 @@ TEST( klibstringTruncateAt, EmptyElsewhere ) {
 	EXPECT_TRUE( s == "" ) << "String does not compare as equal.\n";
 }
 // |- Done: string& truncateAt( size_t pos ); ---------------------------------|
+
+// |- Test: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
+TEST( klibstringAppendHex, Normal ) {
+	klib::string s( "0x" );
+	s.appendHex( 0xFFFFFFFF );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_TRUE( s == "0xFFFFFFFF" ); // Required for linking.
+}
+
+TEST( klibstringAppendHex, Shorter ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x123456 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, ExplicitlyNormal ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x123456, 8 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x00123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, CharLength ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x76 );
+	EXPECT_EQ( s.size(), 5 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x76" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, WithZeroInTheMiddle ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x760054 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x760054" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, WithCutoff ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x765432, 4 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, TooMuchRequested ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x765432, 42 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x00765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendHex, Signed ) {
+	klib::string s( "0x" );
+	s.appendHex( -1 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
+
+// |- Test: string& appendOctal( unsigned int val, size_t digits = 0 ); -------|
+TEST( klibstringAppendOctal, Normal ) {
+	klib::string s( "0" );
+	s.appendOctal( 037777777777 );
+	EXPECT_EQ( s.size(), 13 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "037777777777" ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_TRUE( s == "037777777777" ); // Required for linking.
+}
+
+TEST( klibstringAppendOctal, Shorter ) {
+	klib::string s( "0" );
+	s.appendOctal( 0123456 );
+	EXPECT_EQ( s.size(), 8 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOctal, ExplicitlyNormal ) {
+	klib::string s( "0" );
+	s.appendOctal( 0123456, 11 );
+	EXPECT_EQ( s.size(), 13 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "000000123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOctal, CharLength ) {
+	klib::string s( "0" );
+	s.appendOctal( 076 );
+	EXPECT_EQ( s.size(), 4 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "076" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOctal, WithZeroInTheMiddle ) {
+	klib::string s( "0" );
+	s.appendOctal( 0760054 );
+	EXPECT_EQ( s.size(), 8 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0760054" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOctal, WithTooManyChars ) {
+	klib::string s( "0" );
+	s.appendOctal( 0765432, 4 );
+	EXPECT_EQ( s.size(), 8 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOctal, Signed ) {
+	klib::string s( "0" );
+	s.appendOctal( -1 );
+	EXPECT_EQ( s.size(), 13 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "037777777777" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& appendOctal( unsigned int val, size_t digits = 0 ); -------|
+
+// |- Test: string& appendBinary( unsigned int val, size_t digits = 0 ); ------|
+TEST( klibstringAppendBinary, Normal ) {
+	klib::string s( "" );
+	s.appendBinary( 0xFFFFFFFF );
+	EXPECT_EQ( s.size(), 33 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "11111111111111111111111111111111" ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_TRUE( s == "11111111111111111111111111111111" );
+	// Required for linking.
+}
+
+TEST( klibstringAppendBinary, Shorter ) {
+	klib::string s( "" );
+	s.appendBinary( 0xF23456 );
+	EXPECT_EQ( s.size(), 25 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "111100100011010001010110" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendBinary, ExplicitlyNormal ) {
+	klib::string s( "" );
+	s.appendBinary( 0x123456, 33 );
+	EXPECT_EQ( s.size(), 33 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "00000000000100100011010001010110" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendBinary, CharLength ) {
+	klib::string s( "" );
+	s.appendBinary( 0x86 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "10000110" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendBinary, WithZeroInTheMiddle ) {
+	klib::string s( "" );
+	s.appendBinary( 0x860054 );
+	EXPECT_EQ( s.size(), 25 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "100001100000000001010100" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendBinary, WithTooManyChars ) {
+	klib::string s( "" );
+	s.appendBinary( 0x865432, 4 );
+	EXPECT_EQ( s.size(), 25 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "100001100101010000110010" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendBinary, Signed ) {
+	klib::string s( "" );
+	s.appendBinary( -1 );
+	EXPECT_EQ( s.size(), 33 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "11111111111111111111111111111111" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& appendBinary( unsigned int val, size_t digits = 0 ); ------|
 
 // |- Test: void insert( char* cstrPtr, size_t pos ); -------------------------|
 TEST( klibstringInsertCString, Normal ){

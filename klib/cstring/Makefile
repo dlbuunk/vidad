@@ -22,6 +22,7 @@ cstring.o : cstring.cpp cstring.h
 	$(CXX) $(CXXFLAGS) -c -o cstring.o cstring.cpp
 libcstring.a : cstring.o cstring.cpp 
 	ar rcs libcstring.a cstring.o
+	ranlib libcstring.a
 
 cstring.h.gen : cstring.h
 	cpp -P -o cstring.h.gen -I$(ROOT_DIR)/include/ cstring.h
