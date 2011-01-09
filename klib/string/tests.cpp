@@ -800,7 +800,6 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 	EXPECT_FALSE( s == "Test." );
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
-#endif // SKIPSUCCESSFUL
 
 // |- Test: void reserve( size_t size = 0 ); ----------------------------------|
 TEST( klibstringReserve, Normal ) {
@@ -828,7 +827,6 @@ TEST( klibstringReserve, ArgLess ) {
 }
 // |- Done: void reserve( size_t size = 0 ); ----------------------------------|
 
-#ifndef SKIPSUCCESSFUL
 // |- Test: void clear(); -----------------------------------------------------|
 TEST( klibstringClear, Normal ) {
 	klib::string s( "Test." );
@@ -934,7 +932,75 @@ TEST( klibstringTruncateAt, EmptyElsewhere ) {
 	EXPECT_TRUE( s == "" ) << "String does not compare as equal.\n";
 }
 // |- Done: string& truncateAt( size_t pos ); ---------------------------------|
+#endif // SKIPSUCCESSFUL
 
+// |- Test: string& appendDecimal( unsigned int val, size_t digits = 0 ); -----|
+TEST( klibstringAppendDecimal, Normal ) {
+	klib::string s( "" );
+	s.appendDecimal( 1111111111 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "1111111111" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, Shorter ) {
+	klib::string s( "" );
+	s.appendDecimal( 123456 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, ExplicitlyNormal ) {
+	klib::string s( "" );
+	s.appendDecimal( 123456, 10 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0000123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, CharLength ) {
+	klib::string s( "" );
+	s.appendDecimal( 76 );
+	EXPECT_EQ( s.size(), 3 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "76" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, WithZeroInTheMiddle ) {
+	klib::string s( "" );
+	s.appendDecimal( 760054 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "760054" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, WithCutoff ) {
+	klib::string s( "" );
+	s.appendDecimal( 765432, 4 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, TooMuchRequested ) {
+	klib::string s( "" );
+	s.appendDecimal( 765432, 42 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0000765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendDecimal, Signed ) {
+	klib::string s( "" );
+	s.appendDecimal( -1 );
+	EXPECT_EQ( s.size(), 3 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "-1" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Test: string& appendDecimal( unsigned int val, size_t digits = 0 ); -----|
+
+#ifndef SKIPSUCCESSFUL
 // |- Test: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
 TEST( klibstringAppendHex, Normal ) {
 	klib::string s( "0x" );

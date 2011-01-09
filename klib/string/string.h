@@ -117,7 +117,7 @@ class string {
 	string& append( char c ); //++
 	// Appends an int in decimal to the string. Digits is the minimal number
 	// of digits to append.
-	string& appendDecimal( int d, size_t digits = 0 ); //---
+	string& appendDecimal( int d, size_t digits = 0 ); //+
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
 	// Digits is the minimal number of digits to append.
 	string& appendHex( unsigned int val, size_t digits = 0 ); //+

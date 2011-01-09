@@ -74,6 +74,42 @@ string& string::truncateAt( size_t pos ) {
 	return *this;
 }
 
+string& string::appendDecimal( int val, size_t digits ) {
+	if( digits > 10 )
+		digits = 10;
+	bool neg;
+	if( val < 0 ) { // Remember the sign.
+		val = -val;
+		neg = true;
+	} else {
+		neg = false;
+	}
+	char arr[12]; // We'll make a C string of the number.
+	arr[11] = '\0';
+	arr[0] = '-';
+	char* dptr = arr + 10; // Pointer to digit we're working with.
+	while( dptr != arr ) {
+		// Translate the number to a C string
+		// Need to decrement later, to allow space for the '-'
+		*(dptr--) = (val % 10) + '0'; // Oh, and convert to digits
+		val /= 10;
+	}
+	// Okay, now let's cut away unnecessary digits.
+	// Figuring out where to put the \0:
+	char* firstdigit = dptr = arr + 11 - digits;
+	while( --dptr != arr ) {
+		if( *dptr != '0' ) // Non-zero digit, set it to be the first.
+			firstdigit = dptr;
+	}
+	if( neg ) {
+		// Prepend a '-'
+		--firstdigit;
+		firstdigit[0] = '-';
+	}
+	*this += firstdigit;
+	return *this;
+}
+
 string& string::appendHex( unsigned int val, size_t digits ) {
 	if( digits > 8 )
 		digits = 8;
