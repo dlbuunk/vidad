@@ -48,6 +48,15 @@ namespace IO
 		private : KBC *kbc;
 	};
 
+	class Key_Translate_Set3: public Key_Translate
+	{	public : Key_Translate_Set3(Keyboard *out, KBC *kbc);
+		public : ~Key_Translate_Set3();
+		public : void feed_scancode(byte incode);
+		private : Keyboard *out;
+		private : word status; // CTRL ALT BREAK 0 0 CAPS NUM SCROLL
+		private : KBC *kbc;
+	};
+
 	class Keyboard // control center
 	{	public : Keyboard();
 		public : ~Keyboard();

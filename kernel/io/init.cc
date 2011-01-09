@@ -13,9 +13,9 @@ namespace IO
 
 		// setup keyboard
 		kbc = new KBC;
-		kbc->set_keyset(2);
+		kbc->set_keyset(3);
 		keyb = new Keyboard;
-		key_translate = key_trans2 = new Key_Translate_Set2(keyb, kbc);
+		key_translate = key_trans3 = new Key_Translate_Set3(keyb, kbc);
 
 		key_buf = new WordBuffer(64);
 		keyb->set_user(key_buf, 3);
@@ -48,6 +48,7 @@ namespace IO
 		delete key_buf;
 		if (key_translate == key_trans1) delete key_trans1;
 		if (key_translate == key_trans2) delete key_trans2;
+		if (key_translate == key_trans3) delete key_trans3;
 		delete kbc;
 
 		// close VGA video output

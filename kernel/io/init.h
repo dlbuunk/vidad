@@ -18,6 +18,7 @@ namespace IO
 		Key_Translate *key_translate;
 		Key_Translate_Set1 *key_trans1;
 		Key_Translate_Set2 *key_trans2;
+		Key_Translate_Set3 *key_trans3;
 		WordBuffer *key_buf;
 
 		// terminal
