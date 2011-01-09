@@ -113,16 +113,6 @@ string& string::operator+=( const char c ) {
 	return *this;
 }
 
-string& string::operator+=( const unsigned int num ) {
-	(void)num;
-	return *this;
-}
-
-string string::operator+( const unsigned int num ) const {
-	(void)num;
-	return string();
-}
-
 char& string::operator[]( size_t pos ) {
 	if( pos >= strSize_ )
 		return nullval_ = 0;

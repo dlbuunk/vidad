@@ -690,12 +690,68 @@ TEST( klibstringAppendOperatorChar, EmptyWithoutReserves ) {
 	EXPECT_STREQ( s.c_str(), "?" ) <<
 	    "Strings do not compare as equal.\n";
 }
-// |- Done: string& operator+=( const char c ); ------------------------------|
+// |- Done: string& operator+=( const char c ); -------------------------------|
 
-// |- Test: string operator+( string const& str ) const; ---------------------|
-// |- Done: string operator+( string const& str ) const; ---------------------|
+// |- Test: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
+TEST( klibstringAppendOperatorUInt, Normal ) {
+	klib::string s( "0x" );
+	s.appendHex( 0xFFFFFFFF );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
+	    "Strings do not compare as equal.\n";
+	EXPECT_TRUE( s == "0xFFFFFFFF" ); // Required for linking.
+}
 
-// |- Test: char const& operator[]( size_t pos ) const; ----------------------|
+TEST( klibstringAppendOperatorUInt, Shorter ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x123456 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorUInt, ExplicitlyNormal ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x123456, 8 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x00123456" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorUInt, CharLength ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x76 );
+	EXPECT_EQ( s.size(), 5 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x76" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorUInt, WithZeroInTheMiddle ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x760054 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x760054" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorUInt, WithCutoff ) {
+	klib::string s( "0x" );
+	s.appendHex( 0x765432, 4 );
+	EXPECT_EQ( s.size(), 9 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0x765432" ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAppendOperatorUInt, Signed ) {
+	klib::string s( "0x" );
+	s.appendHex( -1 );
+	EXPECT_EQ( s.size(), 11 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "0xFFFFFFFF" ) <<
+	    "Strings do not compare as equal.\n";
+}
+// |- Done: string& appendHex( unsigned int val, size_t digits = 0 ); ---------|
+
+// |- Test: char const& operator[]( size_t pos ) const; -----------------------|
 TEST( klibstringIndexOperatorRead, Normal ) {
 	// Ensure that the characters read are the ones expected.
 	char const* p = "Test.";
