@@ -50,6 +50,33 @@ string& string::truncateAt( size_t pos ) {
 	return *this;
 }
 
+string& string::appendHex( unsigned int val, size_t digits ) {
+	char arr[9] = { 0 }; // We'll make a C string of the number.
+	size_t a = 8;
+	while( a-- ) {
+		// Translate the number to a C string
+		arr[a] = val & 0xF;
+		val >>= 4;
+	}
+	// Converting to symbols...
+	for( a = 0; a < 8; ++a ) {
+		if( arr[a] < 9 )
+			arr[a] += '0'; // 0 becomes 48, i.e. '0', etc.
+		else
+			arr[a] += 55; // 10 becomes 65, i.e. 'A', etc.
+	}
+	// Okay, now let's cut away unnecessary digits.
+	// Figuring out where to put the \0:
+	char* firstdigit = arr + 8 - digits;
+	a = 8 - digits;
+	while( a-- ) {
+		if( arr[a] != '0' ) // Non-zero digit, set it to be the first.
+			firstdigit = arr+a;
+	}
+	*this += firstdigit;
+	return *this;
+}
+
 void string::insert( char const* cstrPtr, size_t pos ) {
 	if( pos >= strSize_ )
 		// Out of bounds

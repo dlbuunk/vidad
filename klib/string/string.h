@@ -77,13 +77,11 @@ class string {
 	string& operator+=( string const& str ); //++
 	string& operator+=( char const* cstrPtr ); //++
 	string& operator+=( const char c ); //++
-	string& operator+=( const unsigned int num ); //--
 	// Create a new string from this string and another string, a C string,
 	// a character or an integer (hexadecimal).
 	string operator+( string const& str ) const; //+
 	string operator+( char const* cstrPtr ) const; //+
 	string operator+( const char c ) const; //+
-	string operator+( const unsigned int num ) const; //--
 	// Returns a (const) reference to a char.
 	const char& operator[]( size_t pos ) const; //++
 	char& operator[]( size_t pos ); //++
@@ -102,7 +100,7 @@ class string {
 	void reserve( size_t size = 0 ); //--
 	// Sets the string to contain a single null byte. Equivalent to
 	// truncateAt( 0 ), but does not return anything.
-	void clear(); //+
+	void clear(); //--
 	// Clears the string and unallocates the memory, equivalent to
 	// truncateAt( 0 ) followed by reserve().
 	void drop(); //--
@@ -112,19 +110,23 @@ class string {
 	// Truncates the string at position pos (i.e. keeping pos characters).
 	string& truncateAt( size_t pos ); //+
 	// Appends a string to the string.
-	string& append( string const& str ); //---
+	string& append( string const& str ); //+
 	// Appends a C string to the string.
-	string& append( char const* cstrPtr ); //---
+	string& append( char const* cstrPtr ); //+
 	// Appends a character to the string.
-	string& append( char c ); //---
-	// Appends an int in decimal to the string.
-	string& appendDecimal( int d ); //---
+	string& append( char c ); //+
+	// Appends an int in decimal to the string. Digits is the minimal number
+	// of digits to append.
+	string& appendDecimal( int d, size_t digits = 0 ); //---
 	// Appends an unsigned int in hexadecimal (lowercase) to the string.
-	string& appendHex( unsigned int h ); //---
-	// Appends an unsigned int in binary to the string.
-	string& appendBinary( unsigned int b ); //---
-	// Appends an unsigned int in octal to the string.
-	string& appendOctal( unsigned int o ); //---
+	// Digits is the minimal number of digits to append.
+	string& appendHex( unsigned int val, size_t digits = 0 ); //+
+	// Appends an unsigned int in binary to the string. Digits is the
+	// minimal number of digits to append.
+	string& appendBinary( unsigned int b, size_t digits = 0 ); //---
+	// Appends an unsigned int in octal to the string. Digits is the minimal
+	// number of digits to append.
+	string& appendOctal( unsigned int o, size_t digits = 0 ); //---
 	// Inserts string str into this string, starting at positino pos.
 	void insert( string const& str, size_t pos ); //---
 	// Inserts C string cstrPTr into this string, starting at position pos.
