@@ -11,11 +11,15 @@ namespace IO
 		public : void set_keyset(int set);
 		public : void set_leds(byte status);
 		public : void set_translator(Key_Translate *new_tl);
+		private : void init();
 		private : void wait_write();
 		private : void wait_read();
-		private : static void handle_irq(dword ptr);
+		private : void send(byte val);
+		private : byte last_send;
+		private : static void handle_irq(KBC *th);
 		private : int inter_num;
 		private : Key_Translate *tl;
+		private : volatile bool echo, error;
 	};
 
 	class Key_Translate // base class

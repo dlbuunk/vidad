@@ -1,14 +1,22 @@
 #include <kernel.h>
 #include <io/io.h>
 
-// TODO, make set_keyset() edit the command word, not overwrite it.
+// TODO:
+// make set_keyset() edit the command word, not overwrite it.
+// prevent init() from chocking on no echo
 
 // port 0x64 is command/status
 // port 0x60 is data
 namespace IO
 {	KBC::KBC()
+	{	tl = 0;
+		error = 0;
+		init();
+	}
+
+	void KBC::init()
 	{	byte result;
-		tl = 0;
+		echo = 0;
 
 		// enable keyboard
 		wait_write();
@@ -31,12 +39,10 @@ namespace IO
 		if (! result) printf("Keyboard, KBC: interface test OK.\n");
 		else printf("Keyboard, KBC: interface test error, error code 0x%2X.\n", result);
 
-		// echo
-		wait_write();
-		outportb(0x60, 0xEE);
-		wait_read();
-		if (0xEE == inportb(0x60)) printf("Keyboard, KBC: echo OK.\n");
-		else printf("Keyboard, KBC: echo not OK, keyboard not connected?\n");
+		// get irq handle
+		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
+		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
+		}
 
 		// set command byte to 0x65, translate, keyboard, no mouse
 		wait_write();
@@ -49,10 +55,10 @@ namespace IO
 		result = inportb(0x60);
 		if (result != 0x65) printf("Keyboard, KBC: error, cannot set command byte, reread value is: 0x%2X.\n", result);
 
-		// get irq handle
-		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
-		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
-		}
+		// echo
+		send(0xEE);
+		while (! echo); // This should be changed, if there is no echo, the thing get struck here.
+		printf("Keyboard, KBC: echo OK.\n");
 
 		set_leds(0);
 	}
@@ -74,19 +80,36 @@ namespace IO
 	{	while (inportb(0x64) & 0x02);
 	}
 
-	void KBC::handle_irq(dword ptr)
-	{	KBC *th;
-		th = (KBC *) ptr;
-		th->wait_read();
-		if (th->tl) th->tl->feed_scancode(inportb(0x60));
-		else inportb(0x60);
+	void KBC::send(byte val)
+	{	wait_write();
+		outportb(0x60, last_send = val);
+	}
+
+	void KBC::handle_irq(KBC *th)
+	{	th->wait_read();
+		switch (byte incode = inportb(0x60))
+		{	case 0xEE : th->echo = 1; return;
+			case 0xFA : return; // ACK
+			case 0xFE : th->send(th->last_send); return; // NACK
+			case 0x00 : // these are errors of some kind
+			case 0xFC :
+			case 0xFD :
+			case 0xFF :
+			{	if (th->error) printf("Fatal keyboard error, keyboard now disfunct.\nPress any key, go ahead, it won't do anything now.");
+				else
+				{	printf("Keyboard error, keyboard will try to re-init");
+					th->error = 1;
+					asm ("mov $0x20,%%al\n\tout %%al,$0x20\n\t" : : : "%al"); // ack the irq to the PIC
+					th->init();
+				}
+			} break;
+			default : if (th->tl) th->tl->feed_scancode(incode);
+		}
 	}
 
 	void KBC::set_leds(byte status)
-	{	wait_write();
-		outportb(0x60, 0xED);
-		wait_write();
-		outportb(0x60, status);
+	{	send(0xED);
+		send(status);
 	}
 
 	void KBC::set_translator(Key_Translate *new_tl)
@@ -100,22 +123,16 @@ namespace IO
 			outportb(0x64, 0x60);
 			wait_write();
 			outportb(0x60, 0x65);
-			wait_write();
-			outportb(0x64, 0x20);
 		}
 		else
 		{	// set scanset
-			wait_write();
-			outportb(0x60, 0xF0);
-			wait_write();
-			outportb(0x60, set);
-			wait_write();
-			outportb(0x64, 0x60);
+			send(0xF0);
+			send(set);
 			// translate OFF
 			wait_write();
-			outportb(0x60, 0x25);
+			outportb(0x64, 0x60);
 			wait_write();
-			outportb(0x64, 0x20);
+			outportb(0x60, 0x25);
 		}
 	}
 

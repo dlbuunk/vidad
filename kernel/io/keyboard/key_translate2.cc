@@ -1,11 +1,6 @@
 #include <kernel.h>
 #include <io/io.h>
 
-// TODO:
-// keypad-enter
-// SysRq doesn't work
-// That 4 that gets echo'd to the screen, what about that?
-
 namespace IO
 {	Key_Translate_Set2::Key_Translate_Set2(Keyboard *out, KBC *kbc)
 	{	this->kbc = kbc;
@@ -20,23 +15,23 @@ namespace IO
 
 	void Key_Translate_Set2::feed_scancode(byte incode)
 	{	word outcode = 0;
-		if (incode == 0xFA) return; // This is an ACK, we don't need those 
 
 		// if (code == 0xF0) then next code is break code
 		if (incode == 0xF0) { status |= 0x20; return; }
 
 		// escape code 1
-		if (incode == 0xE1) { status |= 0x10; return; }
+		if (incode == 0xE1) { status |= 0x10; goto end; }
 
 		// escape code 0
-		if (incode == 0xE0) { status |= 0x08; return; }
+		if (incode == 0xE0) { status |= 0x08; goto end; }
 
 		if (status & 0x08) // handle escape 0
 		{	switch (incode)
 			{	case 0x14 : status = (status & 0x20) ? (status & ~0x80) : (status | 0x80); break; // right control
-				case 0x11 : status = (status & 0x20) ? (status & ~0x40) : (status | 0x80); break; // right alt
-				case 0x12 : return; // fake shift, don't turn off escaoe flag
-				case 0x7C : outcode = status & 0x40 ? 0x1100 : 0x1000; break; // printscreen && sysrq
+				case 0x11 : status = (status & 0x20) ? (status & ~0x40) : (status | 0x40); break; // right alt
+				case 0x5A : outcode = 0x000A; break; // keypad-enter
+				case 0x12 : goto end; // fake shift, don't turn off escaoe flag
+				case 0x7C : outcode = 0x1000; break; // printscreen
 				case 0x71 : outcode = 0x1200; break; // delete
 				case 0x70 : outcode = 0x1300; break; // insert
 				case 0x69 : outcode = 0x1500; break; // end
@@ -63,29 +58,30 @@ namespace IO
 		else // handle normal key
 		{	switch (incode)
 			{	case 0x14 : status = (status & 0x20) ? (status & ~0x80) : (status | 0x80); break; // left control
-				case 0x11 : status = (status & 0x20) ? (status & ~0x40) : (status | 0x80); break; // left alt
+				case 0x11 : status = (status & 0x20) ? (status & ~0x40) : (status | 0x40); break; // left alt
 				case 0x59 : // right shift
 				case 0x12 : // left shift, SO if break flag, SI otherwise
 				{	outcode = (status & 0x20) ? 0x000E : 0x000F;
 					status &= ~0x20; // turn off break flag
 				} break;
-				case 0x58 : if (status & 0x20) { status ^= 0x04; kbc->set_leds(status & 0x07); } return; // CAPS lock
-				case 0x77 : if (status & 0x20) { status ^= 0x02; kbc->set_leds(status & 0x07); } return; // Num lock
-				case 0x7E : if (status & 0x20) { status ^= 0x01; kbc->set_leds(status & 0x07); } return; // Scroll lock
+				case 0x58 : if (status & 0x20) { status ^= 0x04; kbc->set_leds(status & 0x07); } goto end; // CAPS lock
+				case 0x77 : if (status & 0x20) { status ^= 0x02; kbc->set_leds(status & 0x07); } goto end; // Num lock
+				case 0x7E : if (status & 0x20) { status ^= 0x01; kbc->set_leds(status & 0x07); } goto end; // Scroll lock
 				case 0x76 : outcode = 0x1C00; break; // Escape
+				case 0x84 : outcode = 0x1100; goto feed; // sysrq, the goto is there to prevent that alt being send with.
 				// here come the function keys
-				case 0x05 : outcode = 0x0100;
-				case 0x06 : outcode = 0x0200;
-				case 0x04 : outcode = 0x0300;
-				case 0x0C : outcode = 0x0400;
-				case 0x03 : outcode = 0x0500;
-				case 0x0B : outcode = 0x0600;
-				case 0x83 : outcode = 0x0700;
-				case 0x0A : outcode = 0x0800;
-				case 0x01 : outcode = 0x0900;
-				case 0x09 : outcode = 0x0A00;
-				case 0x78 : outcode = 0x0B00;
-				case 0x07 : outcode = 0x0C00;
+				case 0x05 : outcode = 0x0100; break;
+				case 0x06 : outcode = 0x0200; break;
+				case 0x04 : outcode = 0x0300; break;
+				case 0x0C : outcode = 0x0400; break;
+				case 0x03 : outcode = 0x0500; break;
+				case 0x0B : outcode = 0x0600; break;
+				case 0x83 : outcode = 0x0700; break;
+				case 0x0A : outcode = 0x0800; break;
+				case 0x01 : outcode = 0x0900; break;
+				case 0x09 : outcode = 0x0A00; break;
+				case 0x78 : outcode = 0x0B00; break;
+				case 0x07 : outcode = 0x0C00; break;
 				// and the keypad numbers (first the '.' then the numbers from 0 thru 9)
 				case 0x71 : outcode = status & 0x02 ? 0x002E : 0x1200; break;
 				case 0x70 : outcode = status & 0x02 ? 0x0030 : 0x1300; break;
@@ -103,9 +99,9 @@ namespace IO
 		}
 
 		if ((status & 0x04) && outcode > 0x60 && outcode < 0x7B) outcode -= 0x20; // handle CAPS lock
-		if (! outcode) return; // outcode == 0 means, we cannot use the code somehow.
+		if (! outcode) goto end; // outcode == 0 means, we cannot use the code somehow.
 		outcode |= (status & 0xE0) << 8;
-		status &= ~0x20; // turn off break flag if it happens to be on
-		out->feed_code(outcode);
+		feed: out->feed_code(outcode);
+		end: status &= ~0x20; // turn off break flag if it happens to be on
 	}
 }
