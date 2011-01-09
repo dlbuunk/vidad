@@ -37,6 +37,10 @@ void string::clear() {
 }
 
 void string::drop() {
+	delete[] strPtr_;
+	strPtr_ = 0;
+	allocSize_ = 0;
+	strSize_ = 1;
 }
 
 void string::validate() {

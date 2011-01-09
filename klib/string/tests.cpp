@@ -800,7 +800,6 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 	EXPECT_FALSE( s == "Test." );
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
-#endif // SKIPSUCCESSFUL
 
 // |- Test: void clear(); -----------------------------------------------------|
 TEST( klibstringClear, Normal ) {
@@ -820,6 +819,26 @@ TEST( klibstringClear, Empty ) {
 }
 
 // |- Done: void clear(); -----------------------------------------------------|
+#endif // SKIPSUCCESSFUL
+
+// |- Test: void drop(); ------------------------------------------------------|
+TEST( klibstringDrop, Normal ) {
+	klib::string s( "Test." );
+	s.drop();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "String was not unallocated.\n";
+}
+
+TEST( klibstringDrop, Empty ) {
+	klib::string s;
+	s.drop();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "Space was allocated.\n";
+}
+
+// |- Done: void drop(); ------------------------------------------------------|
 
 #ifndef SKIPSUCCESSFUL
 // |- Test: void validate(); --------------------------------------------------|

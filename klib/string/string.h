@@ -100,10 +100,10 @@ class string {
 	void reserve( size_t size = 0 ); //--
 	// Sets the string to contain a single null byte. Equivalent to
 	// truncateAt( 0 ), but does not return anything.
-	void clear(); //--
+	void clear(); //++
 	// Clears the string and unallocates the memory, equivalent to
 	// truncateAt( 0 ) followed by reserve().
-	void drop(); //--
+	void drop(); //++
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
 	void validate(); //+
