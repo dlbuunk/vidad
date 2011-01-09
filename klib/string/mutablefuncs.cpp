@@ -186,6 +186,39 @@ string& string::appendBinary( unsigned int val, size_t digits ) {
 	return *this;
 }
 
+void string::insert( string const& str, size_t pos ) {
+	if( pos >= strSize_ )
+		// Out of bounds
+		return;
+	if( !allocSize_ ) {
+		strSize_ = str.strSize_;
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		strPtr_ = new char[allocSize_];
+		strcpy( strPtr_, str.strPtr_ );
+		return;
+	}
+	if( strSize_ + str.strSize_ - 1 > allocSize_ ) {
+		// We don't need the original size anymore.
+		strSize_ += str.strSize_ - 1;
+		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		char* tmpPtr = new char[allocSize_];
+		memcpy( tmpPtr, strPtr_, pos );
+		strcpy( tmpPtr + pos, str.strPtr_ );
+		strcpy( tmpPtr + pos + str.strSize_ - 1, strPtr_ + pos );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
+	} else {
+		// Move things up:
+		// By the length of the other string.
+		memmove( strPtr_ + pos + str.strSize_ - 1, 
+		         strPtr_ + pos  , // From the position inserted at.
+		         strSize_ - pos ); // This number of chars.
+		// Can't use strcpy here, as it would add a \0.
+		memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ - 1 );
+		strSize_ += str.strSize_ - 1;
+	}
+}
+
 void string::insert( char const* cstrPtr, size_t pos ) {
 	if( pos >= strSize_ )
 		// Out of bounds

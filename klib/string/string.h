@@ -128,7 +128,7 @@ class string {
 	// number of digits to append.
 	string& appendOctal( unsigned int o, size_t digits = 0 ); //+
 	// Inserts string str into this string, starting at positino pos.
-	void insert( string const& str, size_t pos ); //---
+	void insert( string const& str, size_t pos ); //+
 	// Inserts C string cstrPTr into this string, starting at position pos.
 	void insert( char const* cstrPtr, size_t pos ); //+
 	// Inserts char c at position pos.
