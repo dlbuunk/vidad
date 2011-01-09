@@ -1,3 +1,19 @@
+/* This file is part of Vidad.
+*
+*  Vidad is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Vidad is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Vidad.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 /* this is a list of all functions in the global namespace
 * first come the C function, then the C++ functions
 * there are two global asm functions:
@@ -25,6 +41,7 @@ extern void outportb(word port, byte val);
 /* data to be found in kernel_data.c */
 extern byte keyboard_mode1[];
 extern byte keyboard_mode2[];
+extern word keyboard_mode3[];
 extern byte keyboard_shift[];
 
 extern const byte system_font8[];

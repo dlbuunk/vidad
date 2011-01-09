@@ -1,3 +1,19 @@
+/* This file is part of Vidad.
+*
+*  Vidad is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Vidad is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Vidad.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 // TODO: make key sets 2 and 3
 
 namespace IO
@@ -45,6 +61,15 @@ namespace IO
 		public : void feed_scancode(byte incode);
 		private : Keyboard *out;
 		private : word status; // CTRL ALT BREAK ESCAPE1 ESCAPE0 CAPS NUM SCROLL
+		private : KBC *kbc;
+	};
+
+	class Key_Translate_Set3: public Key_Translate
+	{	public : Key_Translate_Set3(Keyboard *out, KBC *kbc);
+		public : ~Key_Translate_Set3();
+		public : void feed_scancode(byte incode);
+		private : Keyboard *out;
+		private : word status; // CTRL ALT BREAK 0 0 CAPS NUM SCROLL
 		private : KBC *kbc;
 	};
 

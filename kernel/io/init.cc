@@ -1,3 +1,19 @@
+/* This file is part of Vidad.
+*
+*  Vidad is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Vidad is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Vidad.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <kernel.h>
 #include <io/io.h>
 
@@ -13,9 +29,9 @@ namespace IO
 
 		// setup keyboard
 		kbc = new KBC;
-		kbc->set_keyset(2);
+		kbc->set_keyset(3);
 		keyb = new Keyboard;
-		key_translate = key_trans2 = new Key_Translate_Set2(keyb, kbc);
+		key_translate = key_trans3 = new Key_Translate_Set3(keyb, kbc);
 
 		key_buf = new WordBuffer(64);
 		keyb->set_user(key_buf, 3);
@@ -48,6 +64,7 @@ namespace IO
 		delete key_buf;
 		if (key_translate == key_trans1) delete key_trans1;
 		if (key_translate == key_trans2) delete key_trans2;
+		if (key_translate == key_trans3) delete key_trans3;
 		delete kbc;
 
 		// close VGA video output

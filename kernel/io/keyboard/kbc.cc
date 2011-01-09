@@ -1,3 +1,19 @@
+/* This file is part of Vidad.
+*
+*  Vidad is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Vidad is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Vidad.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <kernel.h>
 #include <io/io.h>
 
@@ -21,6 +37,7 @@ namespace IO
 		// enable keyboard
 		wait_write();
 		outportb(0x64, 0xAE);
+		send(0xF4);
 		printf("Keyboard, KBC: keyboard enabled.\n");
 
 		// self test
@@ -60,6 +77,10 @@ namespace IO
 		while (! echo); // This should be changed, if there is no echo, the thing get struck here.
 		printf("Keyboard, KBC: echo OK.\n");
 
+		// set all keys to produce break codes.
+		send(0xFA);
+
+		// clear all leds
 		set_leds(0);
 	}
 
