@@ -6,7 +6,7 @@ These are the plans for the kernel only.
 
 ===== These are the short term plans, in chronological order (i hope to have this finished in a week or two): =====
 
-0) turn on the cache (but only if we detect a 486 or better)
+OK) turn on the cache (but only if we detect a 486 or better)
 
 1) Add scancode sets 2 and 3 to the keyboard driver. \
 		(this will hopefully solve some problems with modern keys, set 1 is about 30 years old)

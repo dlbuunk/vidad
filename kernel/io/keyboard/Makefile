@@ -1,7 +1,7 @@
 include ../../../local.mk
 
-keyb.o: kbc.o key_translate.o keyboard.o
-	ld -S -r -o keyb.o kbc.o key_translate.o keyboard.o
+keyb.o: kbc.o key_translate1.o key_translate2.o keyboard.o
+	ld -S -r -o keyb.o kbc.o key_translate1.o key_translate2.o keyboard.o
 	cp keyb.o ..
 
 kbc.o: kbc.cc
@@ -10,9 +10,11 @@ kbc.o: kbc.cc
 keyboard.o: keyboard.cc
 	$(CXX) $(CXXFLAGS) -c -o keyboard.o keyboard.cc
 
-key_translate.o: key_translate.cc
-	$(CXX) $(CXXFLAGS) -c -o key_translate.o key_translate.cc
+key_translate1.o: key_translate1.cc
+	$(CXX) $(CXXFLAGS) -c -o key_translate1.o key_translate1.cc
 
+key_translate2.o: key_translate2.cc
+	$(CXX) $(CXXFLAGS) -c -o key_translate2.o key_translate2.cc
 
 .PHONY: clean
 clean:

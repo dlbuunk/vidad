@@ -7,7 +7,7 @@ all: force_look
 	dd if=bootload.bin of=image
 	dd if=kernel.bin of=image seek=2
 
-write:
+write: all
 	dd if=image of=/dev/fd0u1440
 
 .PHONY: clean
