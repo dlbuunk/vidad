@@ -19,8 +19,6 @@ namespace IO
 		// if (code == 0xF0) then next code is break code
 		if (incode == 0xF0) { status |= 0x20; return; }
 
-	//	printf("%2X  ", incode); return; //DEBUG
-
 		switch (incode)
 		{	case 0x5F : if (status & 0x20) { status ^= 0x01; kbc->set_leds(status & 0x07); } goto end; // scroll lock
 			case 0x76 : if (status & 0x20) { status ^= 0x02; kbc->set_leds(status & 0x07); } goto end; // num lock

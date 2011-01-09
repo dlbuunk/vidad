@@ -21,6 +21,7 @@ namespace IO
 		// enable keyboard
 		wait_write();
 		outportb(0x64, 0xAE);
+		send(0xF4);
 		printf("Keyboard, KBC: keyboard enabled.\n");
 
 		// self test
@@ -60,6 +61,10 @@ namespace IO
 		while (! echo); // This should be changed, if there is no echo, the thing get struck here.
 		printf("Keyboard, KBC: echo OK.\n");
 
+		// set all keys to produce break codes.
+		send(0xFA);
+
+		// clear all leds
 		set_leds(0);
 	}
 
