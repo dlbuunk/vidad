@@ -44,8 +44,8 @@ string& string::operator=( char const* cstrPtr ) {
 	strSize_ = strlen( cstrPtr ) + 1;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
-		delete[] strPtr_;
 		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		delete[] strPtr_;
 		strPtr_ = new char[allocSize_];
 	}
 	strcpy( strPtr_, cstrPtr );
@@ -117,8 +117,8 @@ char& string::operator[]( size_t pos ) {
 	if( pos >= strSize_ )
 		return nullval_ = 0;
 	if( !allocSize_ ) {
-		strPtr_ = new char[roundto_];
 		allocSize_ = roundto_;
+		strPtr_ = new char[roundto_];
 		strPtr_[0] = '\0';
 	}
 	return strPtr_[pos];

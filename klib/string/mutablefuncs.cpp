@@ -24,7 +24,21 @@
 namespace klib {
 
 void string::reserve( size_t size ) {
-	(void)size;
+	if( size < strSize_ )
+		size = strSize_; // Avoid requests that ask for too little.
+	if( size == allocSize_ )
+		return; // Avoid doing anything if nothing needs to be done.
+	allocSize_ = size; // We don't care how much was allocated before.
+	if( !strPtr_ ) { // In case we didn't have a string.
+		strPtr_ = new char[size];
+		strPtr_[0] = '\0';
+	} else {
+		// Standard procedure.
+		char* tmpPtr = new char[size];
+		memcpy( tmpPtr, strPtr_, strSize_ );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
+	}
 }
 
 void string::clear() {

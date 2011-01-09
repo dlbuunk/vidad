@@ -800,7 +800,35 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 	EXPECT_FALSE( s == "Test." );
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
+#endif // SKIPSUCCESSFUL
 
+// |- Test: void reserve( size_t size = 0 ); ----------------------------------|
+TEST( klibstringReserve, Normal ) {
+	klib::string s( "Testing" );
+	s.reserve( 16 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, Empty ) {
+	klib::string s;
+	s.reserve( 16 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, TooLittle ) {
+	klib::string s( "Testing string." );
+	s.reserve( 8 );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+
+TEST( klibstringReserve, ArgLess ) {
+	klib::string s( "Testing string." );
+	s.reserve( );
+	EXPECT_EQ( s.capacity(), 16 ) << "Capacity mismatch.\n";
+}
+// |- Done: void reserve( size_t size = 0 ); ----------------------------------|
+
+#ifndef SKIPSUCCESSFUL
 // |- Test: void clear(); -----------------------------------------------------|
 TEST( klibstringClear, Normal ) {
 	klib::string s( "Test." );
@@ -819,7 +847,6 @@ TEST( klibstringClear, Empty ) {
 }
 
 // |- Done: void clear(); -----------------------------------------------------|
-#endif // SKIPSUCCESSFUL
 
 // |- Test: void drop(); ------------------------------------------------------|
 TEST( klibstringDrop, Normal ) {
@@ -840,7 +867,6 @@ TEST( klibstringDrop, Empty ) {
 
 // |- Done: void drop(); ------------------------------------------------------|
 
-#ifndef SKIPSUCCESSFUL
 // |- Test: void validate(); --------------------------------------------------|
 TEST( klibstringValidate, Normal ) {
 	// Ensure this doesn't do anything.
