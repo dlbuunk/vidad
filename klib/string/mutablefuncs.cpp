@@ -28,6 +28,12 @@ void string::reserve( size_t size ) {
 }
 
 void string::clear() {
+	if( !strPtr_ )
+		// String already not there.
+		return;
+	// Otherwise, we clear it.
+	strSize_ = 1;
+	strPtr_[0] = '\0';
 }
 
 void string::drop() {

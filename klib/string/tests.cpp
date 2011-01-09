@@ -22,6 +22,13 @@
 #include <cstring>
 #include "string.h.gen"
 
+TEST( klibstringEnsureLinking, EqualityOperator ) {
+	// This test is merely present to make sure everything links fine,
+	// there seems to be a bug if we don't use any inline functions.
+	klib::string s;
+	EXPECT_TRUE( s == "" );
+}
+
 #ifndef SKIPSUCCESSFUL
 // |- Test: string( size_t res = 0 ); -----------------------------------------|
 TEST( klibstringConstructorDefault, NoReserve ) {
@@ -793,7 +800,28 @@ TEST( klibstringEqualityOperatorCString, Unallocated ) {
 	EXPECT_FALSE( s == "Test." );
 }
 // |- Done: bool operator==( char const* cstrPtr ) const; ---------------------|
+#endif // SKIPSUCCESSFUL
 
+// |- Test: void clear(); -----------------------------------------------------|
+TEST( klibstringClear, Normal ) {
+	klib::string s( "Test." );
+	s.clear();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_GT( s.capacity(), 0 ) << "Capacity was cleared.\n";
+}
+
+TEST( klibstringClear, Empty ) {
+	klib::string s;
+	s.clear();
+	EXPECT_EQ( s.size(), 1 ) << "String not empty.\n";
+	EXPECT_TRUE( s.empty() ) << "String not empty.\n";
+	EXPECT_EQ( s.capacity(), 0 ) << "Space was allocated.\n";
+}
+
+// |- Done: void clear(); -----------------------------------------------------|
+
+#ifndef SKIPSUCCESSFUL
 // |- Test: void validate(); --------------------------------------------------|
 TEST( klibstringValidate, Normal ) {
 	// Ensure this doesn't do anything.
