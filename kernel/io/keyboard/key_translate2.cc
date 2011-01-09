@@ -30,7 +30,11 @@ namespace IO
 			{	case 0x14 : status = (status & 0x20) ? (status & ~0x80) : (status | 0x80); break; // right control
 				case 0x11 : status = (status & 0x20) ? (status & ~0x40) : (status | 0x40); break; // right alt
 				case 0x5A : outcode = 0x000A; break; // keypad-enter
-				case 0x12 : goto end; // fake shift, don't turn off escaoe flag
+				case 0x12 : // fake shifts
+				case 0x59 :
+				{	outcode = (status & 0x20) ? 0x000E : 0x000F;
+					status &= ~0x20; // turn off break flag
+				} break;
 				case 0x7C : outcode = 0x1000; break; // printscreen
 				case 0x71 : outcode = 0x1200; break; // delete
 				case 0x70 : outcode = 0x1300; break; // insert
