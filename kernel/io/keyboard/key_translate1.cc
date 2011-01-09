@@ -17,7 +17,7 @@ namespace IO
 	}
 
 	Key_Translate_Set1::~Key_Translate_Set1()
-	{
+	{	kbc->set_translator(NULL); // give the kbc a NULL pointer, so it won't call an nonexistent object.
 	}
 
 	void Key_Translate_Set1::feed_scancode(byte incode)

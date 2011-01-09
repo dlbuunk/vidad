@@ -43,6 +43,13 @@ namespace IO
 			delete term_buf;
 		}
 
+		// close keyboard
+		delete keyb;
+		delete key_buf;
+		if (key_translate == key_trans1) delete key_trans1;
+		if (key_translate == key_trans2) delete key_trans2;
+		delete kbc;
+
 		// close VGA video output
 		if (vga_text == video) delete vga_text;
 
