@@ -123,10 +123,10 @@ class string {
 	string& appendHex( unsigned int val, size_t digits = 0 ); //+
 	// Appends an unsigned int in binary to the string. Digits is the
 	// minimal number of digits to append.
-	string& appendBinary( unsigned int b, size_t digits = 0 ); //---
+	string& appendBinary( unsigned int b, size_t digits = 0 ); //+
 	// Appends an unsigned int in octal to the string. Digits is the minimal
 	// number of digits to append.
-	string& appendOctal( unsigned int o, size_t digits = 0 ); //---
+	string& appendOctal( unsigned int o, size_t digits = 0 ); //+
 	// Inserts string str into this string, starting at positino pos.
 	void insert( string const& str, size_t pos ); //---
 	// Inserts C string cstrPTr into this string, starting at position pos.
