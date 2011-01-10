@@ -32,12 +32,18 @@ namespace IO
 
 	void KBC::init()
 	{	byte result;
-		echo = 0;
+		echo = ack = 0;
+
+		// get irq handle
+		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
+		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
+		}
 
 		// enable keyboard
 		wait_write();
 		outportb(0x64, 0xAE);
 		send(0xF4);
+		while (! ack);
 		printf("Keyboard, KBC: keyboard enabled.\n");
 
 		// self test
@@ -55,11 +61,6 @@ namespace IO
 		result = inportb(0x60);
 		if (! result) printf("Keyboard, KBC: interface test OK.\n");
 		else printf("Keyboard, KBC: interface test error, error code 0x%2X.\n", result);
-
-		// get irq handle
-		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
-		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
-		}
 
 		// set command byte to 0x65, translate, keyboard, no mouse
 		wait_write();
@@ -79,6 +80,13 @@ namespace IO
 
 		// set all keys to produce break codes.
 		send(0xFA);
+
+		// enable keyboard (second time)
+		ack = 0;
+		wait_write();
+		outportb(0x64, 0xAE);
+		send(0xF4);
+		while (! ack);
 
 		// clear all leds
 		set_leds(0);
@@ -110,7 +118,7 @@ namespace IO
 	{	th->wait_read();
 		switch (byte incode = inportb(0x60))
 		{	case 0xEE : th->echo = 1; return;
-			case 0xFA : return; // ACK
+			case 0xFA : th->ack = 1; return; // ACK
 			case 0xFE : th->send(th->last_send); return; // NACK
 			case 0x00 : // these are errors of some kind
 			case 0xFC :

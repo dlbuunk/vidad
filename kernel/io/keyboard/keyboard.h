@@ -14,8 +14,6 @@
 *  along with Vidad.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// TODO: make key sets 2 and 3
-
 namespace IO
 {	class Key_Translate;
 	class Keyboard;
@@ -35,7 +33,7 @@ namespace IO
 		private : static void handle_irq(KBC *th);
 		private : int inter_num;
 		private : Key_Translate *tl;
-		private : volatile bool echo, error;
+		private : volatile bool echo, error, ack;
 	};
 
 	class Key_Translate // base class
