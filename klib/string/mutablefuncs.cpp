@@ -41,29 +41,32 @@ void string::reserve( size_t size ) {
 	}
 }
 
-void string::clear() {
+string& string::clear() {
 	if( !strPtr_ )
 		// String already not there.
-		return;
+		return *this;
 	// Otherwise, we clear it.
 	strSize_ = 1;
 	strPtr_[0] = '\0';
+	return *this;
 }
 
-void string::drop() {
+string& string::drop() {
 	delete[] strPtr_;
 	strPtr_ = 0;
 	allocSize_ = 0;
 	strSize_ = 1;
+	return *this;
 }
 
-void string::validate() {
+string& string::validate() {
 	// If the string has a \0 somewhere, truncate at it.
 	if( !strPtr_ )
-		return;
+		return *this;
 	size_t len = strlen( strPtr_ );
 	if( len + 1 != strSize_ )
 		truncateAt( len );
+	return *this;
 }
 
 string& string::truncateAt( size_t pos ) {
