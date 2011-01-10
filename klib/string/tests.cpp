@@ -366,6 +366,25 @@ enough to have more memory allocated for it." );
 	EXPECT_STREQ( s.c_str(), t.c_str() ) <<
 	    "Strings do not compare as equal.\n";
 }
+
+TEST( klibstringAssignmentOperatorFromString, SelfAssignment ) {
+	// Ensure that self-assignment works.
+	char const *p = "Testing string.";
+	klib::string s( p );
+	s = s;
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), p ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibstringAssignmentOperatorFromString, StringToEmpty ) {
+	// Ensure that assigning an existing string to a non-existing one works.
+	klib::string s;
+	s = klib::string( "Testing string." );
+	EXPECT_EQ( s.size(), 16 ) << "Size mismatch.\n";
+	EXPECT_STREQ( s.c_str(), "Testing string." ) <<
+	    "Strings do not compare as equal.\n";
+}
 // |- Done: string& operator=( string const &str ); ---------------------------|
 
 // |- Test: string& operator=( char const *cstrPtr ); -------------------------|

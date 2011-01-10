@@ -27,9 +27,6 @@
 
 namespace klib {
 
-// Typical string class. Should probably inherit from basic_string, but I'll
-// implement that later if I feel it is necessary.
-//
 // Explanation of the notation used for denoting function status:
 // --- : function has no definition at all, and thus may not be used in tests
 //       because it simply won't link.
@@ -43,54 +40,184 @@ namespace klib {
 // +   : function is ready to be used in other code.
 // ++  : function is complete, and unlikely to change in the coming time.
 // ??? : function is dubious, maintainer should look at it.
+//! Container for 8-bit text strings.
+//
+//! This container is intended to be used for working with text strings
+//! in the kernel. Unlike most implementations, this is not simply a typedef
+//! for basic_string<char> (not surprisingly, seeing as klib does not yet have
+//! a basic_string class).
 class string {
     public:
-		// Constructors::
-	// Constructs an empty string, with res bytes reserved. If res is zero,
-	// the string is not yet allocated.
+		// Constructors:
+	//! \brief Constructs an empty string, with res bytes reserved.
+	//!
+	//! If res is zero, the string is not yet allocated.
+	//
+	//! \param res is the number of bytes that should be reserved.
 	string( size_t res = 0 ); //++
-	// Simple explanation: Will copy the string. If res is non-zero, it will
-	// try to limit itself to res bytes, but will allocate more (although
-	// still as few as possible) if necessary.
-	// Full explanation:
-	// Copies an existing string. If res is non-zero, res bytes or the
-	// number of bytes equal to the size of the string are allocated,
-	// whichever is greater. If res is zero, the constructor may decide how
-	// many bytes it wishes to allocate itself.
+	//! \brief Constructs a string with the same contents as str,
+	//!        allocating at least res bytes of memory.
+	//!
+	//! The amount of memory allocated will always be enough to contain
+	//! the string, including the \\0 at the end. If res is zero (default),
+	//! an amount somewhat greater than this will be allocated in case the
+	//! string must later be appended to. A non-zero res indicates that the
+	//! user does care about the amount of allocated memory, and the string
+	//! allocated will be as close to this amount as possible, usually
+	//! exactly equal to the request, or equal to the size of the string,
+	//! whichever is greater.
+	//
+	//! \param str is the klib::string the contents of which should be
+	//!        copied.
+	//! \param res is the number of bytes that should be reserved.
 	string( string const& str, size_t res = 0 ); //++
-	// This constructs a string that contains a copy of the C string pointed
-	// to by cstrPtr (thus, all and including the first \0 it comes across.
-	// If res is non-zero, either res bytes or the size of the number of
-	// bytes equal to the size of the string will be allocated, whichever
-	// is greater.
+	//! \brief Constructs a string with the C string pointed to by cstrPtr.
+	//!
+	//! The amount of memory allocated will always be enough to contain
+	//! the string, including the \\0 at the end. If res is zero (default),
+	//! an amount somewhat greater than this will be allocated in case the
+	//! string must later be appended to. A non-zero res indicates that the
+	//! user does care about the amount of allocated memory, and the string
+	//! allocated will be as close to this amount as possible, usually
+	//! exactly equal to the request, or equal to the size of the string,
+	//! whichever is greater.
+	//!
+	//! Note: Here, the C string's size is defined as the output of
+	//! strlen( cstrPtr ) + 1.
+	//
+	//! \param *cstrPtr is a pointer to the C string that should be copied.
+	//! \param res is the number of bytes that should be reserved.
 	string( char const* cstrPtr, size_t res = 0 ); //++
     	
 		// Destructor:
 	~string(); //++
 
 		// Operators:
-	// Set the string contents from another string or C string.
+	//! \brief Overwrite the contents of this string with that of str.
+	//!
+	//! The resulting string will compare as equal to str, but modifying
+	//! the contents of one will not modify the contents of the other, and
+	//! will continue to exist after the other goes out of scope.
+	//!
+	//! There is no guarantee that the amount of allocated space will be
+	//! equal, and no checks are made for early \\0 characters in str.
+	//
+	//! \param str is the string the contents of which should be copied.
 	string& operator=( string const& str ); //++
+	//! \brief Overwrite the contents of this string with a copy of the C
+	//!        string cstrPtr points to.
+	//!
+	//! The resulting string will compare as equal to cstrPtr, and using
+	//! klib::strcmp() on the two will yield 1, but modifying the contents
+	//! of this string will not change the C string cstrPtr is pointing to.
+	//
+	//! \param *cstrPtr is a pointer to the C string that should be copied.
 	string& operator=( char const* cstrPtr ); //++
-	// Append another string, a C string, a single character or an integer
-	// (hexadecimal).
+	//! \brief Appends the contents of string str to this string.
+	//!
+	//! This is equivalent to *this = *this + str, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//
+	//! \param str is the string the contents of which should be added.
 	string& operator+=( string const& str ); //++
+	//! \brief Appends the C string pointed to by cstrPtr to this string.
+	//!
+	//! This is equivalent to *this = *this + cstrPtr, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//
+	//! \param cstrPtr is a pointer to the C string that should be added.
 	string& operator+=( char const* cstrPtr ); //++
+	//! \brief Appends the character c to this string.
+	//!
+	//! This is equivalent to *this = *this + c, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//! Although using this operator is somewhat faster than += "c", it
+	//! is still far slower than appending an entire string (primarily due
+	//! to the amount of allocated storage being checked, and the null
+	//! terminating character being written).
+	//
+	//! \param c is the character to be appended.
 	string& operator+=( const char c ); //++
-	// Create a new string from this string and another string, a C string,
-	// a character or an integer (hexadecimal).
-	string operator+( string const& str ) const; //+
-	string operator+( char const* cstrPtr ) const; //+
-	string operator+( const char c ) const; //+
-	// Returns a (const) reference to a char.
+	//! \brief Returns a temporary string with the concatenation of this
+	//!        string and str.
+	//! 
+	//! This is implemented via the += operator, and is thus guaranteed to
+	//! be slower.
+	//
+	//! \param str is the string this string should be concatenated with.
+	string operator+( string const& str ) const; //++
+	//! \brief Returns a temporary string with the concatenation of this
+	//!        string and the C string pointed to by cstrPtr.
+	//! 
+	//! This is implemented via the += operator, and is thus guaranteed to
+	//! be slower.
+	//
+	//! \param cstrPtr is a pointer to the string this string should be
+	//!        concatenated with.
+	string operator+( char const* cstrPtr ) const; //++
+	//! \brief Returns a temporary copy of this string, with character c
+	//!        appended to it.
+	//! 
+	//! This is implemented via the += operator, and is thus guaranteed to
+	//! be slower.
+	//
+	//! \param c is a character that should be appended to the temporary
+	//!        string.
+	string operator+( const char c ) const; //++
+	//! \brief Returns a const reference to the character at position pos,
+	//!
+	//! If that position is out of bounds, a reference to a character
+	//! containing a \\0 is returned. It is not advised to store a reference
+	//! or pointer to this value. If you want/need pointer-like access to
+	//! the string, please submit an issue for iterators to be made.
+	//
+	//! \param pos is the position of the character to be returned, with
+	//!        the first character at 0.
 	const char& operator[]( size_t pos ) const; //++
+	//! \brief Returns a reference to the character at position pos,
+	//!
+	//! If that position is out of bounds, a reference to a character
+	//! containing a \\0 is returned. Modifying this character will not
+	//! have any effect on the string. It is not advised to store a 
+	//! reference or pointer to this value, and it is certainly not advised
+	//! to ever write to this reference or pointer if you do decide to make
+	//! one. If you want/need pointer-like access to the string, please
+	//! submit an issue for iterators to be made.
+	//
+	//! \param pos is the position of the character to be returned, with
+	//!        the first character at 0.
 	char& operator[]( size_t pos ); //++
-	// Compares the string with another string or a C string for
-	// (in)equality. The entire string is compared, even if it contains
-	// \0 bytes, so a string containing "A\0B\0" will not be equal to
-	// the C string "A\0".
+	//! \brief Returns true if this string and str have the same contents,
+	//!        and false otherwise.
+	//!
+	//! Due to the size of the strings being checked before a byte-by-byte
+	//! comparison is made, strings that are of the same length but with
+	//! one having more \\0 characters at the end will still compare as
+	//! different. You shouldn't have multiple \\0 characters in a string,
+	//! though, so running validate() on both prior to comparing should
+	//! deal with this if you have reason for concern.
+	//
+	//! \param str is the string that is to be compared with.
 	bool operator==( string const& str ) const; //++
+	//! \brief Returns true if this string is the same as the C string
+	//!        pointed to be cstrPtr, and false otherwise.
+	//!
+	//! Before doing a byte-by-byte comparison, the length of the C string
+	//! is checked. If it is different from the length of this string, the
+	//! strings are considered different, even if strcmp would normally
+	//! return 0 (for example, if this string had an early \\0 character).
+	//! However, strings should not contain early \\0 characters, and so
+	//! this can be avoided by running validate() on this string if there
+	//! is reason to believe this may occur.
+	//
+	//! \param cstrPtr is a pointer to the C string that is to be compared
+	//!        with.
 	bool operator==( char const* cstrPtr ) const; //++
+	//! \brief Returns true if this string and str do not have the same
+	//!        contents, and true otherwise.
+	//!
+	//
+	//! \param str is the string that is to be compared with.
 	bool operator!=( string const& str ) const; //++
 	bool operator!=( char const* cstrPtr ) const; //++
 
@@ -161,6 +288,13 @@ class string {
 	// validate() first if you're not sure.
 	string subStr( size_t pos, size_t len = 0 ) const; //+
 
+	//! This is an internally used variable that denotes to what number
+	//! the size of the allocated memory should be rounded to. As a rule
+	//! of thumb, one can assume that this is the maximum free space that
+	//! will be left in a newly-allocated string, but it's generally a
+	//! better idea to check explicitly with capacity() if the amount
+	//! reserved is important.
+	static const size_t roundto_ = 32;
     private:
 	// Size of the currently stored string.
 	size_t strSize_;
@@ -171,8 +305,6 @@ class string {
 	// This is a character that is returned when an out-of-bounds access
 	// is performed. May be removed later on.
 	mutable char nullval_;
-	// The size to round to. This NEEDS to be a power of two!
-	static const size_t roundto_ = 32;
 };
 
 } // namespace klib
