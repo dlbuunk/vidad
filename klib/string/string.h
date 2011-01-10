@@ -190,12 +190,12 @@ class string {
 	//! \brief Returns true if this string and str have the same contents,
 	//!        and false otherwise.
 	//!
-	//! Due to the size of the strings being checked before a byte-by-byte
-	//! comparison is made, strings that are of the same length but with
-	//! one having more \\0 characters at the end will still compare as
-	//! different. You shouldn't have multiple \\0 characters in a string,
-	//! though, so running validate() on both prior to comparing should
-	//! deal with this if you have reason for concern.
+	//! In order to speed up this operation, the size of the strings is
+	//! checked before a byte-by-byte comparison is done. Due to this,
+	//! if string one has more \\0 characters at the end, the two will still
+	//! compare as different. On the other hand, you shouldn't have multiple
+	//! \\0 characters in a string, so running validate() on both prior to
+	//! comparing should deal with this if you have reason for concern.
 	//
 	//! \param str is the string that is to be compared with.
 	bool operator==( string const& str ) const; //++
@@ -216,24 +216,46 @@ class string {
 	//! \brief Returns true if this string and str do not have the same
 	//!        contents, and true otherwise.
 	//!
+	//! In order to speed up this operation, the size of the strings is
+	//! checked before a byte-by-byte comparison is done. Due to this,
+	//! if string one has more \\0 characters at the end, the two will still
+	//! compare as different. On the other hand, you shouldn't have multiple
+	//! \\0 characters in a string, so running validate() on both prior to
+	//! comparing should deal with this if you have reason for concern.
 	//
 	//! \param str is the string that is to be compared with.
 	bool operator!=( string const& str ) const; //++
+	//! \brief Returns true if this string is different from the C string
+	//!        pointed to be cstrPtr, and false otherwise.
+	//!
+	//! Before doing a byte-by-byte comparison, the length of the C string
+	//! is checked. If it is different from the length of this string, the
+	//! strings are considered different, even if strcmp would normally
+	//! return 0 (for example, if this string had an early \\0 character).
+	//! However, strings should not contain early \\0 characters, and so
+	//! this can be avoided by running validate() on this string if there
+	//! is reason to believe this may occur.
+	//
+	//! \param cstrPtr is a pointer to the C string that is to be compared
+	//!        with.
 	bool operator!=( char const* cstrPtr ) const; //++
 
 		// Non-const functions:
 	// Make sure that the allocated memory is either equal to size or
 	// equal to the length of the stored string (whichever is greater).
+	//! \brief Attempt to make the amount of allocated memory equal to size
+	//!
+	//! 
 	void reserve( size_t size = 0 ); //++
 	// Sets the string to contain a single null byte. Equivalent to
 	// truncateAt( 0 ), but does not return anything.
-	void clear(); //++
+	string& clear(); //++
 	// Clears the string and unallocates the memory, equivalent to
 	// truncateAt( 0 ) followed by reserve().
-	void drop(); //++
+	string& drop(); //++
 	// Checks whether the string contains any \0 characters, and truncates
 	// at them if it does.
-	void validate(); //++
+	string& validate(); //++
 	// Truncates the string at position pos (i.e. keeping pos characters).
 	string& truncateAt( size_t pos ); //++
 	// Appends a string to the string.
