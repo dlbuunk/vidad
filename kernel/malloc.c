@@ -93,6 +93,7 @@ void *malloc(dword size)
 void free(void *block)
 {	dword ptr;
 	ptr = (dword) block;
+	if (! ptr) return;
 	ptr -= 8;
 
 	/* mark block as unused */
