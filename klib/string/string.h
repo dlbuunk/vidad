@@ -391,13 +391,19 @@ class string {
 	const char* c_str() const; //+
 	//! \brief Returns true if this string is empty, false otherwise.
 	bool empty() const; //++
-	//! \brief The behaviour of this function is not defined.
-	size_t size() const; //++
-	//! \brief Returns the length of the contained C string.
+	//! \brief Returns the length of the string.
 	//!
-	//! This should be equal to the return value of strlen(this->c_str()),
-	//! but may differ if \\0 characters have been written to the string.
-	//! Use validate() to correct this.
+	//! This is the number of characters in the string, not counting the
+	//! (non-existant) terminating \\0. If the string does not contain
+	//! \\0 characters, the return value will be equal to that of strlen
+	//! (this->c_str()).
+	size_t size() const; //++
+	//! \brief Returns the length of the string.
+	//!
+	//! This is the number of characters in the string, not counting the
+	//! (non-existant) terminating \\0. If the string does not contain
+	//! \\0 characters, the return value will be equal to that of strlen
+	//! (this->c_str()).
 	size_t length() const; //++
 	//! \brief Returns the amount of allocated storage space for this
 	//!        string, in bytes.
