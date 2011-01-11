@@ -135,6 +135,9 @@ class string {
 	//! is still far slower than appending an entire string (primarily due
 	//! to the amount of allocated storage being checked, and the null
 	//! terminating character being written).
+	//!
+	//! \note The speed of this function is likely to change in the coming
+	//!       rewrite.
 	//
 	//! \param c is the character to be appended.
 	string& operator+=( const char c ); //++
@@ -241,75 +244,188 @@ class string {
 	bool operator!=( char const* cstrPtr ) const; //++
 
 		// Non-const functions:
-	// Make sure that the allocated memory is either equal to size or
-	// equal to the length of the stored string (whichever is greater).
-	//! \brief Attempt to make the amount of allocated memory equal to size
+	//! \brief Attempt to make the amount of allocated memory equal to size.
 	//!
-	//! 
+	//! First of all, it is checked that the requested size is sufficient
+	//! to fit the string. If it is not, size is increased to be the size
+	//! of the string. After that, if the amount of allocated memory in
+	//! bytes is not equal to size, the amount is reallocated as
+	//! necessary. Due to the way memory is currently allocated, this will
+	//! always cause the string to be copied. It is advised to only use
+	//! this function if you need to decrease the amount of memory, or if
+	//! you are going to do a lot of appends one after another. For all
+	//! other things, the string should do a fairly decent job of guessing
+	//! how much memmory it needs.
+	//
+	//! \param size is the amount of memory that the user wishes to be
+	//!        allocated.
 	void reserve( size_t size = 0 ); //++
-	// Sets the string to contain a single null byte. Equivalent to
-	// truncateAt( 0 ), but does not return anything.
+	//! \brief Set the string to contain an empty string.
+	//!
+	//! This does not free the memory, use drop() for that. The function
+	//! can be chained ( str.clear().append("Text") ), but using clear()
+	//! as any function except the first in the chain somewhere in the
+	//! vidad code will likely frustrate the other developers.
 	string& clear(); //++
-	// Clears the string and unallocates the memory, equivalent to
-	// truncateAt( 0 ) followed by reserve().
+	//! \brief Set the string to contain an empty string and free the
+	//!        memory reserved.
+	//!
+	//! This does exactly the same thing as clear(), but somewhat more
+	//! effectively and also gets rid of the memory. Useful if the string
+	//! is not due to go out of scope for a while, but you're sure you
+	//! won't ever need it.
 	string& drop(); //++
-	// Checks whether the string contains any \0 characters, and truncates
-	// at them if it does.
+	//! \brief Ensures that the string does not contain errors.
+	//!
+	//! The term `errors' here is intentionally ambiguous. After this
+	//! function returns, you can be sure of the following:\
+	//! 1. The string does not contain \\0 chars, and thus:
+	//! 1a. Invoking strlen() on the output of c_str() will return the same
+	//!     value as just running length();
+	//! 1b. Using strcpy() to copy the string returned by c_str() will
+	//!     result in a string that will compare as equal with operator==.
+	//! 2. Conversely, the size of the string will be confirmed.
 	string& validate(); //++
-	// Truncates the string at position pos (i.e. keeping pos characters).
-	string& truncateAt( size_t pos ); //++
-	// Appends a string to the string.
+	//! \brief Ensures that the string is no more than n characters long.
+	//!
+	//! Thanks to the first element having index 0, terminating the string
+	//! at character n and leaving n characters is the same thing. Thus,
+	//! this has the same effect as setting character n of a C string to
+	//! \\0.
+	//
+	//! \param n is the number of characters left in the string.
+	string& truncateAt( size_t n ); //++
+	//! \brief Appends the contents of string str to this string.
+	//!
+	//! This is equivalent to *this = *this + str, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//
+	//! \param str is the string the contents of which should be added.
 	string& append( string const& str ); //++
-	// Appends a C string to the string.
+	//! \brief Appends the C string pointed to by cstrPtr to this string.
+	//!
+	//! This is equivalent to *this = *this + cstrPtr, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//
+	//! \param cstrPtr is a pointer to the C string that should be added.
 	string& append( char const* cstrPtr ); //++
-	// Appends a character to the string.
-	string& append( char c ); //++
-	// Appends an int in decimal to the string. Digits is the minimal number
-	// of digits to append.
+	//! \brief Appends the character c to this string.
+	//!
+	//! This is equivalent to *this = *this + c, but avoids creating a
+	//! temporary object, and should thus be used instead when possible.
+	//! Although using this function is somewhat faster than .append("c"),
+	//! it is still far slower than appending an entire string (primarily
+	//! due to the amount of allocated storage being checked, and the null
+	//! terminating character being written).
+	//!
+	//! \note The speed of this function is likely to change in the coming
+	//!       rewrite.
+	//
+	//! \param c is the character to be appended.
+	string& appendChar( char c ); //++
+	//! \brief Append a signed decimal number to this string.
+	//!
+	//! Requesting more digits than a signed int can convert to (10) will
+	//! cause the number you request to be lowered.
+	//
+	//! \param d is the number to be appended.
+	//! \param digits is the minimum number of digits the number should
+	//!        have. 
 	string& appendDecimal( int d, size_t digits = 0 ); //+
-	// Appends an unsigned int in hexadecimal (lowercase) to the string.
-	// Digits is the minimal number of digits to append.
-	string& appendHex( unsigned int val, size_t digits = 0 ); //+
-	// Appends an unsigned int in binary to the string. Digits is the
-	// minimal number of digits to append.
+	//! \brief Append an unsigned, uppercase hexadecimal number to this
+	//!        string. 
+	//!
+	//! Requesting more digits than an usigned int can convert to (8) will
+	//! cause the number you request to be lowered.
+	//
+	//! \note There will be no 0x preceding the number.
+	//
+	//! \param h is the number to be appended.
+	//! \param digits is the minimum number of digits the number should
+	//!        have. 
+	string& appendHex( unsigned int h, size_t digits = 0 ); //+
+	//! \brief Append an unsigned binary number to this string. 
+	//!
+	//! Requesting more digits than an usigned int can convert to (32) will
+	//! cause the number you request to be lowered.
+	//
+	//! \param b is the number to be appended.
+	//! \param digits is the minimum number of digits the number should
+	//!        have. 
 	string& appendBinary( unsigned int b, size_t digits = 0 ); //+
-	// Appends an unsigned int in octal to the string. Digits is the minimal
-	// number of digits to append.
+	//! \brief Append an unsigned octal number to this string. 
+	//!
+	//! Requesting more digits than an usigned int can convert to (11) will
+	//! cause the number you request to be lowered.
+	//
+	//! \note There will be no 0 preceding the number.
+	//
+	//! \param o is the number to be appended.
+	//! \param digits is the minimum number of digits the number should
+	//!        have. 
 	string& appendOctal( unsigned int o, size_t digits = 0 ); //+
-	// Inserts string str into this string, starting at positino pos.
+	//! \brief Insert the contents of string str starting at position pos
+	//!        of this string, moving the rest of the existing contents
+	//!        upwards.
+	//!
+	//! \param str is the string to be inserted.
+	//! \param pos is the position where the inserted string should begin.
 	void insert( string const& str, size_t pos ); //+
-	// Inserts C string cstrPTr into this string, starting at position pos.
+	//! \brief Insert the C string pointed to by cstrPtr starting at
+	//!        position pos of this string, moving the rest of the existing
+	//!        contents upwards.
+	//!
+	//! \param cstrPtr is the string to be inserted.
+	//! \param pos is the position where the inserted string should begin.
 	void insert( char const* cstrPtr, size_t pos ); //+
-	// Inserts char c at position pos.
+	//! \brief Insert character c at position pos of this string, moving
+	//!        the rest of the existing contents upwards.
+	//!
+	//! \param c is the character to be inserted.
+	//! \param pos is the position where the inserted character should be
+	//!        placed.
 	void insert( char c, size_t pos ); //+
 	
 		// Const functions:
-	// Returns a pointer to the beginning of the string. This pointer will
-	// stay valid at least until a non-const member function is called.
-	// NOTE: Although this function is not tested by itself, it has been
-	// tested together with other functions, and should /usually/ work.
+	//! \brief Returns a const pointer to a C string that is identical to
+	//!        the contents of this string at the time of calling c_str().
+	//!
+	//! The exact behaviour of this function is still undefined. It may be
+	//! assumed that the pointer will remain valid until a non-const member
+	//! function of this string is called.
 	const char* c_str() const; //+
-	// Returns true if the string is empty, false otherwise.
+	//! \brief Returns true if this string is empty, false otherwise.
 	bool empty() const; //++
-	// Returns the size of the string, with the \0 on the end.
+	//! \brief The behaviour of this function is not defined.
 	size_t size() const; //++
-	// Returns the length of the string, without the \0 on the end.
+	//! \brief Returns the length of the contained C string.
+	//!
+	//! This should be equal to the return value of strlen(this->c_str()),
+	//! but may differ if \\0 characters have been written to the string.
+	//! Use validate() to correct this.
 	size_t length() const; //++
-	// Returns the size of the allocated storage. Please do not depend on
-	// this being a certain size unless you call reserve() for it.
+	//! \brief Returns the amount of allocated storage space for this
+	//!        string, in bytes.
 	size_t capacity() const; //++
-	// If len is non-zero, returns a string of length len, starting from
-	// position pos. 
-	// If len is zero, returns a string starting from position pos, and
-	// going on until the end of the string.
-	// If pos is greater than the length of the string, this returns an
-	// empty string. If len requires for characters past the end of the
-	// string to be given, the request will be ignored and only as many as
-	// are available will be given.
-	// NOTE: May have strange results if string contains \0 chars, so run
-	// validate() first if you're not sure.
+	//! \brief Returns a substring of this string.
+	//!
+	//! If len is zero, this returns a string starting at position pos
+	//! and going on until the end of the string. If a len is specified,
+	//! the string will be no longer than len, but may be shorter if the
+	//! string is too short. An empty string will be returned if pos is
+	//! out of bounds.
+	//!
+	//! \note At the moment, this function may reactly strangely to strings
+	//!       that contain \\0 characters, but this should soon be
+	//!       resolved.
+	//! 
+	//! \param pos is the position from which the new string should start.
+	//! \param len is the desired length of the substring.
 	string subStr( size_t pos, size_t len = 0 ) const; //+
 
+	//! \brief Value used for guessing the amount of space that should be
+	//!        allocated for this string.
+	//!
 	//! This is an internally used variable that denotes to what number
 	//! the size of the allocated memory should be rounded to. As a rule
 	//! of thumb, one can assume that this is the maximum free space that

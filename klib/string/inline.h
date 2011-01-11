@@ -85,7 +85,7 @@ inline string& string::append( char const* cstrPtr ) {
 	return (*this += cstrPtr );
 }
 
-inline string& string::append( char c ) {
+inline string& string::appendChar( char c ) {
 	return (*this += c );
 }
 
