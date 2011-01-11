@@ -1,4 +1,4 @@
-//==---==  klib/string/inline.h  ==--------------------==  *- C++ -*  ==---==>
+//==---==  klib/string/inline.hpp  ==------------------==  *- C++ -*  ==---==>
 //
 // This header file contains the inline functions of the string class.
 //
@@ -19,6 +19,8 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-----------------------------------------------------------------------==>
+#ifndef STRING_INCLUDE_HPP
+#define STRING_INCLUDE_HPP
 
 #include <cstring>
 
@@ -107,3 +109,4 @@ inline size_t string::capacity() const {
 
 } // namespace klib
 
+#endif // STRING_INCLUDE_HPP

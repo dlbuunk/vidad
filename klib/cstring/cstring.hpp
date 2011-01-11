@@ -19,8 +19,8 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-------------------------------------------------------------------------==>
-#ifndef CSTRING_H
-#define CSTRING_H
+#ifndef CSTRING_HPP
+#define CSTRING_HPP
 
 #include <cstddef>
 
@@ -59,5 +59,5 @@ int memcmp( void const* memA, void const* memB, size_t num ); //++
 
 } // namespace klib
 
-#endif // CSTRING_H
+#endif // CSTRING_HPP
 

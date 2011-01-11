@@ -1,4 +1,4 @@
-//==---==  klib/string/string.h  ==----------------------==  *- C++ -*  ==---==>
+//==---==  klib/string/string.hpp  ==--------------------==  *- C++ -*  ==---==>
 //
 // This header contains the string class definition and the inline
 // functions that it provides. 
@@ -20,8 +20,8 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-------------------------------------------------------------------------==>
-#ifndef STRING_H
-#define STRING_H
+#ifndef STRING_HPP
+#define STRING_HPP
 
 #include <cstddef>
 
@@ -448,8 +448,8 @@ class string {
 
 } // namespace klib
 
-#include <klib/string_inline.h>
+#include <klib/string_inline.hpp>
 
 
-#endif // STRING_H
+#endif // STRING_HPP
 

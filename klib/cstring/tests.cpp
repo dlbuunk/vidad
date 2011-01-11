@@ -21,7 +21,7 @@
 //
 //==-------------------------------------------------------------------------==>
 #include <gtest/gtest.h>
-#include "cstring.h.gen"
+#include "cstring.hpp.gen"
 
 // |- Test: size_t strlen( char const* cstr ); --------------------------------|
 TEST( klibcstringLength, Normal ) {

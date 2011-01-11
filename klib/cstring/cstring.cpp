@@ -21,7 +21,7 @@
 //
 //==-------------------------------------------------------------------------==>
 #include <cstddef>
-#include "cstring.h"
+#include "cstring.hpp"
 
 namespace klib {
 

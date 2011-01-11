@@ -20,7 +20,7 @@
 //==-------------------------------------------------------------------------==>
 #include <gtest/gtest.h>
 #include <cstring>
-#include "string.h.gen"
+#include "string.hpp.gen"
 
 TEST( klibstringEnsureLinking, EqualityOperator ) {
 	// This test is merely present to make sure everything links fine,

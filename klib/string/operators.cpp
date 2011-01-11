@@ -20,7 +20,8 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-----------------------------------------------------------------------==>
-#include "string.h"
+#include "string.hpp"
+#include <cstring>
 
 namespace klib {
 // void casts used to shut the bloody thing up.

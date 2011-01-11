@@ -1,4 +1,4 @@
-//==---==  klib/cstddef/cstddef.h ==---------------------==  *- C++ -*  ==---==>
+//==---==  klib/cstddef/cstddef.hpp ==-------------------==  *- C++ -*  ==---==>
 //
 // This header contains various typedefs and defines, some of which are required
 // by the standard. It should be safe to include this file from both C and C++
@@ -21,8 +21,8 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-------------------------------------------------------------------------==>
-#ifndef CSTDDEF_H
-#define CSTDDEF_H
+#ifndef CSTDDEF_HPP
+#define CSTDDEF_HPP
 
 //! Unsigned type to be used for memory sizes.
 typedef unsigned int size_t;
@@ -39,4 +39,4 @@ typedef unsigned long long qword;
 	#define NULL 0
 #endif
 
-#endif // CSTDDEF_H
+#endif // CSTDDEF_HPP

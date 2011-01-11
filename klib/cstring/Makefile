@@ -18,17 +18,17 @@ include ../../local.mk
 
 all: cstring.o libcstring.a
 
-cstring.o : cstring.cpp cstring.h
+cstring.o : cstring.cpp cstring.hpp
 	$(CXX) $(CXXFLAGS) -c -o cstring.o cstring.cpp
 libcstring.a : cstring.o cstring.cpp 
 	ar rcs libcstring.a cstring.o
 	ranlib libcstring.a
 
-cstring.h.gen : cstring.h
-	cpp -P -o cstring.h.gen -I$(ROOT_DIR)/include/ cstring.h
-tests.o : tests.cpp cstring.h cstring.h.gen
+cstring.hpp.gen : cstring.hpp
+	cpp -P -o cstring.hpp.gen -I$(ROOT_DIR)/include/ cstring.hpp
+tests.o : tests.cpp cstring.hpp cstring.hpp.gen
 	$(CXX) $(COMMON_FLAGS) -std=c++0x -c -o tests.o tests.cpp
-test : tests.o libcstring.a tests.cpp cstring.cpp cstring.h cstring.h.gen
+test : tests.o libcstring.a tests.cpp cstring.cpp cstring.hpp cstring.hpp.gen
 	$(CXX) $(COMMON_FLAGS) -o test tests.o -lgtest -L. -L$(ROOT_DIR)/lib/ -lcstring
 
 installlib : libcstring.a
@@ -36,5 +36,5 @@ installlib : libcstring.a
 
 .PHONY: clean
 clean:
-	rm -f *.o cstring.h.gen libcstring.a $(ROOT_DIR)/lib/libcstring.a test 
+	rm -f *.o cstring.hpp.gen libcstring.a $(ROOT_DIR)/lib/libcstring.a test 
 
