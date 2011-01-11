@@ -22,6 +22,7 @@ all: force_look
 	make -C cstring installlib
 
 doc:
+	mkdir -p ../doc/klib
 	doxygen
 
 .PHONY: clean
@@ -29,7 +30,7 @@ clean:
 	make -C string clean
 	make -C cstring clean
 	rm -f ../lib/*.{a,o}
-	rm -rf ../doc/klib/
+#	rm -rf ../doc/klib/
 
 .PHONY: force_look
 force_look:

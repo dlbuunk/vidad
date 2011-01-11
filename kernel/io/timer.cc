@@ -17,6 +17,9 @@
 #include <kernel.h>
 #include <io/io.h>
 
+#include <string>
+using klib::string;
+
 #define BASE_FREQ 1193182.0 // Hz
 
 // Location of timer class definition could be clearer. (It's in misc.h, which
@@ -24,14 +27,15 @@
 
 namespace IO
 {	Timer::Timer(float freq)
-	{	word data = (word) (BASE_FREQ / freq);
+	{	string str;
+		word data = (word) (BASE_FREQ / freq);
 		// Output port magic, care to document?
 		outportb(0x0043, 0x36);
 		outportb(0x0040, data);
 		outportb(0x0040, data>>8);
 		// Register timer as irq0
 		if ((int_num = inter_reg((dword) &callback, (dword) this, 0x00)) == -1) kerror("Error, timer cannot get irq0 handle", 0x07);
-		printf("Timer (PIT): INIT OK, frequency is %u Hz.\n", (int) freq);
+		print(str.append("Timer (PIT): INIT OK, frequency is ").appendDecimal((int) freq).append(" Hz.\n"));
 	}
 
 	Timer::~Timer()

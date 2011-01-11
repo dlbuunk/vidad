@@ -61,7 +61,7 @@ extern byte vga_mode9[];
 extern word kprint_pos;
 
 extern void kprint(char ch, byte color);
-extern void kprints(char *str, byte color);
+extern void kprints(const char *str, byte color);
 
 /* functions and data to be found in malloc.c */
 
@@ -123,11 +123,11 @@ extern void kerror(char *str, byte color);
 }
 #undef NUM_ENTRIES
 
-/* functions in printf.cc */
-
-extern char print_buffer[];
-extern void print(char *str, char **form);
-extern void sprintf(char *str, char *format, ...);
-extern void printf(char *format, ...);
+/* c++ linkage style function in ccentry.cc */
+namespace klib
+{	class string;
+}
+extern void print(klib::string const& str);
+extern void print(char const *cstr);
 
 #endif /* __cplusplus */

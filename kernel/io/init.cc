@@ -25,7 +25,7 @@ namespace IO
 
 		// create VGA video output
 		video = vga_text = new VGA_Text(9);
-		printf("VGA set to mode 9, 30 rows, 90 cols, 16 pixel high fonts.\n");
+		print("VGA set to mode 9, 30 rows, 90 cols, 16 pixel high fonts.\n");
 
 		// setup keyboard
 		kbc = new KBC;

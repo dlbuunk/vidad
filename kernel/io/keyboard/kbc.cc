@@ -17,6 +17,9 @@
 #include <kernel.h>
 #include <io/io.h>
 
+#include <string>
+using klib::string;
+
 // TODO:
 // make set_keyset() edit the command word, not overwrite it.
 // prevent init() from chocking on no echo
@@ -33,10 +36,11 @@ namespace IO
 	void KBC::init()
 	{	byte result;
 		echo = ack = 0;
+		string str(80);
 
 		// get irq handle
 		if ((inter_num = inter_reg((dword) &handle_irq, (dword) this, 0x01)) == -1)
-		{	printf("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
+		{	print("Keyboard, KBC: error, cannot get irq1 handle, keyboard won't function.\n");
 		}
 
 		// enable keyboard
@@ -44,23 +48,23 @@ namespace IO
 		outportb(0x64, 0xAE);
 		send(0xF4);
 		while (! ack);
-		printf("Keyboard, KBC: keyboard enabled.\n");
+		print("Keyboard, KBC: keyboard enabled.\n");
 
 		// self test
 		wait_write();
 		outportb(0x64, 0xAA);
 		wait_read();
 		result = inportb(0x60);
-		if (result == 0x55) printf("Keyboard, KBC: self test OK.\n");
-		else printf("Keyboard, KBC: self test error, error code 0x%2X.\n", result);
+		if (result == 0x55) print("Keyboard, KBC: self test OK.\n");
+		else print(str.append("Keyboard, KBC: self test error, error code 0x").appendHex(result, 2).append('\n'));
 
 		// interface test
 		wait_write();
 		outportb(0x64, 0xAB);
 		wait_read();
 		result = inportb(0x60);
-		if (! result) printf("Keyboard, KBC: interface test OK.\n");
-		else printf("Keyboard, KBC: interface test error, error code 0x%2X.\n", result);
+		if (! result) print("Keyboard, KBC: interface test OK.\n");
+		else print(str.clear().append("Keyboard, KBC: interface test error, error code 0x").appendHex(result, 2).append('\n'));
 
 		// set command byte to 0x65, translate, keyboard, no mouse
 		wait_write();
@@ -71,12 +75,12 @@ namespace IO
 		outportb(0x64, 0x20);
 		wait_read();
 		result = inportb(0x60);
-		if (result != 0x65) printf("Keyboard, KBC: error, cannot set command byte, reread value is: 0x%2X.\n", result);
+		if (result != 0x65) print(str.clear().append("Keyboard, KBC: error, cannot set command byte, reread value is: 0x").appendHex(result, 2).append('\n'));
 
 		// echo
 		send(0xEE);
 		while (! echo); // This should be changed, if there is no echo, the thing get struck here.
-		printf("Keyboard, KBC: echo OK.\n");
+		print("Keyboard, KBC: echo OK.\n");
 
 		// set all keys to produce break codes.
 		send(0xFA);
@@ -98,7 +102,7 @@ namespace IO
 		// disable keyboard
 		wait_write();
 		outportb(0x64, 0xAD);
-		printf("Keyboard, KBC: keyboard disabled.\n");
+		print("Keyboard, KBC: keyboard disabled.\n");
 	}
 
 	void KBC::wait_read()
@@ -124,9 +128,9 @@ namespace IO
 			case 0xFC :
 			case 0xFD :
 			case 0xFF :
-			{	if (th->error) printf("Fatal keyboard error, keyboard now disfunct.\nPress any key, go ahead, it won't do anything now.");
+			{	if (th->error) print("Fatal keyboard error, keyboard now disfunct.\nPress any key, go ahead, it won't do anything now.");
 				else
-				{	printf("Keyboard error, keyboard will try to re-init");
+				{	print("Keyboard error, keyboard will try to re-init");
 					th->error = 1;
 					asm ("mov $0x20,%%al\n\tout %%al,$0x20\n\t" : : : "%al"); // ack the irq to the PIC
 					th->init();

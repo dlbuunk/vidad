@@ -18,8 +18,9 @@ helper.o: helper.s
 kernel_data.o: kernel_data.c
 	$(CC) -c -o kernel_data.o kernel_data.c
 
-kernel.o: kprint.o malloc.o inter.o kmain.o cckernel.o
-	ld -S -r -o kernel.o kprint.o malloc.o inter.o kmain.o cckernel.o
+kernel.o: kprint.o malloc.o inter.o kmain.o ccentry.o
+	make -C io
+	ld -S -r -o kernel.o kprint.o malloc.o inter.o kmain.o ccentry.o io.o
 
 kprint.o: kprint.c
 	$(CC) $(CFLAGS) -c -o kprint.o kprint.c
@@ -33,15 +34,8 @@ inter.o: inter.c
 kmain.o: kmain.c
 	$(CC) $(CFLAGS) -c -o kmain.o kmain.c
 
-cckernel.o: ccentry.o printf.o force_look
-	make -C io
-	ld -S -Ur -o cckernel.o ccentry.o printf.o io.o
-
 ccentry.o: ccentry.cc
 	$(CXX) $(CXXFLAGS) -c -o ccentry.o ccentry.cc
-
-printf.o: printf.cc
-	$(CXX) $(CXXFLAGS) -c -o printf.o printf.cc
 
 .PHONY : clean
 clean:

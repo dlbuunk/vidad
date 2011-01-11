@@ -16,8 +16,9 @@
 
 #include <kernel.h>
 #include <io/io.h>
+
 #include <string>
-using namespace klib;
+using klib::string;
 
 // kernel terminal
 IO::Terminal *kterm;
@@ -47,14 +48,9 @@ extern "C" void ccentry(struct kheader *kh, dword dma_buff)
 	(void) dma_buff;
 	kterm = 0; // do this in order to make things like 'if (kterm)' work
 	IO::Init *init = new IO::Init;
-	string *s = new string("Hello, world!");
-	for (int i=0; i<50; i++) printf("%c", (*s)[i]);
-	delete s;
-	printf("\n");
-	char str[160];
-	for (;;) { kterm->puts(kterm->gets(str)); kterm->puts("\n"); }
-	for (;;) asm("hlt"); // cool down cpu
-	delete init;
+	char buf[180];
+	for (;;) { kterm->puts(kterm->gets(buf)); kterm->puts("\n"); }
+//	delete init;
 }
 
 // function to print out fatal error messages
@@ -76,4 +72,13 @@ extern "C" void kerror(char *str, byte color)
 	}
 	asm("cli");
 	asm("hlt");
+}
+
+void print(string const& str)
+{	if (kterm) kterm->puts((char *) str.c_str());
+	else kprints(str.c_str(), 0x07);
+}
+
+void print(char const *cstr)
+{	print(string(cstr));
 }
