@@ -40,7 +40,7 @@ namespace klib {
 // +   : function is ready to be used in other code.
 // ++  : function is complete, and unlikely to change in the coming time.
 // ??? : function is dubious, maintainer should look at it.
-//! Container for 8-bit text strings.
+//! Container for 8-bit-wide text strings.
 //
 //! This container is intended to be used for working with text strings
 //! in the kernel. Unlike most implementations, this is not simply a typedef
