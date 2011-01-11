@@ -24,12 +24,18 @@
 #ifndef CSTDDEF_H
 #define CSTDDEF_H
 
+//! Unsigned type to be used for memory sizes.
 typedef unsigned int size_t;
+//! 8-bit unsigned integer.
 typedef unsigned char byte;
+//! 16-bit unsigned integer.
 typedef unsigned short word;
+//! 32-bit unsigned integer.
 typedef unsigned int dword;
+//! 64-bit unsigned integer.
 typedef unsigned long long qword;
 #ifdef __cplusplus
+	//! C++-only define to allow NULL to be treated correctly.
 	#define NULL 0
 #endif
 
