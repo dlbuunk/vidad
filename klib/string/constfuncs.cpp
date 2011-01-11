@@ -45,18 +45,6 @@ bool string::empty() const {
 	return true;
 }
 
-size_t string::length() const {
-	return strSize_;
-}
-
-size_t string::size() const {
-	return strSize_;
-}
-
-size_t string::capacity() const {
-	return allocSize_;
-}
-
 string string::subStr( size_t pos, size_t len ) const {
 	if( pos >= strSize_ ) 
 		// User has requested something past the end of the string.

@@ -93,5 +93,17 @@ inline string& string::appendChar( char c ) {
 	return (*this += c );
 }
 
+inline size_t string::length() const {
+	return strSize_;
+}
+
+inline size_t string::size() const {
+	return strSize_;
+}
+
+inline size_t string::capacity() const {
+	return allocSize_;
+}
+
 } // namespace klib
 
