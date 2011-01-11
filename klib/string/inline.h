@@ -24,9 +24,13 @@
 
 namespace klib {
 
-inline const char& string::operator[]( size_t pos ) const {
-	if( !allocSize_ )
+inline char& string::operator[]( size_t pos ) {
+	if( pos >= strSize_ )
 		return nullval_ = '\0';
+	return strPtr_[pos];
+}
+
+inline const char& string::operator[]( size_t pos ) const {
 	if( pos >= strSize_ )
 		return nullval_ = '\0';
 	return strPtr_[pos];
@@ -36,19 +40,19 @@ inline const char& string::operator[]( size_t pos ) const {
 inline bool string::operator==( string const& str ) const {
 	if( strSize_ != str.strSize_ )
 		return false;
-	if( !allocSize_ )
-		return true;
-	return !( strcmp( strPtr_, str.strPtr_ ) );
-}
-
-inline bool string::operator==( char const* cstr ) const {
-	if( strlen( cstr ) != (strSize_ - 1) )
-		return false;
 	// | If nothing is allocated, and the lengths are equal, both must be
 	// v empty.
+	if( !allocSize_ )
+		return true;
+	return !( memcmp( strPtr_, str.strPtr_, strSize_ ) );
+}
+
+inline bool string::operator==( char const* cstrPtr ) const {
+	if( strlen( cstrPtr ) != strSize_ )
+		return false;
 	if( !allocSize_ ) 
 		return true;
-	return !( strcmp( strPtr_, cstr ));
+	return !( memcmp( strPtr_, cstrPtr, strSize_ ));
 }
 
 inline bool string::operator!=( string const& str ) const {

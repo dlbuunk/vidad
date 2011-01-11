@@ -30,7 +30,8 @@ size_t strlen( char const* cstr ); //++
 int strcmp( char const* cstrA, char const* cstrB ); //++
 char* strcpy( char* dest, char const* src ); //++
 void* memcpy( void* dest, void const* src, size_t num ); //++
-void* memmove( void* dest, void const* src, size_t num ); //-
+void* memmove( void* dest, void const* src, size_t num ); //++
+int memcmp( void const* memA, void const* memB, size_t num ); //++
 
 } // namespace klib
 

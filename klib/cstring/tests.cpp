@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 #include "cstring.h.gen"
 
-// |- Test: size_t klib::strlen( char const* cstr ); --------------------------|
+// |- Test: size_t strlen( char const* cstr ); --------------------------------|
 TEST( klibcstringLength, Normal ) {
 	// Ensure that if the string contains no \0, the number of chars is
 	// returned.
@@ -40,9 +40,9 @@ TEST( klibcstringLength, EarlyNull ) {
 	// not counted.
 	EXPECT_EQ( klib::strlen( "\0Test." ), 0 );
 }
-// |- Done: size_t klib::strlen( char const* cstr ); --------------------------|
+// |- Done: size_t strlen( char const* cstr ); --------------------------------|
 
-// |- Test: int klib::strcmp( char const* cstrA, char const* cstrB ); ---------|
+// |- Test: int strcmp( char const* cstrA, char const* cstrB ); ---------------|
 TEST( klibcstringCompare, Equal ) {
 	// Ensure that if two identical C strings are inputted, 0 is returned.
 	EXPECT_EQ( klib::strcmp( "Test.", "Test." ), 0 ) <<
@@ -83,9 +83,9 @@ TEST( klibcstringCompare, EarlyNullTermination ) {
 	EXPECT_EQ( klib::strcmp( "Test\0ing", "Test" ), 0 ) <<
 	    "A null and an empty string compare as unequal.\n";
 }
-// |- Done: int klib::strcmp( char const* cstrA, char const* cstrB ); ---------|
+// |- Done: int strcmp( char const* cstrA, char const* cstrB ); ---------------|
 
-// |- Test: char* klib::strcpy( char* dest, char const* src -------------------|
+// |- Test: char* strcpy( char* dest, char const* src -------------------------|
 TEST( klibcstringStringCopy, Normal ) {
 	// Ensure that a normal string gets copied correctly.
 	char src[10] = "Test.";
@@ -219,6 +219,49 @@ TEST( klibcstringMemMove, FourDWordsTwoDown ) {
 	EXPECT_EQ( arr, check ) << "Return value incorrect.\n";
 }
 // |- Done: void* klib::memmove( void* dest, void const* src, size_t num ); ---|
+
+// |- Test: int memcmp( void const* cstrA, void const* cstrB, size_t num ); ---|
+TEST( klibcstringMemCompare, Equal ) {
+	// Ensure that if two identical C strings are inputted, 0 is returned.
+	EXPECT_EQ( klib::memcmp( "Test.", "Test.", 5 ), 0 ) <<
+	    "Strings do not compare as equal.\n";
+}
+
+TEST( klibcstringMemCompare, FirstGreater ) {
+	// Ensure that if the first character that differs is greater in the 
+	// first string, a positive value is returned.
+	EXPECT_LT( klib::memcmp( "Test.", "Westz.", 5 ), 0 ) <<
+	    "First string does not compare as greater than second.\n";
+}
+
+TEST( klibcstringMemCompare, SecondGreater ) {
+	// Ensure that if the first character that differs is greater in the
+	// second string, a negative value is returned.
+	EXPECT_GT( klib::memcmp( "Test.", "Pesta.", 5 ), 0 ) <<
+	    "Second string does not compare as greater than first.\n";
+}
+
+TEST( klibcstringMemCompare, BothEmpty ) {
+	// Ensure that if both strings are empty, they compare as equal.
+	EXPECT_EQ( klib::memcmp( "", "", 1 ), 0 ) <<
+	    "Two empty strings compare as unequal.\n";
+}
+
+TEST( klibcstringMemCompare, BothNullThenNonsense ) {
+	// Ensure that if a string is a \0 followed by something, it will
+	// compare as equal to a single \0.
+	EXPECT_LE( klib::memcmp( "\0Nonsense", "Nonsense", 8 ), 0 ) <<
+	    "A null and an empty string compare as unequal.\n";
+}
+
+TEST( klibcstringMemCompare, EarlyNullTermination ) {
+	// Ensure that if one string is null-terminated early, it will compare
+	// to another string that does not contain the text after the 
+	// null-termination.
+	EXPECT_EQ( klib::memcmp( "Test\0ing", "Test\0ing", 8 ), 0 ) <<
+	    "A null and an empty string compare as unequal.\n";
+}
+// |- Done: int memcmp( char const* cstrA, char const* cstrB ); ---------------|
 
 GTEST_API_ int main( int argc, char **argv ) {
 	testing::InitGoogleTest( &argc, argv );

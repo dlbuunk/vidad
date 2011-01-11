@@ -81,5 +81,17 @@ void* memmove( void* dest, void const* src, size_t num ) {
 	return dest;
 }
 
+int memcmp( void const* memA, void const* memB, size_t num ) {
+	byte const* memAp = reinterpret_cast< const byte* > ( memA );
+	byte const* memBp = reinterpret_cast< byte const* > ( memB );
+	while( num-- ) {
+		if( *memAp != *memBp )
+			return *memAp - *memBp;
+		memAp++;
+		memBp++;
+	}
+	return 0;
 }
+
+} // namespace klib
 

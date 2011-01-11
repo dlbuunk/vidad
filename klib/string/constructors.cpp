@@ -25,24 +25,23 @@
 namespace klib {
 
 string::string( size_t res ) :
-    nullval_( '\0' ) {
+    nullval_( '\0' )  {
 	if( res ) { // Has reserving memory been requested?
 		// User has requested that the string reserve a certain amount
 		// of memory, give it to him.
 		strPtr_ = new char[res];
-		strPtr_[0] = '\0';
 	} else {
 		// User has requested no allocation, or said nothing, fake it.
 		strPtr_ = 0;
 	}
-	strSize_ = 1; // For the \0
+	strSize_ = 0;
 	allocSize_ = res;
 }
 
 // This constructor is almost identical to the one from a C string, so see that
 // one for the code's comments.
 string::string( string const& str, size_t res ) :
-    nullval_( '\0' ) { 
+    nullval_( '\0' ) {
 	strSize_ = str.strSize_;
 	if( res ) { 
 		if( res < strSize_ ) 
@@ -52,15 +51,13 @@ string::string( string const& str, size_t res ) :
 	}
 	strPtr_ = new char[res];
 	allocSize_ = res;
-	if( str.strPtr_ )
+	if( strSize_ )
 		memcpy( strPtr_, str.strPtr_, strSize_ );
-	else
-		strPtr_[0] = '\0';
 }
 
 string::string( char const* cstrPtr, size_t res ) :
-    nullval_( '\0' ) {
-	strSize_ = strlen( cstrPtr ) + 1;
+    nullval_( '\0' )  {
+	strSize_ = strlen( cstrPtr );
 	if( res ) { // If the user requested a certain amount of memory...
 		if( res < strSize_ ) // ... but not enough.
 			res = strSize_;
@@ -78,7 +75,7 @@ string::string( char const* cstrPtr, size_t res ) :
 	// - strSize_ is the length of the string
 	strPtr_ = new char[res];
 	allocSize_ = res;
-	strcpy( strPtr_, cstrPtr );
+	memcpy( strPtr_, cstrPtr, strSize_ );
 }
 
 } // namespace klib

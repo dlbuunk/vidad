@@ -277,14 +277,10 @@ class string {
 	string& drop(); //++
 	//! \brief Ensures that the string does not contain errors.
 	//!
-	//! The term `errors' here is intentionally ambiguous. After this
-	//! function returns, you can be sure of the following:\
-	//! 1. The string does not contain \\0 chars, and thus:
-	//! 1a. Invoking strlen() on the output of c_str() will return the same
-	//!     value as just running length();
-	//! 1b. Using strcpy() to copy the string returned by c_str() will
-	//!     result in a string that will compare as equal with operator==.
-	//! 2. Conversely, the size of the string will be confirmed.
+	//! The exact behaviour of this function is not currently defined. 
+	//! \deprecated This function currently doesn't do anything, seeing as
+	//!             there is no known way to cause the string to contain
+	//!             errors.
 	string& validate(); //++
 	//! \brief Ensures that the string is no more than n characters long.
 	//!
@@ -390,9 +386,8 @@ class string {
 	//! \brief Returns a const pointer to a C string that is identical to
 	//!        the contents of this string at the time of calling c_str().
 	//!
-	//! The exact behaviour of this function is still undefined. It may be
-	//! assumed that the pointer will remain valid until a non-const member
-	//! function of this string is called.
+	//! The pointer will remain valid at least until a non-const member
+	//! function of this object is called.
 	const char* c_str() const; //+
 	//! \brief Returns true if this string is empty, false otherwise.
 	bool empty() const; //++
@@ -436,7 +431,7 @@ class string {
     private:
 	// Size of the currently stored string.
 	size_t strSize_;
-	// Size of the allocated string.
+	// Amount of memory allocated for the main string.
 	mutable size_t allocSize_;
 	// Pointer to the beginning of the string.
 	mutable char* strPtr_;

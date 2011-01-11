@@ -1,6 +1,6 @@
 //==---==  klib/string/mutablefuncs.cpp ==---------------==  *- C++ -*  ==---==>
 //
-// This file contains the functions that modify the string somehow.
+// This file contains the functions that modify the string.
 //
 // Copyright:
 //   This file is part of vidad::klib.
@@ -31,7 +31,6 @@ void string::reserve( size_t size ) {
 	allocSize_ = size; // We don't care how much was allocated before.
 	if( !strPtr_ ) { // In case we didn't have a string.
 		strPtr_ = new char[size];
-		strPtr_[0] = '\0';
 	} else {
 		// Standard procedure.
 		char* tmpPtr = new char[size];
@@ -46,8 +45,7 @@ string& string::clear() {
 		// String already not there.
 		return *this;
 	// Otherwise, we clear it.
-	strSize_ = 1;
-	strPtr_[0] = '\0';
+	strSize_ = 0;
 	return *this;
 }
 
@@ -55,25 +53,25 @@ string& string::drop() {
 	delete[] strPtr_;
 	strPtr_ = 0;
 	allocSize_ = 0;
-	strSize_ = 1;
+	strSize_ = 0;
 	return *this;
 }
 
+// deprechated
 string& string::validate() {
 	// If the string has a \0 somewhere, truncate at it.
-	if( !strPtr_ )
-		return *this;
-	size_t len = strlen( strPtr_ );
-	if( len + 1 != strSize_ )
-		truncateAt( len );
+//	if( !strPtr_ )
+//		return *this;
+//	size_t len = strlen( strPtr_ );
+//	if( len + 1 != strSize_ )
+//		truncateAt( len );
 	return *this;
 }
 
 string& string::truncateAt( size_t pos ) {
-	if( pos >= strSize_ || !strPtr_ )
+	if( pos >= strSize_ )
 		return *this;
-	strPtr_[pos] = '\0';
-	strSize_ = pos + 1;
+	strSize_ = pos;
 	return *this;
 }
 
@@ -190,59 +188,59 @@ string& string::appendBinary( unsigned int val, size_t digits ) {
 }
 
 void string::insert( string const& str, size_t pos ) {
-	if( pos >= strSize_ )
-		// Out of bounds
-		return;
-	if( !allocSize_ ) {
-		strSize_ = str.strSize_;
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
-		strPtr_ = new char[allocSize_];
-		strcpy( strPtr_, str.strPtr_ );
+	if( pos == strSize_ ) {
+		*this += str;
 		return;
 	}
-	if( strSize_ + str.strSize_ - 1 > allocSize_ ) {
+	if( pos > strSize_ )
+		// Out of bounds
+		return;
+	if( strSize_ + str.strSize_ > allocSize_ ) {
 		// We don't need the original size anymore.
-		strSize_ += str.strSize_ - 1;
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		allocSize_ = ( (strSize_ + str.strSize_) & ~(roundto_ - 1) )
+		             + roundto_;
 		char* tmpPtr = new char[allocSize_];
+		// Copy the first part of this string.
 		memcpy( tmpPtr, strPtr_, pos );
-		strcpy( tmpPtr + pos, str.strPtr_ );
-		strcpy( tmpPtr + pos + str.strSize_ - 1, strPtr_ + pos );
+		// Copy the other string.
+		memcpy( tmpPtr + pos, str.strPtr_, str.strSize_ );
+		// Copy the second part of this string.
+		memcpy( tmpPtr + pos + str.strSize_,
+		        strPtr_ + pos,
+			strSize_ - pos );
 		delete[] strPtr_;
 		strPtr_ = tmpPtr;
+		strSize_ += str.strSize_;
 	} else {
 		// Move things up:
 		// By the length of the other string.
-		memmove( strPtr_ + pos + str.strSize_ - 1, 
+		memmove( strPtr_ + pos + str.strSize_, 
 		         strPtr_ + pos  , // From the position inserted at.
 		         strSize_ - pos ); // This number of chars.
 		// Can't use strcpy here, as it would add a \0.
-		memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ - 1 );
-		strSize_ += str.strSize_ - 1;
+		memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ );
+		strSize_ += str.strSize_;
 	}
 }
 
 void string::insert( char const* cstrPtr, size_t pos ) {
-	if( pos >= strSize_ )
-		// Out of bounds
-		return;
-	if( !allocSize_ ) {
-		strSize_ += strlen( cstrPtr );
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
-		strPtr_ = new char[allocSize_];
-		strcpy( strPtr_, cstrPtr );
+	if( pos == strSize_ ) {
+		*this += cstrPtr;
 		return;
 	}
+	if( pos > strSize_ )
+		// Out of bounds
+		return;
 	size_t len = strlen( cstrPtr );
 	if( strSize_ + len > allocSize_ ) {
-		strSize_ += len; // We don't need the original size anymore.
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		allocSize_ = ( (strSize_ + len) & ~(roundto_ - 1) ) + roundto_;
 		char* tmpPtr = new char[allocSize_];
 		memcpy( tmpPtr, strPtr_, pos );
-		strcpy( tmpPtr + pos, cstrPtr );
-		strcpy( tmpPtr + pos + len, strPtr_ + pos );
+		memcpy( tmpPtr + pos, cstrPtr, len );
+		memcpy( tmpPtr + pos + len, strPtr_ + pos, strSize_ - pos );
 		delete[] strPtr_;
 		strPtr_ = tmpPtr;
+		strSize_ += len;
 	} else {
 		// Move things up:
 		memmove( strPtr_ + pos + len, // By len
@@ -255,7 +253,11 @@ void string::insert( char const* cstrPtr, size_t pos ) {
 }
 
 void string::insert( char c, size_t pos ) {
-	if( pos >= strSize_ )
+	if( pos == strSize_ ) {
+		*this += c;
+		return;
+	}
+	if( pos > strSize_ )
 		// Out of bounds
 		return;
 	if( !allocSize_ ) {

@@ -25,28 +25,28 @@
 namespace klib {
 
 const char* string::c_str() const {
-	if( !strPtr_ ) { // If we don't have a string, let's make one.
-		strPtr_ = new char[roundto_]; // Allowed thanks to mutable
-		strPtr_[0] = '\0';
-		allocSize_ = roundto_;
-		// strSize_ should already by 1.
+	if( strSize_ == allocSize_ ) {
+		allocSize_ += roundto_;
+		char* tmpPtr = new char[allocSize_];
+		memcpy( tmpPtr, strPtr_, strSize_ );
+		delete[] strPtr_;
+		strPtr_ = tmpPtr;
 	}
+	strPtr_[strSize_] = '\0';
 	return strPtr_;
 }
 
 bool string::empty() const {
-	// If the string isn't faked, check whether it's full of \0s.
-	if ( allocSize_ ) { 
-		for( size_t a = 0; a < strSize_; ++a ) {
-			if( strPtr_[a] )
-				return false;
-		}
+	// Check whether the string is full of \0s.
+	for( size_t a = 0; a < strSize_; ++a ) {
+		if( strPtr_[a] )
+			return false;
 	}
 	return true;
 }
 
 size_t string::length() const {
-	return strSize_ - 1;
+	return strSize_;
 }
 
 size_t string::size() const {

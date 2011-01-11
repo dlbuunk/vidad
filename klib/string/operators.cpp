@@ -33,28 +33,28 @@ string& string::operator=( string const& str ) {
 		delete[] strPtr_;
 		strPtr_ = new char[allocSize_];
 	}
-	if( str.strPtr_ )
+	if( strSize_ )
 		memcpy( strPtr_, str.strPtr_, strSize_ );
-	else
-		strPtr_[0] = '\0';
 	return *this;
 }
 
 string& string::operator=( char const* cstrPtr ) {
-	strSize_ = strlen( cstrPtr ) + 1;
+	strSize_ = strlen( cstrPtr );
+	if( !strSize_ )
+		return *this;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
 		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
 		delete[] strPtr_;
 		strPtr_ = new char[allocSize_];
 	}
-	strcpy( strPtr_, cstrPtr );
+	memcpy( strPtr_, cstrPtr, strSize_ );
 	return *this;
 }
 
 string& string::operator+=( string const& str ) {
 	// Note the position of the last character of this string.
-	size_t pos = --strSize_;
+	size_t pos = strSize_;
 	strSize_ += str.strSize_;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
@@ -62,7 +62,7 @@ string& string::operator+=( string const& str ) {
 		if( strPtr_ ) {
 			// If we have anything, let's copy it over.
 			char* tmpPtr = new char[allocSize_];
-			strcpy( tmpPtr, strPtr_ );
+			memcpy( tmpPtr, strPtr_, pos );
 			delete[] strPtr_;
 			strPtr_ = tmpPtr;
 		} else {
@@ -70,12 +70,12 @@ string& string::operator+=( string const& str ) {
 			strPtr_ = new char[allocSize_];
 		}
 	}
-	strcpy( strPtr_ + pos, str.strPtr_ );
+	memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ );
 	return *this;
 }
 
 string& string::operator+=( char const* cstrPtr ) {
-	size_t pos = strSize_ - 1;
+	size_t pos = strSize_;
 	strSize_ += strlen( cstrPtr );
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
@@ -83,7 +83,7 @@ string& string::operator+=( char const* cstrPtr ) {
 		if( strPtr_ ) {
 			// If we have anything, let's copy it over.
 			char* tmpPtr = new char[allocSize_];
-			strcpy( tmpPtr, strPtr_ );
+			memcpy( tmpPtr, strPtr_, strSize_ );
 			delete[] strPtr_;
 			strPtr_ = tmpPtr;
 		} else {
@@ -102,26 +102,15 @@ string& string::operator+=( const char c ) {
 		strPtr_ = new char[allocSize_];
 	}
 	if( strSize_ >= allocSize_ ) {
+		// If our string is too small, make it bigger.
 		allocSize_ += 32;
 		char* tmpPtr = new char[allocSize_];
-		strcpy( tmpPtr, strPtr_ );
+		memcpy( tmpPtr, strPtr_, strSize_ );
 		delete[] strPtr_;
 		strPtr_ = tmpPtr;
 	}
-	strPtr_[strSize_ - 1 ] = c; 
-	strPtr_[strSize_++] = '\0'; // Only increment the size here
+	strPtr_[strSize_++] = c; 
 	return *this;
-}
-
-char& string::operator[]( size_t pos ) {
-	if( pos >= strSize_ )
-		return nullval_ = 0;
-	if( !allocSize_ ) {
-		allocSize_ = roundto_;
-		strPtr_ = new char[roundto_];
-		strPtr_[0] = '\0';
-	}
-	return strPtr_[pos];
 }
 
 } // namespace klib
