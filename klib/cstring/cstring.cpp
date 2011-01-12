@@ -33,6 +33,8 @@ size_t strlen( char const* cstr ) {
 }
 
 int strcmp( char const* cstrA, char const* cstrB ) {
+	if( cstrA == cstrB )
+		return 0;
 	while( *cstrA && *cstrB ) {
 		if( *cstrA != *cstrB )
 			return *cstrA - *cstrB;
@@ -45,12 +47,16 @@ int strcmp( char const* cstrA, char const* cstrB ) {
 }
 
 char* strcpy( char* dest, char const* src ) {
+	if( dest == src )
+		return dest;
 	char* orig = dest;
 	while(( *dest++ = *src++ )); 
 	return orig;
 }
 
 void* memcpy( void* dest, void const* src, size_t num ) {
+	if( dest == src )
+		return dest;
 	byte* destp = reinterpret_cast< byte* > ( dest );
 	byte const* srcp = reinterpret_cast< byte const* > ( src );
 	while( num-- )
@@ -82,6 +88,8 @@ void* memmove( void* dest, void const* src, size_t num ) {
 }
 
 int memcmp( void const* memA, void const* memB, size_t num ) {
+	if( memA == memB )
+		return 0;
 	byte const* memAp = reinterpret_cast< const byte* > ( memA );
 	byte const* memBp = reinterpret_cast< byte const* > ( memB );
 	while( num-- ) {
