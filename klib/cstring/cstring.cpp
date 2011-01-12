@@ -1,8 +1,8 @@
 //==---==  klib/cstring/cstring.cpp ==-------------------==  *- C++ -*  ==---==>
 //
-// This source file contains the functions for the C string-related functions.
-// All should behave exactly as the standard requires them to.
-//
+//! \file klib/cstring/cstring.cpp
+//! \brief This source file defines the functions generally present in cstring.
+//!
 // Copyright:
 //   This file is part of vidad::klib.
 //
@@ -21,7 +21,7 @@
 //
 //==-------------------------------------------------------------------------==>
 #include <cstddef>
-#include "cstring.h"
+#include "cstring.hpp"
 
 namespace klib {
 

@@ -1,0 +1,6 @@
+local.mk
+*.o
+*.a
+lib/*
+doc/*
+*.swp

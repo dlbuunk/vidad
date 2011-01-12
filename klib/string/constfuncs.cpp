@@ -20,17 +20,15 @@
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
 //==-----------------------------------------------------------------------==>
-#include "string.h"
+#include "string.hpp"
+#include <cstring>
 
 namespace klib {
 
 const char* string::c_str() const {
 	if( strSize_ == allocSize_ ) {
 		allocSize_ += roundto_;
-		char* tmpPtr = new char[allocSize_];
-		memcpy( tmpPtr, strPtr_, strSize_ );
-		delete[] strPtr_;
-		strPtr_ = tmpPtr;
+		changeAlloc( allocSize_ );
 	}
 	strPtr_[strSize_] = '\0';
 	return strPtr_;
@@ -45,23 +43,11 @@ bool string::empty() const {
 	return true;
 }
 
-size_t string::length() const {
-	return strSize_;
-}
-
-size_t string::size() const {
-	return strSize_;
-}
-
-size_t string::capacity() const {
-	return allocSize_;
-}
-
 string string::subStr( size_t pos, size_t len ) const {
 	if( pos >= strSize_ ) 
 		// User has requested something past the end of the string.
 		return string();
-	if( len && pos + len >= strSize_ )
+	if( pos + len >= strSize_ )
 		// User has asked for more chars than we can give, so
 		// we'll just give him all.
 		len = 0;
