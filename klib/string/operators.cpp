@@ -28,6 +28,8 @@ namespace klib {
 // void casts used to shut the bloody thing up.
 
 string& string::operator=( string const& str ) {
+	if( this == &str )
+		return;
 	strSize_ = str.strSize_;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
