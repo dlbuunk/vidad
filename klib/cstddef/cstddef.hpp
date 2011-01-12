@@ -26,18 +26,19 @@
 #ifndef CSTDDEF_HPP
 #define CSTDDEF_HPP
 
-//! Unsigned type to be used for memory sizes.
+//! \brief Unsigned type to be used for memory sizes.
 typedef unsigned int size_t;
-//! 8-bit unsigned integer.
+//! \brief 8-bit unsigned integer.
 typedef unsigned char byte;
-//! 16-bit unsigned integer.
+//! \brief 16-bit unsigned integer.
 typedef unsigned short word;
-//! 32-bit unsigned integer.
+//! \brief 32-bit unsigned integer.
 typedef unsigned int dword;
-//! 64-bit unsigned integer.
+//! \brief 64-bit unsigned integer.
 typedef unsigned long long qword;
+//! \def NULL
+//! \brief C++-only define to allow NULL to be treated correctly.
 #ifdef __cplusplus
-	//! C++-only define to allow NULL to be treated correctly.
 	#define NULL 0
 #endif
 
