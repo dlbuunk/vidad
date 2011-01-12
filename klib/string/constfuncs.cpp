@@ -21,6 +21,7 @@
 //
 //==-----------------------------------------------------------------------==>
 #include "string.hpp"
+#include "private_inline.hpp"
 #include <cstring>
 
 namespace klib {
