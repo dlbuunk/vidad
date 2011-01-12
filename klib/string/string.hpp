@@ -87,7 +87,7 @@ class string {
 	//! Note: Here, the C string's size is defined as the output of
 	//! strlen( cstrPtr ) + 1.
 	//!
-	//! \param *cstrPtr is a pointer to the C string that should be copied.
+	//! \param cstrPtr is a pointer to the C string that should be copied.
 	//! \param res is the number of bytes that should be reserved.
 	string( char const* cstrPtr, size_t res = 0 ); //++
     	
@@ -113,7 +113,7 @@ class string {
 	//! klib::strcmp() on the two will yield 1, but modifying the contents
 	//! of this string will not change the C string cstrPtr is pointing to.
 	//!
-	//! \param *cstrPtr is a pointer to the C string that should be copied.
+	//! \param cstrPtr is a pointer to the C string that should be copied.
 	string& operator=( char const* cstrPtr ); //++
 	//! \brief Appends the contents of string str to this string.
 	//!
@@ -127,7 +127,8 @@ class string {
 	//! This is equivalent to *this = *this + cstrPtr, but avoids creating a
 	//! temporary object, and should thus be used instead when possible.
 	//!
-	//! \param cstrPtr is a pointer to the C string that should be added.
+	//! \param cstrPtr is a pointer to the C string that should
+	//!        be added.
 	string& operator+=( char const* cstrPtr ); //++
 	//! \brief Appends the character c to this string.
 	//!

@@ -1,9 +1,11 @@
 //==---==  klib/cstddef/cstddef.hpp ==-------------------==  *- C++ -*  ==---==>
 //
-// This header contains various typedefs and defines, some of which are required
-// by the standard. It should be safe to include this file from both C and C++
-// code.
-//
+//! \file klib/cstddef/cstddef.hpp
+//! \brief Mostly standard-compliant header with typedefs and defines.
+//!
+//! Apart from size_t and NULL, this header defines the different integer sizes
+//! available on x86.
+//!
 // Copyright:
 //   This file is part of vidad::klib.
 //
