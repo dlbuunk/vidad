@@ -20,62 +20,58 @@
 //
 //==-----------------------------------------------------------------------==>
 #include "string.hpp"
+#include "private_inline.hpp"
 #include <cstring>
 
 namespace klib {
 
+inline size_t string::ctorDecideAllocSize( size_t res ) const {
+	if( res ) { // If the user requested a certain amount of memory...
+		if( strSize_ > res ) // ... but not enough.
+			return strSize_;
+		else
+			return res;
+	} else { // No request, calculate it ourselves.
+		return calcAllocSize( strSize_ );
+	}
+}
+
 string::string( size_t res ) :
     nullval_( '\0' )  {
-	if( res ) { // Has reserving memory been requested?
+	strSize_ = 0;
+	if(( allocSize_ = res )) { // Has reserving memory been requested?
 		// User has requested that the string reserve a certain amount
 		// of memory, give it to him.
-		strPtr_ = new char[res];
+		strPtr_ = new char[allocSize_];
 	} else {
 		// User has requested no allocation, or said nothing, fake it.
 		strPtr_ = 0;
 	}
-	strSize_ = 0;
-	allocSize_ = res;
 }
 
-// This constructor is almost identical to the one from a C string, so see that
-// one for the code's comments.
 string::string( string const& str, size_t res ) :
     nullval_( '\0' ) {
 	strSize_ = str.strSize_;
-	if( res ) { 
-		if( res < strSize_ ) 
-			res = strSize_;
-	} else {
-		res = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
-	}
-	strPtr_ = new char[res];
-	allocSize_ = res;
-	if( strSize_ )
+	allocSize_ = ctorDecideAllocSize( res );
+	if( allocSize_ ) {
+		strPtr_ = new char[allocSize_];
 		memcpy( strPtr_, str.strPtr_, strSize_ );
+	} else { // Empty string, don't bother allocating.
+		strPtr_ = 0;
+	}
 }
 
+// See the string constructor for comments
 string::string( char const* cstrPtr, size_t res ) :
     nullval_( '\0' )  {
 	strSize_ = strlen( cstrPtr );
-	if( res ) { // If the user requested a certain amount of memory...
-		if( res < strSize_ ) // ... but not enough.
-			res = strSize_;
-	} else {// No request, let's store the amount we need in res anyway.
-		// Round up to roundto_. If already a multiple of roundto_, add
-		// another roundto_ just to be sure. You could see this code as
-		// res = (strSize / roundto) * roundto + roundto;
-		// Please note that this is much faster, but that it needs
-		// roundto to be a power of 2 to work.
-		res = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+	allocSize_ = ctorDecideAllocSize( res );
+	if( allocSize_ ) {
+		strPtr_ = new char[allocSize_];
+		memcpy( strPtr_, cstrPtr, strSize_ );
+	} else {
+		strPtr_ = 0;
 	}
-	// Okay, done with preparation, create everything.
-	// At the moment:
-	// - res is the size of the allocated memory
-	// - strSize_ is the length of the string
-	strPtr_ = new char[res];
-	allocSize_ = res;
-	memcpy( strPtr_, cstrPtr, strSize_ );
 }
 
 } // namespace klib

@@ -448,6 +448,15 @@ class string {
 	void changeAlloc( size_t size ) const;
 	//! \brief Guesses how much should be allocated, based on input.
 	size_t calcAllocSize( size_t size ) const;
+	//! \brief Checks whether the requested memory is enough to fit the
+	//!        string contents.
+	//!
+	//! For use in the constructor only, as it makes little sense anywhere
+	//! else -- the check assumes there is currently no string allocated,
+	//! and thus doesn't do many checks that other functions do.
+	//!
+	//! \param res is the amount of memory requested to be reserved.
+	size_t ctorDecideAllocSize( size_t res ) const;
 	//! \brief Size of the currently stored string.
 	size_t strSize_;
 	//! \brief Amount of memory allocated for the main string.
