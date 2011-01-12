@@ -1,4 +1,4 @@
-//==---==  klib/string/operators.h  ==-----------------==  *- C++ -*  ==---==>
+//==---==  klib/string/operators.cpp  ==-----------------==  *- C++ -*  ==---==>
 //
 // This source file contains the operators that for some reason haven't been
 // made inline.
@@ -19,7 +19,7 @@
 //   You should have received a copy of the GNU Lesser General Public License
 //   along with vidad::klib.  If not, see <http://www.gnu.org/licenses/>.
 //
-//==-----------------------------------------------------------------------==>
+//==-------------------------------------------------------------------------==>
 #include "string.hpp"
 #include <cstring>
 
@@ -30,7 +30,7 @@ string& string::operator=( string const& str ) {
 	strSize_ = str.strSize_;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		allocSize_ = calcAllocSize( strSize_ );
 		delete[] strPtr_;
 		strPtr_ = new char[allocSize_];
 	}
@@ -45,7 +45,7 @@ string& string::operator=( char const* cstrPtr ) {
 		return *this;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
+		allocSize_ = calcAllocSize( strSize_ );
 		delete[] strPtr_;
 		strPtr_ = new char[allocSize_];
 	}
@@ -55,63 +55,38 @@ string& string::operator=( char const* cstrPtr ) {
 
 string& string::operator+=( string const& str ) {
 	// Note the position of the last character of this string.
-	size_t pos = strSize_;
-	strSize_ += str.strSize_;
-	if( strSize_ > allocSize_ ) {
+	if( strSize_ + str.strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
-		if( strPtr_ ) {
-			// If we have anything, let's copy it over.
-			char* tmpPtr = new char[allocSize_];
-			memcpy( tmpPtr, strPtr_, pos );
-			delete[] strPtr_;
-			strPtr_ = tmpPtr;
-		} else {
-			// If we don't, just make some memory.
-			strPtr_ = new char[allocSize_];
-		}
+		allocSize_ = calcAllocSize( strSize_ + str.strSize_ );
+		changeAlloc( allocSize_ );
 	}
-	memcpy( strPtr_ + pos, str.strPtr_, str.strSize_ );
+	memcpy( strPtr_ + strSize_, str.strPtr_, str.strSize_ );
+	strSize_ += str.strSize_;
 	return *this;
 }
 
 string& string::operator+=( char const* cstrPtr ) {
-	size_t pos = strSize_;
-	strSize_ += strlen( cstrPtr );
-	if( strSize_ > allocSize_ ) {
+	size_t len = strlen( cstrPtr );
+	if( strSize_ + len > allocSize_ ) {
 		// If we don't have enough memory, let's make some.
-		allocSize_ = ( strSize_ & ~(roundto_ - 1) ) + roundto_;
-		if( strPtr_ ) {
-			// If we have anything, let's copy it over.
-			char* tmpPtr = new char[allocSize_];
-			memcpy( tmpPtr, strPtr_, strSize_ );
-			delete[] strPtr_;
-			strPtr_ = tmpPtr;
-		} else {
-			// If we don't, just make some memory.
-			strPtr_ = new char[allocSize_];
-		}
+		allocSize_ = calcAllocSize( strSize_ + len );
+		changeAlloc( allocSize_ );
 	}
-	strcpy( strPtr_ + pos, cstrPtr );
+	// Can use strcpy because we know the input is a C string.
+	strcpy( strPtr_ + strSize_, cstrPtr );
+	strSize_ += len;
 	return *this;
 }
 
 string& string::operator+=( const char c ) {
-	if( !allocSize_ ) {
-		// If we don't have a string yet, make one.
-		allocSize_ = roundto_;
-		strPtr_ = new char[allocSize_];
-	}
 	if( strSize_ >= allocSize_ ) {
 		// If our string is too small, make it bigger.
-		allocSize_ += 32;
-		char* tmpPtr = new char[allocSize_];
-		memcpy( tmpPtr, strPtr_, strSize_ );
-		delete[] strPtr_;
-		strPtr_ = tmpPtr;
+		allocSize_ += roundto_;
+		changeAlloc( allocSize_ );
 	}
 	strPtr_[strSize_++] = c; 
 	return *this;
 }
 
 } // namespace klib
+

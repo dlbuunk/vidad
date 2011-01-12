@@ -1,8 +1,9 @@
 //==---==  klib/string/string.hpp  ==--------------------==  *- C++ -*  ==---==>
 //
-// This header contains the string class definition and the inline
-// functions that it provides. 
-//
+//! \file klib/string/string.hpp
+//! \brief Contains the string class definition and the inline functions that it
+//! provides. 
+//!
 // Copyright:
 //   This file is part of vidad::klib.
 //
@@ -40,8 +41,9 @@ namespace klib {
 // +   : function is ready to be used in other code.
 // ++  : function is complete, and unlikely to change in the coming time.
 // ??? : function is dubious, maintainer should look at it.
-//! Container for 8-bit-wide text strings.
-//
+
+//! \brief Container for 8-bit-wide text strings.
+//!
 //! This container is intended to be used for working with text strings
 //! in the kernel. Unlike most implementations, this is not simply a typedef
 //! for basic_string<char> (not surprisingly, seeing as klib does not yet have
@@ -52,7 +54,7 @@ class string {
 	//! \brief Constructs an empty string, with res bytes reserved.
 	//!
 	//! If res is zero, the string is not yet allocated.
-	//
+	//!
 	//! \param res is the number of bytes that should be reserved.
 	string( size_t res = 0 ); //++
 	//! \brief Constructs a string with the same contents as str,
@@ -66,7 +68,7 @@ class string {
 	//! allocated will be as close to this amount as possible, usually
 	//! exactly equal to the request, or equal to the size of the string,
 	//! whichever is greater.
-	//
+	//!
 	//! \param str is the klib::string the contents of which should be
 	//!        copied.
 	//! \param res is the number of bytes that should be reserved.
@@ -84,7 +86,7 @@ class string {
 	//!
 	//! Note: Here, the C string's size is defined as the output of
 	//! strlen( cstrPtr ) + 1.
-	//
+	//!
 	//! \param *cstrPtr is a pointer to the C string that should be copied.
 	//! \param res is the number of bytes that should be reserved.
 	string( char const* cstrPtr, size_t res = 0 ); //++
@@ -101,7 +103,7 @@ class string {
 	//!
 	//! There is no guarantee that the amount of allocated space will be
 	//! equal, and no checks are made for early \\0 characters in str.
-	//
+	//!
 	//! \param str is the string the contents of which should be copied.
 	string& operator=( string const& str ); //++
 	//! \brief Overwrite the contents of this string with a copy of the C
@@ -110,21 +112,21 @@ class string {
 	//! The resulting string will compare as equal to cstrPtr, and using
 	//! klib::strcmp() on the two will yield 1, but modifying the contents
 	//! of this string will not change the C string cstrPtr is pointing to.
-	//
+	//!
 	//! \param *cstrPtr is a pointer to the C string that should be copied.
 	string& operator=( char const* cstrPtr ); //++
 	//! \brief Appends the contents of string str to this string.
 	//!
 	//! This is equivalent to *this = *this + str, but avoids creating a
 	//! temporary object, and should thus be used instead when possible.
-	//
+	//!
 	//! \param str is the string the contents of which should be added.
 	string& operator+=( string const& str ); //++
 	//! \brief Appends the C string pointed to by cstrPtr to this string.
 	//!
 	//! This is equivalent to *this = *this + cstrPtr, but avoids creating a
 	//! temporary object, and should thus be used instead when possible.
-	//
+	//!
 	//! \param cstrPtr is a pointer to the C string that should be added.
 	string& operator+=( char const* cstrPtr ); //++
 	//! \brief Appends the character c to this string.
@@ -138,7 +140,7 @@ class string {
 	//!
 	//! \note The speed of this function is likely to change in the coming
 	//!       rewrite.
-	//
+	//!
 	//! \param c is the character to be appended.
 	string& operator+=( const char c ); //++
 	//! \brief Returns a temporary string with the concatenation of this
@@ -146,7 +148,7 @@ class string {
 	//! 
 	//! This is implemented via the += operator, and is thus guaranteed to
 	//! be slower.
-	//
+	//!
 	//! \param str is the string this string should be concatenated with.
 	string operator+( string const& str ) const; //++
 	//! \brief Returns a temporary string with the concatenation of this
@@ -154,7 +156,7 @@ class string {
 	//! 
 	//! This is implemented via the += operator, and is thus guaranteed to
 	//! be slower.
-	//
+	//!
 	//! \param cstrPtr is a pointer to the string this string should be
 	//!        concatenated with.
 	string operator+( char const* cstrPtr ) const; //++
@@ -163,7 +165,7 @@ class string {
 	//! 
 	//! This is implemented via the += operator, and is thus guaranteed to
 	//! be slower.
-	//
+	//!
 	//! \param c is a character that should be appended to the temporary
 	//!        string.
 	string operator+( const char c ) const; //++
@@ -173,7 +175,7 @@ class string {
 	//! containing a \\0 is returned. It is not advised to store a reference
 	//! or pointer to this value. If you want/need pointer-like access to
 	//! the string, please submit an issue for iterators to be made.
-	//
+	//!
 	//! \param pos is the position of the character to be returned, with
 	//!        the first character at 0.
 	const char& operator[]( size_t pos ) const; //++
@@ -186,7 +188,7 @@ class string {
 	//! to ever write to this reference or pointer if you do decide to make
 	//! one. If you want/need pointer-like access to the string, please
 	//! submit an issue for iterators to be made.
-	//
+	//!
 	//! \param pos is the position of the character to be returned, with
 	//!        the first character at 0.
 	char& operator[]( size_t pos ); //++
@@ -199,7 +201,7 @@ class string {
 	//! compare as different. On the other hand, you shouldn't have multiple
 	//! \\0 characters in a string, so running validate() on both prior to
 	//! comparing should deal with this if you have reason for concern.
-	//
+	//!
 	//! \param str is the string that is to be compared with.
 	bool operator==( string const& str ) const; //++
 	//! \brief Returns true if this string is the same as the C string
@@ -212,7 +214,7 @@ class string {
 	//! However, strings should not contain early \\0 characters, and so
 	//! this can be avoided by running validate() on this string if there
 	//! is reason to believe this may occur.
-	//
+	//!
 	//! \param cstrPtr is a pointer to the C string that is to be compared
 	//!        with.
 	bool operator==( char const* cstrPtr ) const; //++
@@ -225,7 +227,7 @@ class string {
 	//! compare as different. On the other hand, you shouldn't have multiple
 	//! \\0 characters in a string, so running validate() on both prior to
 	//! comparing should deal with this if you have reason for concern.
-	//
+	//!
 	//! \param str is the string that is to be compared with.
 	bool operator!=( string const& str ) const; //++
 	//! \brief Returns true if this string is different from the C string
@@ -238,7 +240,7 @@ class string {
 	//! However, strings should not contain early \\0 characters, and so
 	//! this can be avoided by running validate() on this string if there
 	//! is reason to believe this may occur.
-	//
+	//!
 	//! \param cstrPtr is a pointer to the C string that is to be compared
 	//!        with.
 	bool operator!=( char const* cstrPtr ) const; //++
@@ -256,7 +258,7 @@ class string {
 	//! you are going to do a lot of appends one after another. For all
 	//! other things, the string should do a fairly decent job of guessing
 	//! how much memmory it needs.
-	//
+	//!
 	//! \param size is the amount of memory that the user wishes to be
 	//!        allocated.
 	void reserve( size_t size = 0 ); //++
@@ -288,21 +290,21 @@ class string {
 	//! at character n and leaving n characters is the same thing. Thus,
 	//! this has the same effect as setting character n of a C string to
 	//! \\0.
-	//
+	//!
 	//! \param n is the number of characters left in the string.
 	string& truncateAt( size_t n ); //++
 	//! \brief Appends the contents of string str to this string.
 	//!
 	//! This is equivalent to *this = *this + str, but avoids creating a
 	//! temporary object, and should thus be used instead when possible.
-	//
+	//!
 	//! \param str is the string the contents of which should be added.
 	string& append( string const& str ); //++
 	//! \brief Appends the C string pointed to by cstrPtr to this string.
 	//!
 	//! This is equivalent to *this = *this + cstrPtr, but avoids creating a
 	//! temporary object, and should thus be used instead when possible.
-	//
+	//!
 	//! \param cstrPtr is a pointer to the C string that should be added.
 	string& append( char const* cstrPtr ); //++
 	//! \brief Appends the character c to this string.
@@ -316,14 +318,14 @@ class string {
 	//!
 	//! \note The speed of this function is likely to change in the coming
 	//!       rewrite.
-	//
+	//!
 	//! \param c is the character to be appended.
 	string& appendChar( char c ); //++
 	//! \brief Append a signed decimal number to this string.
 	//!
 	//! Requesting more digits than a signed int can convert to (10) will
 	//! cause the number you request to be lowered.
-	//
+	//!
 	//! \param d is the number to be appended.
 	//! \param digits is the minimum number of digits the number should
 	//!        have. 
@@ -333,9 +335,9 @@ class string {
 	//!
 	//! Requesting more digits than an usigned int can convert to (8) will
 	//! cause the number you request to be lowered.
-	//
+	//!
 	//! \note There will be no 0x preceding the number.
-	//
+	//!
 	//! \param h is the number to be appended.
 	//! \param digits is the minimum number of digits the number should
 	//!        have. 
@@ -344,7 +346,7 @@ class string {
 	//!
 	//! Requesting more digits than an usigned int can convert to (32) will
 	//! cause the number you request to be lowered.
-	//
+	//!
 	//! \param b is the number to be appended.
 	//! \param digits is the minimum number of digits the number should
 	//!        have. 
@@ -353,9 +355,9 @@ class string {
 	//!
 	//! Requesting more digits than an usigned int can convert to (11) will
 	//! cause the number you request to be lowered.
-	//
+	//!
 	//! \note There will be no 0 preceding the number.
-	//
+	//!
 	//! \param o is the number to be appended.
 	//! \param digits is the minimum number of digits the number should
 	//!        have. 
@@ -435,21 +437,30 @@ class string {
 	//! reserved is important.
 	static const size_t roundto_ = 32;
     private:
-	// Size of the currently stored string.
+	//! \brief Allocates size bytes for the string, and moves the current
+	//!        contents there.
+	//!
+	//! You should make sure that size is not less than the current size
+	//! of the string, or bad things may happen.
+	//! 
+	//! \param size is the size of the new memory to be allocated.
+	void changeAlloc( size_t size ) const;
+	//! \brief Guesses how much should be allocated, based on input.
+	size_t calcAllocSize( size_t size ) const;
+	//! \brief Size of the currently stored string.
 	size_t strSize_;
-	// Amount of memory allocated for the main string.
+	//! \brief Amount of memory allocated for the main string.
 	mutable size_t allocSize_;
-	// Pointer to the beginning of the string.
+	//! \brief Pointer to the beginning of the string.
 	mutable char* strPtr_;
-	// This is a character that is returned when an out-of-bounds access
-	// is performed. May be removed later on.
+	//! \brief This is a character that is returned when an out-of-bounds
+	//!        access is performed.
 	mutable char nullval_;
 };
 
 } // namespace klib
 
 #include <klib/string_inline.hpp>
-
 
 #endif // STRING_HPP
 

@@ -20,6 +20,7 @@
 //
 //==-------------------------------------------------------------------------==>
 #include "string.hpp"
+#include "private_inline.hpp"
 #include <cstring>
 
 namespace klib {
@@ -30,35 +31,20 @@ void string::reserve( size_t size ) {
 	if( size == allocSize_ )
 		return; // Avoid doing anything if nothing needs to be done.
 	allocSize_ = size; // We don't care how much was allocated before.
-	if( !strPtr_ ) { // In case we didn't have a string.
+	if( !strPtr_ ) // In case we didn't have a string.
 		strPtr_ = new char[size];
-	} else {
-		// Standard procedure.
-		char* tmpPtr = new char[size];
-		memcpy( tmpPtr, strPtr_, strSize_ );
-		delete[] strPtr_;
-		strPtr_ = tmpPtr;
-	}
-}
-
-string& string::clear() {
-	if( !strPtr_ )
-		// String already not there.
-		return *this;
-	// Otherwise, we clear it.
-	strSize_ = 0;
-	return *this;
+	else
+		changeAlloc( size );
 }
 
 string& string::drop() {
 	delete[] strPtr_;
 	strPtr_ = 0;
-	allocSize_ = 0;
-	strSize_ = 0;
+	allocSize_ = strSize_ = 0;
 	return *this;
 }
 
-// deprechated
+// deprecated
 string& string::validate() {
 	// If the string has a \0 somewhere, truncate at it.
 //	if( !strPtr_ )
@@ -188,8 +174,11 @@ string& string::appendBinary( unsigned int val, size_t digits ) {
 	return *this;
 }
 
+// The insert functions use several memcpys to speed things up, and thus it is
+// not possible to use the changeAlloc function.
 void string::insert( string const& str, size_t pos ) {
 	if( pos == strSize_ ) {
+		// This can be done as an append.
 		*this += str;
 		return;
 	}
@@ -197,9 +186,7 @@ void string::insert( string const& str, size_t pos ) {
 		// Out of bounds
 		return;
 	if( strSize_ + str.strSize_ > allocSize_ ) {
-		// We don't need the original size anymore.
-		allocSize_ = ( (strSize_ + str.strSize_) & ~(roundto_ - 1) )
-		             + roundto_;
+		allocSize_ = calcAllocSize( strSize_ + str.strSize_);
 		char* tmpPtr = new char[allocSize_];
 		// Copy the first part of this string.
 		memcpy( tmpPtr, strPtr_, pos );
@@ -225,16 +212,16 @@ void string::insert( string const& str, size_t pos ) {
 }
 
 void string::insert( char const* cstrPtr, size_t pos ) {
+	// See insert string for more comments, the code is very similar.
 	if( pos == strSize_ ) {
 		*this += cstrPtr;
 		return;
 	}
 	if( pos > strSize_ )
-		// Out of bounds
 		return;
 	size_t len = strlen( cstrPtr );
 	if( strSize_ + len > allocSize_ ) {
-		allocSize_ = ( (strSize_ + len) & ~(roundto_ - 1) ) + roundto_;
+		allocSize_ = calcAllocSize(strSize_ + len);
 		char* tmpPtr = new char[allocSize_];
 		memcpy( tmpPtr, strPtr_, pos );
 		memcpy( tmpPtr + pos, cstrPtr, len );
@@ -246,7 +233,7 @@ void string::insert( char const* cstrPtr, size_t pos ) {
 		// Move things up:
 		memmove( strPtr_ + pos + len, // By len
 		         strPtr_ + pos  , // From the position inserted at.
-		         strSize_ - pos ); // This number of chars.
+		         strSize_ - pos ); // Number of chars after pos.
 		// Can't use strcpy here, as it would add a \0.
 		memcpy( strPtr_ + pos, cstrPtr, len );
 		strSize_ += len;
@@ -261,30 +248,26 @@ void string::insert( char c, size_t pos ) {
 	if( pos > strSize_ )
 		// Out of bounds
 		return;
-	if( !allocSize_ ) {
-		// Empty string, allocate some.
-		allocSize_ = roundto_;
-		strPtr_ = new char[allocSize_];
-		strSize_++;
-		strPtr_[0] = c;
-		strPtr_[1] = '\0';
-		return;
-	}
-	if( strSize_++ == allocSize_ ) {
+	strSize_++; // We'll be adding a char.
+	// No need to worry about an empty string: handled by above code.
+	if( strSize_ > allocSize_ ) {
 		// If necessary, get us more space.
-		allocSize_ += 32;
+		allocSize_ += roundto_;
 		char* tmpPtr = new char[allocSize_];
 		// And copy stuff over, adding the char in the middle.
 		memcpy( tmpPtr, strPtr_, pos );
 		tmpPtr[pos] = c;
-		strcpy( tmpPtr + pos + 1, strPtr_ + pos );
+		memcpy( tmpPtr + pos + 1,
+		        strPtr_ + pos,
+			strSize_ - 1 );
 		delete[] strPtr_;
 		strPtr_ = tmpPtr;
 	} else {
 		// Move everything one up.
 		memmove( strPtr_ + pos + 1,
-		         strPtr_ + pos  ,
-		         strSize_ - pos - 1 );
+		         strPtr_ + pos,
+		         strSize_ - pos - 1 ); 
+		// strSize is greater than it was.
 		// Don't forget to write the char, too!
 		strPtr_[pos] = c;
 	}
