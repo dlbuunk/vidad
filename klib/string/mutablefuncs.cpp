@@ -284,7 +284,6 @@ void string::removeSubStr( size_t pos, size_t len ) {
 	         strPtr_ + pos + len,
 	         strSize_ - pos - len );
 	strSize_ -= len;
-	return;
 }
 
 } // namespace klib
