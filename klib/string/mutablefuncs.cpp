@@ -273,4 +273,18 @@ void string::insert( char c, size_t pos ) {
 	}
 }
 
+void string::removeSubStr( size_t pos, size_t len ) {
+	if( pos >= strSize_ || !len ) // All of these means we shouldn't care.
+		return;
+	if( pos + len >= strSize_ ) { // User asked us to delete too much.
+		truncateAt( pos );
+		return;
+	}
+	memmove( strPtr_ + pos,
+	         strPtr_ + pos + len,
+	         strSize_ - pos - len );
+	strSize_ -= len;
+	return;
+}
+
 } // namespace klib

@@ -384,6 +384,14 @@ class string {
 	//! \param pos is the position where the inserted character should be
 	//!        placed.
 	void insert( char c, size_t pos ); //+
+	//! \brief Removes a substring from this string, starting at pos and
+	//!        going on for len characters.
+	//!
+	//! If pos is out of bounds, or len is zero, this does nothing at all.
+	//!
+	//! \param pos is the first character to be removed.
+	//! \param len is the length of the substring to be removed.
+	void removeSubStr( size_t pos, size_t len );
 	
 		// Const functions:
 	//! \brief Returns a const pointer to a C string that is identical to

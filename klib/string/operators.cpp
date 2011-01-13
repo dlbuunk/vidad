@@ -29,7 +29,7 @@ namespace klib {
 
 string& string::operator=( string const& str ) {
 	if( this == &str )
-		return;
+		return *this;
 	strSize_ = str.strSize_;
 	if( strSize_ > allocSize_ ) {
 		// If we don't have enough memory, let's make some.

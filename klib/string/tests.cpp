@@ -1360,6 +1360,36 @@ TEST( klibstringInsertChar, EmptyString ){
 }
 // |- Done: void insert( char c, size_t pos ); --------------------------------|
 
+// |- Test: void removeSubStr( size_t pos, size_t len ); ----------------------|
+TEST( klibstringRemoveSubStr, Normal ) {
+	klib::string s( "Testinging string." );
+	s.removeSubStr( 4, 3 );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringRemoveSubStr, ZeroLen ) {
+	klib::string s( "Testing string." );
+	s.removeSubStr( 4, 0 );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringRemoveSubStr, GiantLen ) {
+	klib::string s( "Testing string." );
+	s.removeSubStr( 7, 9001 );
+	EXPECT_EQ( s.size(), 7 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing" ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringRemoveSubStr, SillyPos ) {
+	klib::string s( "Testing string." );
+	s.removeSubStr( 9001, 3 );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+// |- Done: void removeSubStr( size_t pos, size_t len ); ----------------------|
+
 // |- Test: bool empty() const; -----------------------------------------------|
 TEST( klibstringEmpty, DefaultConstructor ) {
 	// Ensure that a string created with the default constructor is empty.
