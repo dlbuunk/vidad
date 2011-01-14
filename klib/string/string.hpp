@@ -392,6 +392,26 @@ class string {
 	//! \param pos is the first character to be removed.
 	//! \param len is the length of the substring to be removed.
 	void removeSubStr( size_t pos, size_t len );
+	//! \brief Overwrite the contents of this string with the C string
+	//!        pointed to by cstrPtr, starting from beginPos. Will not
+	//!        write past endPos.
+	//!
+	//! If the C string is too short, it will write less than beginPos -
+	//! endPos characters. If endPos is equal or lower that beginPos,
+	//! the entire C string will be written. Never shall more than the
+	//! length of the string be read.
+	//!
+	//! If beginPos is equal to or greater than the size of the string,
+	//! nothing happens.
+	//!
+	//! \note C++ does not allow me to make only the second paramter
+	//!       optional, so one will have to explicitly put 0 if one wants
+	//!       the whole C string copied.
+	//! 
+	//! \param beginPos is the first character to be written to.
+	//! \param endPos is one past the last character to be written to.
+	//! \param cstrPtr is a pointer to the C string to be inserted.
+	void replace( size_t beginPos, size_t endPos, char const* cstrPtr );
 	
 		// Const functions:
 	//! \brief Returns a const pointer to a C string that is identical to

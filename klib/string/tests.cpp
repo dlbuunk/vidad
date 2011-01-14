@@ -1390,6 +1390,45 @@ TEST( klibstringRemoveSubStr, SillyPos ) {
 }
 // |- Done: void removeSubStr( size_t pos, size_t len ); ----------------------|
 
+// |- Test: void replace( size_t beginPos, size_t posEnd, ---------------------|
+// |--------------------  char const* cstrptr );                              -|
+TEST( klibstringReplace, Normal ) {
+	klib::string s( "TestARR string." );
+	s.replace( 4, 8, "ing" );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringReplace, posEndTooGreat ) {
+	klib::string s( "TestARR string." );
+	s.replace( 4, 999, "ing" );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringReplace, ZeroLen ) {
+	klib::string s( "Testing string." );
+	s.replace( 4, 0, "" );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringReplace, posEndGiant ) {
+	klib::string s( "Testing RAWRRRR" );
+	s.replace( 8, 9001, "string." );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+
+TEST( klibstringReplace, posBeginGiant ) {
+	klib::string s( "Testing string." );
+	s.replace( 9001, 3, "RANDOM" );
+	EXPECT_EQ( s.size(), 15 ) << "Size mismatch.";
+	EXPECT_TRUE( s == "Testing string." ) << "Strings compare as unequal.";
+}
+// |- Test: void replace( size_t posBegin, size_t posEnd, ---------------------|
+// |--------------------  char const* cstrptr );                              -|
+
 // |- Test: bool empty() const; -----------------------------------------------|
 TEST( klibstringEmpty, DefaultConstructor ) {
 	// Ensure that a string created with the default constructor is empty.

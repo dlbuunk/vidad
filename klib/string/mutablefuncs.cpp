@@ -286,4 +286,21 @@ void string::removeSubStr( size_t pos, size_t len ) {
 	strSize_ -= len;
 }
 
+void string::replace( size_t beginPos, size_t endPos, char const* cstrPtr ) {
+	if( beginPos >= strSize_ ) // beginPos out of bounds.
+		return;
+	size_t len = strlen( cstrPtr );
+	if( endPos - beginPos > 0 ) // If we should care about endPos
+		if( endPos - beginPos < len )
+			len = endPos - beginPos; // This many requested.
+	if( beginPos + len > strSize_ )
+		strSize_ = beginPos + len;
+	if( strSize_ > allocSize_ ) { // If we need more room:
+		allocSize_ = calcAllocSize( strSize_ ); // Calculate how much.
+		changeAlloc( allocSize_ ); // Move to the new place.
+	}
+	// At this point, we know our buffer is big enough.
+	memcpy( strPtr_ + beginPos, cstrPtr, len ); // Actual copy.
+}
+
 } // namespace klib
