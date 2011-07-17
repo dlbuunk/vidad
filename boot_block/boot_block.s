@@ -1,5 +1,5 @@
 	.text
-	.global _boot_block_init
+	.globl _boot_block_init
 
 	# general info
 	.word	_boot_block_init	# void (*init)(void)
@@ -80,6 +80,17 @@ GDT:
 	# unhandled interrupt handler
 	.code32
 _unhandled_int:
+	movl	$_unhandled_msg,%esi
+	movl	$0x000B8000,%edi
+	movb	$0x20,%ah
+_uil:	lodsb
+	cmpb	$0x00,%al
+	je	_unhandled_end
+	stosw
+	jmp	_uil
+_unhandled_msg:
+	.asciz	"UNHANDLED INTERRUPT"
+_unhandled_end:
 	cli
 	hlt
 
@@ -274,8 +285,194 @@ start_p32:
 	movw	%ax,%gs
 
 	# Now, 32-bit pmode is fully set up.
-	# print a char
-	movw	$0x1F21,0x000B8000
-	cli
+	# re-init the IRQ/NMI/PIC/PIT/DMA/FDC
+	# start by editing entries in the IDT
+	movw	$IRQ0,0x00000900
+	movw	$IRQ6,0x00000930
+
+	# NMI
+	movb	$0x00,%al
+	outb	%al,$0x70
+
+	# PIC
+	movb	$0x11,%al
+	outb	%al,$0x20
+	movb	$0x08,%al
+	outb	%al,$0x21
+	movb	$0x04,%al
+	outb	%al,$0x21
+	movb	$0x01,%al
+	outb	%al,$0x21
+	movb	$0xBE,%al
+	outb	%al,$0x21
+
+	# PIT
+	movb	$0x36,%al
+	outb	%al,$0x43
+	movb	$0x0B,%al
+	outb	%al,$0x40
+	movb	$0xE9,%al
+	outb	%al,$0x40
+
+	# DMA
+	movb	$0x00,%al
+	outb	%al,$0xC8
+	outb	%al,$0x08
+	movb	$0xFF,%al
+	outb	%al,$0xCD
+	outb	%al,$0x0D
+	movb	$0x0E,%al
+	outb	%al,$0xCF
+	outb	%al,$0x0F
+
+	sti
+
+	#FDC init
+
+	movw	$0x03F2,%dx
+	movb	$0x00,%al
+	outb	%al,%dx
+
+	movw	$0x0005,%cx
+	call	timer
+	movb	$0x00,IRQ6.f
+
+	movb	$0x0C,%al
+	outb	%al,%dx
+	call	waitfloppy
+	movb	$0x08,%ah
+	call	writeFIFO
+	call	readFIFO
+	call	readFIFO
+
+	movw	$0x03F7,%dx
+	movb	$0x00,%al
+	outb	%al,%dx
+
+	movb	$0x03,%ah
+	call	writeFIFO
+	movb	$0xDF,%ah
+	call	writeFIFO
+	movb	$0x02,%ah
+	call	writeFIFO
+
+	# floppy motor on
+
+	movw	$0x03F2,%dx
+	movb	$0x1C,%al
+	outb	%al,%dx
+	movl	$0x0000000D,%ecx
+	call	timer
+
+cal:	# calibrate
+
+	movb	$0x07,%ah
+	call	writeFIFO
+	movb	$0x00,%ah
+	call	writeFIFO
+	call	waitfloppy
+
+	movb	$0x08,%ah
+	call	writeFIFO
+	call	readFIFO
+	call	readFIFO
+	cmpb	$0x00,%al
+	jne	cal
+
+	# hardware is now setup, start the C-code
+	.extern lmain	# loader main function
+	call	lmain
+
+	# should the main function return, call bb_exit and halt
+	call	bb_exit
 	hlt
+
+	.globl bb_exit	# closes down the hw, function pointer can be passed
+bb_exit:
+
+	# stop floppy motor
+	movw	$0x03F2,%dx
+	movb	$0x0C,%al
+	outb	%al,%dx
+	movl	$0x0006,%ecx
+	call	timer
+
+	# turn off FDC
+	movb	$0x00,%al
+	outb	%al,%dx
+	call	waitfloppy
+	cli
+
+	# turn off DMA
+	movb	$0x0E,%al
+	outb	%al,$0x0F
+	outb	%al,$0xCF
+	movb	$0x04,%al
+	outb	%al,$0x08
+	outb	%al,$0xC8
+
+	# mask all PIC IRQ's
+	movb	$0xFF,%al
+	outb	%al,$0x21
+
+	# mask the NMI
+	movb	$0x80,%al
+	outb	%al,$0x70
+
+	ret
+
+	# Helper functions
+IRQ0:
+	pushl	%eax
+	movb	$0x01,IRQ0.f
+	movb	$0x20,%al
+	outb	%al,$0x20
+	popl	%eax
+	iret
+IRQ0.f: .byte 0x00
+
+IRQ6:
+	pushl	%eax
+	movb	$0x01,IRQ6.f
+	movb	$0x20,%al
+	outb	%al,$0x20
+	popl	%eax
+	iret
+IRQ6.f: .byte 0x00
+
+timer:
+	hlt
+	cmpb	$0x01,IRQ0.f
+	jne	timer
+	movb	$0x00,IRQ0.f
+	loop	timer
+	ret
+
+waitfloppy:
+	hlt
+	cmpb	$0x01,IRQ6.f
+	jne	waitfloppy
+	movb	$0x00,IRQ6.f
+	ret
+
+readFIFO:
+	movw	$0x03F4,%dx
+	inb	%dx,%al
+	andb	$0x80,%al
+	cmpb	$0x80,%al
+	jne	readFIFO
+	incw	%dx
+	inb	%dx,%al
+	ret
+
+writeFIFO:
+	movw	$0x03F4,%dx
+	inb	%dx,%al
+	andb	$0x80,%al
+	cmpb	$0x80,%al
+	jne	writeFIFO
+	incw	%dx
+	movb	%ah,%al
+	outb	%al,%dx
+	ret
 
