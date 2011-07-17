@@ -243,3 +243,39 @@ setup_idt:
 	movw	$0x0800,0xFF0C
 	movw	$0x0000,0xFF0E
 
+	# start pmode
+	smsw	%ax
+	orb	$0x01,%al
+	lgdt	0xFF02
+	lmsw	%ax
+	jmpw	$0x0020,$start_p16
+
+	# this is 16-bit pmode
+start_p16:
+	movw	$0x0028,%ax
+	movw	%ax,%ss
+	movw	$0x0000,%sp
+	movw	%sp,%bp
+	movw	%ax,%ds
+	movw	%ax,%es
+	lidt	0xFF0A
+	jmpl	$0x0010,$start_p32
+
+	# NOW, we are in 32-bit pmode
+	.code32
+start_p32:
+	movw	$0x0018,%ax
+	movw	%ax,%ss
+	movl	$0x00010000,%esp
+	movl	%esp,%ebp
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
+
+	# Now, 32-bit pmode is fully set up.
+	# print a char
+	movw	$0x1F21,0x000B8000
+	cli
+	hlt
+
