@@ -4,8 +4,9 @@
 _bootsect_entry:
 	cli
 	cld
+	nop
 	jmpw	$0x0000,$0x7C10
-	.ascii	"VIDAD"
+	.ascii	"VIOS"
 	.long	0x00000000
 
 	# execution starts here
@@ -72,7 +73,7 @@ writeFIFO:
 	ret
 
 start:
-	# Vidad
+	# Vios
 	movw	$0x0E56,%ax
 	movw	$0x0007,%bx
 	int	$0x10
@@ -228,7 +229,7 @@ cal:	# calibrate
 	call	readFIFO
 	call	readFIFO
 
-	# vIdad
+	# vIos
 	movw	$0x0E49,%ax
 	movw	$0x0007,%bx
 	int	$0x10

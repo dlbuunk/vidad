@@ -8,3 +8,4 @@ SECTIONS
 	{	*(.text*)
 	}
 }
+
