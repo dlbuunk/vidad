@@ -72,6 +72,11 @@ writeFIFO:
 	ret
 
 start:
+	# Vidad
+	movw	$0x0E56,%ax
+	movw	$0x0007,%bx
+	int	$0x10
+
 	# setup interrupt vectors
 	movw	$IRQ0,0x0020
 	movw	$0x00,0x0022
@@ -223,9 +228,78 @@ cal:	# calibrate
 	call	readFIFO
 	call	readFIFO
 
-	# print '?' and HALT
-	movw	$0x0E3F,%ax
+	# vIdad
+	movw	$0x0E49,%ax
 	movw	$0x0007,%bx
 	int	$0x10
+
+	# stop floppy motor
+	movw	$0x03F2,%dx
+	movb	$0x0C,%al
+	outb	%al,%dx
+	movw	$0x0006,%cx
+	call	timer
+
+	# turn off FDC
+	movb	$0x00,%al
+	outb	%al,%dx
+	call	waitfloppy
 	cli
-	hlt
+
+	# turn off DMA
+	movb	$0x0E,%al
+	outb	%al,$0x0F
+	outb	%al,$0xCF
+	movb	$0x04,%al
+	outb	%al,$0x08
+	outb	%al,$0xC8
+
+	# mask all PIC IRQ's
+	movb	$0xFF,%al
+	outb	%al,$0x21
+
+	# mask the NMI
+	movb	$0x80,%al
+	outb	%al,$0x70
+
+	# enable A20-line
+
+	call	waitA
+	movb	$0xAD,%al
+	outb	%al,$0x64
+
+	call	waitA
+	movb	$0xD0,%al
+	outb	%al,$0x64
+
+	call	waitB
+	inb	$0x60,%al
+	movb	%al,%ah
+
+	call	waitA
+	movb	$0xD1,%al
+	outb	%al,$0x64
+
+	call	waitA
+	movb	%ah,%al
+	orb	$0x03,%al
+	outb	%al,$0x60
+
+	# run next part of init
+	movw	0x1200,%ax
+	jmpw	*%ax
+
+	# A20-line helper functions
+waitA:
+	inb	$0x64,%al
+	testb	$0x02,%al
+	jnz	waitA
+	ret
+
+waitB:
+	inb	$0x64,%al
+	testb	$0x01,%al
+	jz	waitB
+	ret
+
+	.word	0xAA55
