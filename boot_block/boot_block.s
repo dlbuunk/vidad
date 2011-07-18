@@ -389,40 +389,6 @@ cal:	# calibrate
 	cli
 	hlt
 
-	.globl bb_exit	# closes down the hw, function pointer can be passed
-bb_exit:
-
-	# stop floppy motor
-	movw	$0x03F2,%dx
-	movb	$0x0C,%al
-	outb	%al,%dx
-	movl	$0x0006,%ecx
-	call	timer
-
-	# turn off FDC
-	movb	$0x00,%al
-	outb	%al,%dx
-	call	waitfloppy
-	cli
-
-	# turn off DMA
-	movb	$0x0E,%al
-	outb	%al,$0x0F
-	outb	%al,$0xCF
-	movb	$0x04,%al
-	outb	%al,$0x08
-	outb	%al,$0xC8
-
-	# mask all PIC IRQ's
-	movb	$0xFF,%al
-	outb	%al,$0x21
-
-	# mask the NMI
-	movb	$0x80,%al
-	outb	%al,$0x70
-
-	ret
-
 	# Helper functions
 IRQ0:
 	pushl	%eax
@@ -476,5 +442,69 @@ writeFIFO:
 	incw	%dx
 	movb	%ah,%al
 	outb	%al,%dx
+	ret
+
+	# exported helper functions
+	.globl bb_timer
+	.globl bb_waitf
+	.globl bb_writeF
+	.globl bb_readF
+
+bb_timer:
+	pushl	%ebp
+	movl	%esp,%ebp
+	movl	8(%ebp),%ecx
+	call	timer
+	popl	%ebp
+	ret
+
+bb_waitf:
+	call	waitfloppy
+	ret
+
+bb_readF:
+	call	readFIFO
+	ret
+
+bb_writeF:
+	pushl	%ebp
+	movl	%esp,%ebp
+	movb	8(%ebp),%ah
+	call	writeFIFO
+	popl	%ebp
+	ret
+
+	.globl bb_exit	# closes down the hw, function pointer can be passed
+bb_exit:
+
+	# stop floppy motor
+	movw	$0x03F2,%dx
+	movb	$0x0C,%al
+	outb	%al,%dx
+	movl	$0x0006,%ecx
+	call	timer
+
+	# turn off FDC
+	movb	$0x00,%al
+	outb	%al,%dx
+	call	waitfloppy
+	cli
+
+	# turn off DMA
+	movb	$0x0E,%al
+	outb	%al,$0x0F
+	outb	%al,$0xCF
+	movb	$0x04,%al
+	outb	%al,$0x08
+	outb	%al,$0xC8
+
+	# mask all PIC IRQ's
+	movb	$0xFF,%al
+	outb	%al,$0x21
+
+	# mask the NMI
+	movb	$0x80,%al
+	outb	%al,$0x70
+
 	ret
 
