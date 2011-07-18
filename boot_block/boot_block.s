@@ -226,6 +226,7 @@ hdend:
 	movw	$0x0E53,%ax
 	movw	$0x0007,%bx
 	int	$0x10
+	cli
 
 	# all detection DONE, now prepare pmode
 	# first, prepare IDT
@@ -297,7 +298,7 @@ start_p32:
 	# PIC
 	movb	$0x11,%al
 	outb	%al,$0x20
-	movb	$0x08,%al
+	movb	$0x20,%al
 	outb	%al,$0x21
 	movb	$0x04,%al
 	outb	%al,$0x21
@@ -385,6 +386,7 @@ cal:	# calibrate
 
 	# should the main function return, call bb_exit and halt
 	call	bb_exit
+	cli
 	hlt
 
 	.globl bb_exit	# closes down the hw, function pointer can be passed

@@ -21,6 +21,6 @@ boot_block.tmp: boot_block.s loader.o
 	chmod -x boot_block.tmp
 
 loader.o: loader.c
-	gcc -S -o loader.s loader.c
+	gcc -Wall -Wextra -Werror -nostdlib -nostartfiles -nodefaultlibs -Os -S -o loader.s loader.c
 	as -o loader.o loader.s
 
