@@ -192,8 +192,8 @@ cal:	# calibrate
 
 	movb	$0x46,%al
 	outb	%al,$0x0B
-	movb	$0x0A,%al
-	outb	%al,$0x0F
+	movb	$0x02,%al
+	outb	%al,$0x0A
 
 	# read the floppy
 

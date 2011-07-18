@@ -85,11 +85,11 @@ int bb_load_raw(byte track)
 		bb_waitf();
 		bb_writeF(0x08);
 		(void) bb_readF();
-		if (bb_readF() == track) break;
-		return(-1);
+		if (bb_readF() == track) goto dma;
 	}
+	return(-1);
 
-	/* setup DMA */
+	dma: /* setup DMA */
 	outb(0x0A, 0x06);
 	outb(0x0C, 0xFF);
 	outb(0x04, 0x00);
@@ -99,7 +99,7 @@ int bb_load_raw(byte track)
 	outb(0x05, 0xFF);
 	outb(0x05, 0x47);
 	outb(0x0B, 0x46);
-	outb(0x0A, 0x0F);
+	outb(0x0A, 0x02);
 
 	/* wait a while */
 	bb_timer(3);
@@ -134,14 +134,14 @@ int bb_read_block(byte *buffer, int bnum)
 		return(1);
 
 	track = (bnum<<1) / 9;
-	if (track != bb_cur_track && (! (rt = bb_load_raw(track))))
+	if (track != bb_cur_track && (rt = bb_load_raw(track)))
 		return(rt);
 
 	if ((bnum % 9) == 4) /* block split over 2 tracks */
 	{
 		for (i=0; i<0x0800; i++)
 			buffer[i] = *((byte *) (0x0000C000 + i));
-		if (! (rt = bb_load_raw(++track)))
+		if (rt = bb_load_raw(++track))
 			return(rt);
 		for (i=0; i<0x0800; i++)
 			buffer[i] = *((byte *) (0x00008000 + i));
@@ -154,8 +154,29 @@ int bb_read_block(byte *buffer, int bnum)
 /* lmain function */
 void lmain(void)
 {
+	word block;
+	byte * kptr = (byte *) 0x0000F000; /* 0x1000 is added later */
 	screen_init();
 	screen_puts("Loading VIOS...\n");
-	bb_read_block((byte *) 0x2000, 1);
+
+	/* find initial block */
+	block = *((word *) 0x1212);
+
+	do /* load blocks */
+	{
+		if (block <= 0 || block > 360)
+		{
+			screen_puts("Error finding kernel");
+			return;
+		}
+		if(bb_read_block(kptr+=0x1000, block))
+		{
+			screen_puts("Error loading kernel");
+			return;
+		}
+		block = *(((word *) (*((word *) 0x120C) + 0x1000)) + block);
+	} while (block != 0xFFF8);
+
+	screen_puts("Kernel loaded.\n");
 }
 
