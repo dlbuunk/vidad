@@ -125,11 +125,37 @@ int bb_load_raw(byte track)
 	return(0);
 }
 
+int bb_read_block(byte *buffer, int bnum)
+{
+	byte track;
+	int rt, i;
+
+	if (bnum < 0 || bnum > 360)
+		return(1);
+
+	track = (bnum<<1) / 9;
+	if (track != bb_cur_track && (! (rt = bb_load_raw(track))))
+		return(rt);
+
+	if ((bnum % 9) == 4) /* block split over 2 tracks */
+	{
+		for (i=0; i<0x0800; i++)
+			buffer[i] = *((byte *) (0x0000C000 + i));
+		if (! (rt = bb_load_raw(++track)))
+			return(rt);
+		for (i=0; i<0x0800; i++)
+			buffer[i] = *((byte *) (0x00008000 + i));
+	}
+	else for (i=0; i<0x1000; i++)
+		buffer[i] = *((byte *) (0x00008000 + (((bnum<<1)%9)<<11) + i));
+	return(0);
+}
+
 /* lmain function */
 void lmain(void)
 {
 	screen_init();
 	screen_puts("Loading VIOS...\n");
-	bb_load_raw(0);
+	bb_read_block((byte *) 0x2000, 1);
 }
 

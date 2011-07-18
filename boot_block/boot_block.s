@@ -17,9 +17,10 @@
 
 	# allocation table
 	.word	0xFFFC
+	.word	0x0002
 	.word	0xFFF8
 
-	.rept	360 - 2
+	.rept	360 - 3
 	.word	0
 	.endr
 
