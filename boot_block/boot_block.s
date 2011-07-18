@@ -198,8 +198,6 @@ m2err:
 	movb	$0x88,%ah
 	int	$0x15
 	jc	m3end
-	testw	%ax,%ax
-	je	m3end
 	cmpb	$0x86,%ah
 	je	m3end
 	cmpb	$0x80,%ah
