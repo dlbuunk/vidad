@@ -137,7 +137,7 @@ int bb_read_block(byte *buffer, int bnum)
 	{
 		for (i=0; i<0x0800; i++)
 			buffer[i] = *((byte *) (0x0000C000 + i));
-		if (rt = bb_load_raw(++track))
+		if ((rt = bb_load_raw(++track)))
 			return(rt);
 		for (i=0; i<0x0800; i++)
 			buffer[i] = *((byte *) (0x00008000 + i));

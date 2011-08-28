@@ -1,3 +1,7 @@
+LD = /usr/local/cross/bin/i386-elf-ld
+AS = /usr/local/cross/bin/i386-elf-as
+CC = /usr/local/cross/bin/i386-elf-gcc -Wall -Wextra -Werror -nostdlib -nodefaultlibs -nostartfiles -nostdinc -Os -c
+
 all: boot_sect.tmp boot_block.tmp
 	cp boot_sect.tmp boot_block.bin
 	dd if=boot_block.tmp of=boot_block.bin seek=1
@@ -11,16 +15,15 @@ clean:
 	rm -f *.{o,tmp,bin} loader.s
 
 boot_sect.tmp: boot_sect.s
-	as -o boot_sect.o boot_sect.s
-	ld -T boot_sect.ld
+	$(AS) -o boot_sect.o boot_sect.s
+	$(LD) -T boot_sect.ld
 	chmod -x boot_sect.tmp
 
 boot_block.tmp: boot_block.s loader.o
-	as -o boot_block.o boot_block.s
-	ld -T boot_block.ld
+	$(AS) -o boot_block.o boot_block.s
+	$(LD) -T boot_block.ld
 	chmod -x boot_block.tmp
 
 loader.o: loader.c
-	gcc -Wall -Wextra -Wno-parentheses -Werror -nostdlib -nostartfiles -nodefaultlibs -nostdinc -Os -S -o loader.s loader.c
-	as -o loader.o loader.s
+	$(CC) -o loader.o loader.c
 
