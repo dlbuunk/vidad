@@ -8,12 +8,10 @@ extern "C" void kinit(int (*_loader_read)(byte *, int), void (*_loader_puts)(cha
 	// we don't need the bootloader timer & floppy driver, stop them
 	(*_loader_exit)();
 
-	kprint("This is not visible");
-
 	// start the kernel logger
 	klog_init(0, _loader_puts);
 
-	kprint("This is visible");
+	kprint("Let's test 0x%X.", 0x19AF);
 
 	// unused variables
 	(void) _loader_read;

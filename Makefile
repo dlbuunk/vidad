@@ -1,6 +1,6 @@
 LD = /usr/local/cross/bin/i386-elf-ld
 AS = /usr/local/cross/bin/i386-elf-as
-CXX = /usr/local/cross/bin/i386-elf-g++ -Wall -Wextra -Werror -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-exceptions -fno-rtti -fno-stack-protector -O3 -c
+CXX = /usr/local/cross/bin/i386-elf-g++ -Wall -Wextra -Werror -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-exceptions -fno-rtti -fno-stack-protector -fno-strict-aliasing -O3 -c
 
 all: kernel.bin
 

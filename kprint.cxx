@@ -47,10 +47,123 @@ void kprint(char const * istr, ...)
 	ostr[14] = ']';
 	ostr[15] = ' ';
 
-	// copy string
+	// copy (and format) string
 	i = 16;
+	dword * ptr; // dword *, not void *, as ISO C++ forbids incrementing a pointer of type 'void*'
+	ptr = (dword *) &istr;
+	dword unum;
 	while (*istr)
-		ostr[i++] = *istr++;
+	{
+		if (*istr != '%')
+			ostr[i++] = *istr++;
+
+		else switch (*++istr)
+		{
+			case '%' :
+				ostr[i++] = *istr++;
+				break;
+
+			case 'X' :
+				unum = *++ptr;
+				if ((unum & 0xF0000000) > 0x90000000)
+					ostr[i++] = (unum >> 28) + 0x37;
+				else
+					ostr[i++] = (unum >> 28) + 0x30;
+				if ((unum & 0xF000000) > 0x9000000)
+					ostr[i++] = (unum >> 24 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 24 & 0xF) + 0x30;
+				if ((unum & 0xF00000) > 0x900000)
+					ostr[i++] = (unum >> 20 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 20 & 0xF) + 0x30;
+				if ((unum & 0xF0000) > 0x90000)
+					ostr[i++] = (unum >> 16 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 16 & 0xF) + 0x30;
+				if ((unum & 0xF000) > 0x9000)
+					ostr[i++] = (unum >> 12 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 12 & 0xF) + 0x30;
+				if ((unum & 0xF00) > 0x900)
+					ostr[i++] = (unum >> 8 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 8 & 0xF) + 0x30;
+				if ((unum & 0xF0) > 0x90)
+					ostr[i++] = (unum >> 4 & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum >> 4 & 0xF) + 0x30;
+				if ((unum & 0xF) > 0x9)
+					ostr[i++] = (unum & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum & 0xF) + 0x30;
+				istr++;
+				break;
+
+			case 'x' :
+				unum = *++ptr;
+				if (unum > 0xF)
+				{
+					if (unum > 0xF0)
+					{
+						if (unum > 0xF00)
+						{
+							if (unum > 0xF000)
+							{
+								if (unum > 0xF0000)
+								{
+									if (unum > 0xF00000)
+									{
+										if (unum > 0xF000000)
+										{
+											if ((unum & 0xF0000000) > 0x90000000)
+												ostr[i++] = (unum >> 28) + 0x37;
+											else
+												ostr[i++] = (unum >> 28) + 0x30;
+										}
+										if ((unum & 0xF000000) > 0x9000000)
+											ostr[i++] = (unum >> 24 & 0xF) + 0x37;
+										else
+											ostr[i++] = (unum >> 24 & 0xF) + 0x30;
+									}
+									if ((unum & 0xF00000) > 0x900000)
+										ostr[i++] = (unum >> 20 & 0xF) + 0x37;
+									else
+										ostr[i++] = (unum >> 20 & 0xF) + 0x30;
+								}
+								if ((unum & 0xF0000) > 0x90000)
+									ostr[i++] = (unum >> 16 & 0xF) + 0x37;
+								else
+									ostr[i++] = (unum >> 16 & 0xF) + 0x30;
+							}
+							if ((unum & 0xF000) > 0x9000)
+								ostr[i++] = (unum >> 12 & 0xF) + 0x37;
+							else
+								ostr[i++] = (unum >> 12 & 0xF) + 0x30;
+						}
+						if ((unum & 0xF00) > 0x900)
+							ostr[i++] = (unum >> 8 & 0xF) + 0x37;
+						else
+							ostr[i++] = (unum >> 8 & 0xF) + 0x30;
+					}
+					if ((unum & 0xF0) > 0x90)
+						ostr[i++] = (unum >> 4 & 0xF) + 0x37;
+					else
+						ostr[i++] = (unum >> 4 & 0xF) + 0x30;
+				}
+				if ((unum & 0xF) > 0x9)
+					ostr[i++] = (unum & 0xF) + 0x37;
+				else
+					ostr[i++] = (unum & 0xF) + 0x30;
+				istr++;
+				break;
+
+			default :
+				;
+		}
+	}
+
+
 	// instert trailing newline 
 	ostr[i++] = '\n';
 	ostr[i] = '\0';

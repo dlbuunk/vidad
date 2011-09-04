@@ -22,6 +22,7 @@ struct Info
 };
 
 // defined in kinit.cxx
+// extern "C" void kinit( ... );
 extern dword const volatile ktime;
 extern dword boot_time;
 
