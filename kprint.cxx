@@ -52,6 +52,7 @@ void kprint(char const * istr, ...)
 	dword * ptr; // dword *, not void *, as ISO C++ forbids incrementing a pointer of type 'void*'
 	ptr = (dword *) &istr;
 	dword unum;
+	char * str;
 	while (*istr)
 	{
 		if (*istr != '%')
@@ -155,6 +156,120 @@ void kprint(char const * istr, ...)
 					ostr[i++] = (unum & 0xF) + 0x37;
 				else
 					ostr[i++] = (unum & 0xF) + 0x30;
+				istr++;
+				break;
+
+			case 'u' :
+				unum = *++ptr;
+				if (unum >= 10)
+				{
+					if (unum >= 100)
+					{
+						if (unum >= 1000)
+						{
+							if (unum >= 10000)
+							{
+								if (unum >= 100000)
+								{
+									if (unum >= 1000000)
+									{
+										if (unum >= 10000000)
+										{
+											if (unum >= 100000000)
+											{
+												if (unum >= 1000000000)
+												{
+													ostr[i++] = unum / 1000000000 + 0x30;
+													unum %= 1000000000;
+												}
+												ostr[i++] = unum / 100000000 + 0x30;
+												unum %= 100000000;
+											}
+											ostr[i++] = unum / 10000000 + 0x30;
+											unum %= 10000000;
+										}
+										ostr[i++] = unum / 1000000 + 0x30;
+										unum %= 1000000;
+									}
+									ostr[i++] = unum / 100000 + 0x30;
+									unum %= 100000;
+								}
+								ostr[i++] = unum / 10000 + 0x30;
+								unum %= 10000;
+							}
+							ostr[i++] = unum / 1000 + 0x30;
+							unum %= 1000;
+						}
+						ostr[i++] = unum / 100 + 0x30;
+						unum %= 100;
+					}
+					ostr[i++] = unum / 10 + 0x30;
+					unum %= 10;
+				}
+				ostr[i++] = unum + 0x30;
+				istr++;
+				break;
+
+			case 'o' :
+				unum = *++ptr;
+				if (unum > 07)
+				{
+					if (unum > 077)
+					{
+						if (unum > 0777)
+						{
+							if (unum > 07777)
+							{
+								if (unum > 077777)
+								{
+									if (unum > 0777777)
+									{
+										if (unum > 07777777)
+										{
+											if (unum > 077777777)
+											{
+												if (unum > 0777777777)
+												{
+													if (unum > 07777777777)
+													{
+														ostr[i++] = (unum >> 30) + 0x30;
+														unum &= 07777777777;
+													}
+													ostr[i++] = (unum >> 27) + 0x30;
+													unum &= 0777777777;
+												}
+												ostr[i++] = (unum >> 24) + 0x30;
+												unum &= 077777777;
+											}
+											ostr[i++] = (unum >> 21) + 0x30;
+											unum &= 07777777;
+										}
+										ostr[i++] = (unum >> 18) + 0x30;
+										unum &= 0777777;
+									}
+									ostr[i++] = (unum >> 15) + 0x30;
+									unum &= 077777;
+								}
+								ostr[i++] = (unum >> 12) + 0x30;
+								unum &= 07777;
+							}
+							ostr[i++] = (unum >> 9) + 0x30;
+							unum &= 0777;
+						}
+						ostr[i++] = (unum >> 6) + 0x30;
+						unum &= 077;
+					}
+					ostr[i++] = (unum >> 3) + 0x30;
+					unum &= 07;
+				}
+				ostr[i++] = unum + 0x30;
+				istr++;
+				break;
+
+			case 's' :
+				str = (char *) *++ptr;
+				while (*str)
+					ostr[i++] = *str++;
 				istr++;
 				break;
 

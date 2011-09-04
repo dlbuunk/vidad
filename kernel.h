@@ -21,6 +21,14 @@ struct Info
 	byte num_entries;
 };
 
+//defined in kernel.ld
+extern dword start_ctors;
+extern dword end_ctors;
+extern dword start_dtors;
+extern dword end_dtors;
+extern dword start_bss;
+extern dword end_bss;
+
 // defined in kinit.cxx
 // extern "C" void kinit( ... );
 extern dword const volatile ktime;
