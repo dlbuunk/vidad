@@ -184,3 +184,26 @@ void free(void * addr)
 		kprint("malloc: cannot free at address 0x%X.", addr);
 }
 
+/* memory map:
+0x00000000 - 0x000003FF (    1   kB) IVT, realmode artifact, do not touch.
+0x00000400 - 0x000005FF (    0.5 kB) BDA, BIOS artifact, do not touch.
+0x00000600 - 0x000007FF (    0.5 kB) memory size data, do not touch.
+0x00000800 - 0x00000FFF (    2   kB) IDT, important CPU table, do not touch.
+0x00001000 - 0x00001FFF (    4   kB) bootloader, still contains usefull functions/data.
+0x00002000 - 0x00002FFF (    4   kB) GDT, important CPU table (512 entries), do not touch.
+0x00003000 - 0x00003FFF (    4   kB) Page directory for kernel.
+0x00004000 - 0x00007FFF (   16   kB) Page tables (4) for the first 16 MB. (kernel)
+0x00008000 - 0x0000C3FF (   18   kB) DMA buffer for floppy disk. (bootloader)
+0x0000C400 - 0x0000FFF0 (   14   kB) Main kernel stack.
+0x0000FFF0 - 0x0000FFF1 (         2) empty
+0x0000FFF2 - 0x0000FFF7 (         6) GDT pointer
+0x0000FFF8 - 0x0000FFF9 (         2) empty
+0x0000FFFA - 0x0000FFFF (         6) IDT pointer
+0x00010000 - 0x0009FBFF (  575   kB) Kernel code + data.
+0x0009FC00 - 0x0009FFFF (    1   kB) EBDA, BIOS artifact, do not touch.
+0x000A0000 - 0x000BFFFF (  128   kB) Video memory.
+0x000C0000 - 0x000FFFFF (  256   kB) BIOS ROM.
+0x00100000 - 0x0013FFFF (  256   kB) DMA buffers.
+0x00140000 - 0x00FFFFFF (15      MB) Memory mapped into kernel address range (no ID paging).
+*/
+

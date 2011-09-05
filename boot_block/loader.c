@@ -177,6 +177,6 @@ void lmain(void)
 	screen_puts("Kernel loaded.\n");
 
 	/* now call the kernel (this is going to be funny) */
-	(**((void (**)(int (*)(byte *, int), void (*)(char *), void (*)(dword), void (*)(void), dword, dword, dword, dword)) 0x00010000))(&bb_read_block, &screen_puts, &bb_timer, &bb_exit, 0x0600, 0x07F4, 0xFF02, 0xFF0A);
+	(**((void (**)(int (*)(byte *, int), void (*)(char *), void (*)(dword), void (*)(void), dword, dword, dword, dword)) 0x00010000))(&bb_read_block, &screen_puts, &bb_timer, &bb_exit, 0x0600, 0x07F4, 0xFFF2, 0xFFFA);
 }
 

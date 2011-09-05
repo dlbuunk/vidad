@@ -39,7 +39,7 @@ GDT:
 	.quad	0
 
 	# 32-bit code (10)
-	.word	0x01FF		# limit 15:0, 2 MiB
+	.word	0x0FFF		# limit 15:0, 16 MiB
 	.word	0x0000		# base 15:0
 	.byte	0x00		# base 23:16
 	.byte	0x9A		# access: present, ring 0, executable,
@@ -49,7 +49,7 @@ GDT:
 	.byte	0x00		# base 31:24
 
 	# 32-bit data (18)
-	.word	0x01FF		# limit 15:0, 2 MiB
+	.word	0x0FFF		# limit 15:0, 16 MiB
 	.word	0x0000		# base 15:0
 	.byte	0x00		# base 23:16
 	.byte	0x92		# access: present, ring 0, non-executable,
@@ -246,18 +246,18 @@ setup_idt:
 	rep	movsw
 
 	# prepare GDTP and IDTP
-	movw	$0x0030,0xFF02
-	movw	$0x2000,0xFF04
-	movw	$0x0000,0xFF06
+	movw	$0x0030,0xFFF2
+	movw	$0x2000,0xFFF4
+	movw	$0x0000,0xFFF6
 
-	movw	$0x0800,0xFF0A
-	movw	$0x0800,0xFF0C
-	movw	$0x0000,0xFF0E
+	movw	$0x0800,0xFFFA
+	movw	$0x0800,0xFFFC
+	movw	$0x0000,0xFFFE
 
 	# start pmode
 	smsw	%ax
 	orb	$0x01,%al
-	lgdt	0xFF02
+	lgdt	0xFFF2
 	lmsw	%ax
 	jmpw	$0x0020,$start_p16
 
@@ -265,11 +265,11 @@ setup_idt:
 start_p16:
 	movw	$0x0028,%ax
 	movw	%ax,%ss
-	movw	$0x0000,%sp
+	movw	$0xFFF0,%sp
 	movw	%sp,%bp
 	movw	%ax,%ds
 	movw	%ax,%es
-	lidt	0xFF0A
+	lidt	0xFFFA
 	jmpl	$0x0010,$start_p32
 
 	# NOW, we are in 32-bit pmode
@@ -277,7 +277,7 @@ start_p16:
 start_p32:
 	movw	$0x0018,%ax
 	movw	%ax,%ss
-	movl	$0x00010000,%esp
+	movl	$0x0000FFF0,%esp
 	movl	%esp,%ebp
 	movw	%ax,%ds
 	movw	%ax,%es
