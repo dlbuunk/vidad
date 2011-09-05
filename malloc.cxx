@@ -231,7 +231,11 @@ void paging_init(dword * tables, Info * info, MemInfo * minfo)
 			if ((minfo[i].base + minfo[i].length) > mem_size)
 				mem_size = minfo[i].base + minfo[i].length;
 
-	kprint("Initialising paging: maximum usable address is %X.", mem_size);
+	// maximum used mem is 16 MB
+	if (mem_size > 16777216)
+		mem_size = 16777216;
+
+	kprint("Initialising paging: maximum usable address is 0x%X.", mem_size);
 
 	// Than, create mem_map.
 	mem_size = ((mem_size - 1) >> 12) + 1;
@@ -295,6 +299,34 @@ void paging_init(dword * tables, Info * info, MemInfo * minfo)
 
 	kprint("320 pages reserved, %u pages free.", num_pages);
 
-	(void) tables;
+	// set up page tables
+	// first 640 kb (160 pages) are ID paged and cached
+	for (int i=0; i<160; i++)
+		tables[1024+i] = i<<12 | 0x003;
+	// next 640 kb (160 pages) are ID paged and non-cached
+	for (int i=160; i<320; i++)
+		tables[1024+i] = i<<12 | 0x013;
+	// next 15140 kb (3776 pages) are non-present
+	for (int i=320; i<4096; i++)
+		tables[1024+i] = 0x00000002;
+
+	// set up page directory
+	for (int i=0; i<1024; i++)
+		tables[i] = 0x00000002;
+	for (int i=0; i<4; i++)
+		tables[i] = ((dword) tables + 0x1000 + (i<<12)) | 0x003;
+
+	// set CR3
+	asm ("movl %%eax,%%cr3\n\t" : : "a" (tables));
+
+	// turn paging on
+	asm (
+		"movl %%cr0,%%eax\n\t"
+		"orl $0x80000000,%%eax\n\t"
+		"movl %%eax,%%cr3\n\t"
+		:
+		:
+		: "%eax"
+		);
 }
 
