@@ -5,6 +5,7 @@ INPUT
 (
 	kinit.o
 	kprint.o
+	malloc.o
 )
 OUTPUT(kernel.bin)
 SECTIONS

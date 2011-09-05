@@ -12,10 +12,10 @@ struct MemInfo
 
 struct Info
 {
-	word mem_mid;
-	word mem_high;
-	word mem_alt;
-	word mem_low;
+	word mem_mid;	// kb
+	word mem_high;	// 64 kb
+	word mem_alt;	// kb
+	word mem_low;	// kb
 	word hw_inf;
 	byte magic;
 	byte num_entries;
@@ -38,4 +38,9 @@ extern dword boot_time;
 extern void klog_init(void (*)(char *));
 extern void klog_init();
 extern void kprint(char const *, ...);
+
+// defined in malloc.cxx
+extern void alloc_init(void *, void *);
+extern void * malloc(dword);
+extern void free(void *);
 

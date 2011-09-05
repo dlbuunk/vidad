@@ -18,7 +18,7 @@ clean:
 	make -C boot_block clean
 	rm -f *.o *.bin *.img
 
-kernel.bin: pointer.o kinit.o kprint.o
+kernel.bin: pointer.o kinit.o kprint.o malloc.o
 	$(LD) -T kernel.ld
 	chmod -x kernel.bin
 
@@ -30,4 +30,7 @@ kinit.o: kinit.cxx kernel.h
 
 kprint.o: kprint.cxx kernel.h
 	$(CXX) -o kprint.o kprint.cxx
+
+malloc.o: malloc.cxx kernel.h
+	$(CXX) -o malloc.o malloc.cxx
 

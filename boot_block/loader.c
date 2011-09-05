@@ -42,6 +42,7 @@ void screen_putchar(char ch)
 {
 	int i;
 	if (ch == '\n') screen_pos = (screen_pos/80+1)*80;
+	else if (ch == '\t') screen_pos = (screen_pos/8+1)*8;
 	else *((word *) (0x000B8000 + (screen_pos++<<1))) = 0x0700 | (word) ch;
 	if (screen_pos >= 2000)
 	{
@@ -153,7 +154,7 @@ void lmain(void)
 	word block;
 	byte * kptr = (byte *) 0x0000F000; /* 0x1000 is added later */
 	screen_init();
-	screen_puts("Loading VIOS...\n");
+	screen_puts("Loading Vidad...\n");
 
 	/* find initial block */
 	block = *((word *) 0x1212);

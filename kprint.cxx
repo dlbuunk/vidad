@@ -3,7 +3,7 @@
 static int level = -1;
 static void (*ext_puts)(char *);
 
-#define NUM_EARLY 16
+#define NUM_EARLY 32
 #define SIZE_EARLY 128
 
 static char early_msg[NUM_EARLY][SIZE_EARLY];
@@ -27,6 +27,7 @@ void klog_init(void (*puts)(char *))
 			level = 1;
 			break;
 	}
+	kprint("Kernel logger running, level = %u.", level);
 }
 
 void klog_init()
@@ -36,6 +37,7 @@ void klog_init()
 		level = 1;
 		// more to be done
 	}
+	kprint("Kernel logger running, level = %u", level);
 }
 
 void kprint(char const * istr, ...)
