@@ -2,15 +2,21 @@ LD = /usr/local/cross/bin/i386-elf-ld
 AS = /usr/local/cross/bin/i386-elf-as
 CXX = /usr/local/cross/bin/i386-elf-g++ -Wall -Wextra -Werror -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-exceptions -fno-rtti -fno-stack-protector -fno-strict-aliasing -O3 -c
 
-all: kernel.bin
+all: vidad.img
+
+vidad.img: kernel.bin
+	make -C boot_block boot_block.bin
+	cp boot_block/boot_block.bin vidad.img
+	dd if=kernel.bin of=vidad.img seek=8
 
 .PHONEY: write
-write: kernel.bin
-	dd if=kernel.bin of=/dev/fd0u1440 seek=8
+write: vidad.img
+	dd if=vidad.img of=/dev/fd0u1440
 
 .PHONEY: clean
 clean:
-	rm -f *.o *.bin
+	make -C boot_block clean
+	rm -f *.o *.bin *.img
 
 kernel.bin: pointer.o kinit.o kprint.o
 	$(LD) -T kernel.ld

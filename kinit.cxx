@@ -16,6 +16,11 @@ extern "C" void kinit(int (*_loader_read)(byte *, int), void (*_loader_puts)(cha
 	kprint("dtors from 0x%X to 0x%X", &start_dtors, &end_dtors);
 	kprint("  bss from 0x%X to 0x%X", &start_bss, &end_bss);
 
+	dword stack_pointer;
+	asm ( "movl %%esp,%%eax\n\t" : "=a" (stack_pointer));
+	kprint("It is 5:50 AM, do you know where your stack pointer is?");
+	kprint("Actually, yes, its is at 0x%X.", stack_pointer);
+
 	// unused variables
 	(void) _loader_exit;
 	(void) _loader_read;

@@ -2,13 +2,11 @@ LD = /usr/local/cross/bin/i386-elf-ld
 AS = /usr/local/cross/bin/i386-elf-as
 CC = /usr/local/cross/bin/i386-elf-gcc -Wall -Wextra -Werror -nostdlib -nodefaultlibs -nostartfiles -nostdinc -Os -c
 
-all: boot_sect.tmp boot_block.tmp
+all: boot_block.bin
+
+boot_block.bin: boot_sect.tmp boot_block.tmp
 	cp boot_sect.tmp boot_block.bin
 	dd if=boot_block.tmp of=boot_block.bin seek=1
-
-.PHONEY: write
-write: all
-	dd if=boot_block.bin of=/dev/fd0u1440
 
 .PHONEY: clean
 clean:
