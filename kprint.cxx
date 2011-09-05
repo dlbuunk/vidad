@@ -9,6 +9,46 @@ static void (*ext_puts)(char *);
 static char early_msg[NUM_EARLY][SIZE_EARLY];
 static int early_num;
 
+static struct msg * cur_msg;
+static struct msg * first_msg;
+
+struct msg
+{
+	msg(void * p)
+	{
+		// first time constructor, p is a char * in disguise
+		char * s = (char *) p;
+		int i = 0;
+		while (s[i++]);
+		str = new char [i];
+		for (int j=0; j<i; j++)
+			str[j] = s[j];
+		time = ktime;
+		cur_msg = this;
+		first_msg = this;
+		next = 0;
+	}
+	msg(char * s)
+	{
+		int i = 0;
+		while (s[i++]);
+		str = new char [i];
+		for (int j=0; j<i; j++)
+			str[j] = s[j];
+		time = ktime;
+		cur_msg->next = this;
+		cur_msg = this;
+		next = 0;
+	}
+	~msg()
+	{
+		delete[] str;
+	}
+	struct msg * next;
+	dword time;
+	char * str;
+};
+
 // it might be needed to call klog_init() several times with different arguments just to get everything right.
 void klog_init(void (*puts)(char *))
 {
@@ -35,9 +75,20 @@ void klog_init()
 	if (level == 0)
 	{
 		level = 1;
-		// more to be done
+
+		// first message
+		char temp[80];
+		for (int i=0; i<78; i++)
+			temp[i] = '=';
+		temp[78] = '\n';
+		temp[79] = '\0';
+		new msg((void *) temp);
+
+		// copy messages
+		for (int i=0; i<early_num; i++)
+			new msg(early_msg[i]);
 	}
-	kprint("Kernel logger running, level = %u", level);
+	kprint("Kernel logger running, level = %u.", level);
 }
 
 void kprint(char const * istr, ...)
@@ -324,6 +375,12 @@ void kprint(char const * istr, ...)
 			early_num++;
 			(*ext_puts)(ostr);
 			break;
+
+		case 1 :
+			new msg(ostr);
+			(*ext_puts)(ostr);
+			break;
+
 		default :
 			;
 	}

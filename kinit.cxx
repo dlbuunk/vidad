@@ -26,6 +26,9 @@ extern "C" void kinit(
 	// start memory manager
 	alloc_init((void *)&end_bss, (void *)((dword)info->mem_low << 10));
 
+	// make the kernel logger use new/delete
+	klog_init();
+
 	// test memory manager
 	alloc_status();
 
