@@ -3,10 +3,39 @@
 static int level = -1;
 static void (*ext_puts)(char *);
 
-void klog_init(int new_level, void (*puts)(char *))
+#define NUM_EARLY 16
+#define SIZE_EARLY 128
+
+static char early_msg[NUM_EARLY][SIZE_EARLY];
+static int early_num;
+
+// it might be needed to call klog_init() several times with different arguments just to get everything right.
+void klog_init(void (*puts)(char *))
 {
-	ext_puts = puts;
-	level = new_level;
+	switch (level)
+	{
+		default :
+			level = 0;
+		case 0 :
+			early_num = 0;
+		case 1 :
+			ext_puts = puts;
+			break;
+		case 2 :
+		case 3 :
+			ext_puts = puts;
+			level = 1;
+			break;
+	}
+}
+
+void klog_init()
+{
+	if (level == 0)
+	{
+		level = 1;
+		// more to be done
+	}
 }
 
 void kprint(char const * istr, ...)
@@ -287,10 +316,14 @@ void kprint(char const * istr, ...)
 	switch (level)
 	{
 		case 0 :
+			if (early_num >= NUM_EARLY) break;
+			for (i=0; i<SIZE_EARLY; i++)
+				early_msg[early_num][i] = ostr[i];
+			early_num++;
 			(*ext_puts)(ostr);
 			break;
 		default :
-			break;
+			;
 	}
 }
 

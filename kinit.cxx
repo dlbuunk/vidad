@@ -3,14 +3,22 @@
 dword const volatile ktime = 0;
 dword boot_time;
 
-extern "C" void kinit(int (*_loader_read)(byte *, int), void (*_loader_puts)(char *), void (*_loader_timer)(dword), void (*_loader_exit)(), MemInfo * meminfo, Info * info, word * gdtp, word * idtp)
+extern "C" void kinit(
+	int (*_loader_read)(byte *, int),
+	void (*_loader_puts)(char *),
+	void (*_loader_timer)(dword),
+	void (*_loader_exit)(),
+	MemInfo * meminfo,
+	Info * info,
+	word * gdtp,
+	word * idtp)
 {
-	// clear .bss
+	// clear .bss (MUST be done before ANYTHING else)
 	for (dword * i = &start_bss; i < &end_bss; i++)
 		*i = 0;
 
 	// start the kernel logger
-	klog_init(0, _loader_puts);
+	klog_init(_loader_puts);
 
 	kprint("ctors from 0x%X to 0x%X", &start_ctors, &end_ctors);
 	kprint("dtors from 0x%X to 0x%X", &start_dtors, &end_dtors);

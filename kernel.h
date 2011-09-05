@@ -35,6 +35,7 @@ extern dword const volatile ktime;
 extern dword boot_time;
 
 // defined in kprint.cxx
-extern void klog_init(int, void (*)(char *));
+extern void klog_init(void (*)(char *));
+extern void klog_init();
 extern void kprint(char const *, ...);
 
