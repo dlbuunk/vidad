@@ -207,3 +207,94 @@ void free(void * addr)
 0x00140000 - 0x00FFFFFF (15      MB) Memory mapped into kernel address range (no ID paging).
 */
 
+static bool * mem_map;
+static dword mem_size;
+
+void paging_init(dword * tables, Info * info, MemInfo * minfo)
+{
+	// First, try to figure out: how much memory do we have?
+	// That is: what is the highest usable address?
+	mem_size = 0;
+
+	if (info->num_entries == 0)
+	{
+		if (info->mem_mid == 0x8600 || info->mem_mid == 0x8000 || info->mem_mid == 0)
+			mem_size = info->mem_alt >> 10;
+		else if (info->mem_high == 0)
+			mem_size = (info->mem_mid + 1024) >> 10;
+		else
+			mem_size = (info->mem_high + 16) >> 16;
+	}
+
+	else for (int i=0; i<info->num_entries; i++)
+		if (minfo[i].type == 1)
+			if ((minfo[i].base + minfo[i].length) > mem_size)
+				mem_size = minfo[i].base + minfo[i].length;
+
+	kprint("Initialising paging: maximum usable address is %X.", mem_size);
+
+	// Than, create mem_map.
+	mem_size = ((mem_size - 1) >> 12) + 1;
+	mem_map = new bool[mem_size];
+
+	// all memory is unusable
+	for (dword i=0; i<mem_size; i++)
+		mem_map[i] = 1;
+
+	if (info->num_entries == 0)
+	{
+		if (info->mem_mid == 0x8600 || info->mem_mid == 0x8000 || info->mem_mid == 0)
+		{
+			// all memory is usable up to mem_alt
+			for (int i=0; i<info->mem_alt>>10; i++)
+				mem_map[i] = 0;
+			// apart from the 15-16 MiB memory hole
+			for (int i=3840; i<4096; i++)
+				mem_map[i] = 1;
+		}
+		else
+		{
+			for (int i=256; i<(info->mem_mid>>10)+256; i++)
+				mem_map[i] = 0;
+			for (int i=4096; i<(info->mem_high>>16)+4096; i++)
+				mem_map[i] = 0;
+		}
+	}
+
+	else
+	{
+		// All memory that is declared usable is, in fact, usable.
+		for (int i=0; i<info->num_entries; i++)
+			if (minfo[i].type == 1)
+				for (dword j=0; j<minfo[i].length>>12; j++)
+					mem_map[(minfo[i].base>>12)+j] = 0;
+		// Apart, of course, from what is declared unusable.
+		for (int i=0; i<info->num_entries; i++)
+			if (minfo[i].type != 1)
+				for (dword j=0; j<minfo[i].length>>12; j++)
+					mem_map[(minfo[i].base>>12)+j] = 1;
+	}
+
+	// check if DMA buffers are useable
+	for (int i=256; i<320; i++)
+		if (mem_map[i] == 1)
+		{
+			kprint("Error: DMA buffers are in unusable memory!");
+			break;
+		}
+
+	// all memory in range 0x00000000 - 0x0013FFFF is reserved.
+	for (int i=0; i<320; i++)
+		mem_map[i] = 1;
+
+	// count useable pages
+	int num_pages = 0;
+	for (dword i=0; i<mem_size; i++)
+		if (mem_map[i] == 0)
+			num_pages++;
+
+	kprint("320 pages reserved, %u pages free.", num_pages);
+
+	(void) tables;
+}
+

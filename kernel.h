@@ -45,4 +45,5 @@ extern void alloc_init(void *, void *);
 extern dword alloc_status();
 extern void * malloc(dword);
 extern void free(void *);
+extern void paging_init(dword *, Info *, MemInfo *);
 

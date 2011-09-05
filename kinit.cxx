@@ -29,6 +29,9 @@ extern "C" void kinit(
 	// make the kernel logger use new/delete
 	klog_init();
 
+	// start paging
+	paging_init((dword *) 0x3000, info, meminfo);
+
 	// test memory manager
 	alloc_status();
 
@@ -36,7 +39,6 @@ extern "C" void kinit(
 	(void) _loader_exit;
 	(void) _loader_read;
 	(void) _loader_timer;
-	(void) meminfo;
 	(void) gdtp;
 	(void) idtp;
 }
