@@ -3,8 +3,8 @@
 static int level = -1;
 static void (*ext_puts)(char *);
 
-#define NUM_EARLY 32
-#define SIZE_EARLY 128
+#define NUM_EARLY 16
+#define SIZE_EARLY 64
 
 static char early_msg[NUM_EARLY][SIZE_EARLY];
 static int early_num;

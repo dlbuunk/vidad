@@ -40,7 +40,9 @@ extern void klog_init();
 extern void kprint(char const *, ...);
 
 // defined in malloc.cxx
+// new, new[], delete, delete[]
 extern void alloc_init(void *, void *);
+extern dword alloc_status();
 extern void * malloc(dword);
 extern void free(void *);
 

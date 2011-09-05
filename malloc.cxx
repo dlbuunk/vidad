@@ -17,6 +17,26 @@ struct mobj
 	dword mem;
 };
 
+void * operator new(unsigned long int size)
+{
+	return malloc((dword) size);
+}
+
+void * operator new[](unsigned long int size)
+{
+	return malloc((dword) size);
+}
+
+void operator delete(void * p)
+{
+	free(p);
+}
+
+void operator delete[](void * p)
+{
+	free(p);
+}
+
 void alloc_init(void * addr, void * limit)
 {
 	kprint("Starting memory allocator.");
@@ -30,12 +50,34 @@ void alloc_init(void * addr, void * limit)
 	start_addr = (byte *) (((((dword)start_addr - 1) >> 12) + 1) << 12);
 	end_addr = (byte *) limit;
 
-	((struct mobj *) start_addr)->used = 0;
-	((struct mobj *) start_addr)->prev = 0;
-	((struct mobj *) start_addr)->next = 0;
+	reinterpret_cast<struct mobj *>(start_addr)->used = 0;
+	reinterpret_cast<struct mobj *>(start_addr)->prev = 0;
+	reinterpret_cast<struct mobj *>(start_addr)->next = 0;
 
 	kprint("%u\tkibibyte at 0x%X for small allocs.", SMALL_SIZE * SMALL_NUM / 1024, start_small);
 	kprint("%u\tkibibyte at 0x%X for large allocs.", (end_addr - start_addr) / 1024, start_addr); 
+}
+
+// returns the number of free bytes left in the main allocator
+dword alloc_status()
+{
+	dword size = 0;
+	for (int i=0; i<SMALL_NUM; i++)
+		if (start_small[i*SMALL_SIZE + SMALL_SIZE-1] == 0)
+			size += SMALL_SIZE;
+	kprint("alloc_status: %u kibibyte left in small allocator.", size / 1024);
+
+	struct mobj * m = reinterpret_cast<struct mobj *>(start_addr);
+	size = 0;
+	while (m->next)
+	{
+		if (m->used == 0)
+			size += (dword) m->next - (dword) m;
+		m = m->next;
+	}
+	size += (dword) end_addr - (dword) m;
+	kprint("alloc_status: %u kibibyte left in main allocator.", size / 1024);
+	return size;
 }
 
 void * malloc(dword size)
@@ -48,6 +90,7 @@ void * malloc(dword size)
 				start_small[i*SMALL_SIZE + SMALL_SIZE-1] = 1;
 				return (void *) &start_small[i*SMALL_SIZE];
 			}
+		kprint("malloc, warning: memory in small allocator exhausted.");
 	}
 
 	// align size
@@ -60,9 +103,7 @@ void * malloc(dword size)
 	{
 		// find empty memory
 		while (m->used)
-		{
 			m = m->next;
-		}
 
 		// found, check if at end of chain
 		if (m->next == 0)
