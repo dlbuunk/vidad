@@ -88,7 +88,7 @@ IRQ6.f:
 	movb	$0x00,%al
 	outb	%al,%dx
 
-	movb	$0x0002,%cx
+	movw	$0x0002,%cx
 	call	timer
 	movb	$0x00,IRQ6.f
 
@@ -97,8 +97,61 @@ IRQ6.f:
 	outb	%al,%dx
 	call	waitfloppy
 
+	movb	$0x08,%ah	# SI, just in case polling_mode is on
+	call	writeFIFO	# this will prevent a lockup,
+	call	readFIFO	# if polling_mode is off
+	call	readFIFO	# it might actually cause one...
+
+	movw	$0x03F4,%dx	# datarate
+	movb	$0x00,%al	# 500 kbps
+	outb	%al,%dx
+
+	movb	$0x13,%ah	# configure
+	call	writeFIFO
+	movb	$0x00,%ah
+	call	writeFIFO
+	movb	$0x48,%ah
+	call	writeFIFO
+	movb	$0x00,%ah
+	call	writeFIFO
+
+	movb	$0x03,%ah	# specify
+	call	writeFIFO
+	movb	$0xC0,%ah
+	call	writeFIFO
+	movb	$0x10,%ah
+	call	writeFIFO
+
+	# motor on
+	movw	$0x03F2,%dx
+	movb	$0x1C,%al
+	outb	%al,%dx
+	movw	$0x0010,%cx	# 300 ms
+	call	timer
+
+cal:	# calibrate
+	movb	$0x07,%ah
+	call	writeFIFO
+	movb	$0x00,%ah
+	call	writeFIFO
+	call	waitfloppy
+	movb	$0x08,%ah
+	call	writeFIFO
+	call	readFIFO
+	movb	%al,%ah
+	call	readFIFO
+	cmpw	$0x2000,%ax
+	jne	cal
+
 	# print D
 	movw	$0x0E44,%ax
+	int	$0x10
+
+	# set up DMA
+	
+
+	# print A
+	movw	$0x0E41,%ax
 	int	$0x10
 
 	#halt
@@ -118,4 +171,25 @@ waitfloppy:
 	cmpb	$0x01,IRQ6.f
 	jne	waitfloppy
 	movb	$0x00,IRQ6.f
+	ret
+
+writeFIFO:
+	movw	$0x03F4,%dx
+	inb	%dx,%al
+	andb	$0x80,%al
+	cmpb	$0x80,%al
+	jne	writeFIFO
+	incw	%dx
+	movb	%ah,%al
+	outb	%al,%dx
+	ret
+
+readFIFO:
+	movw	$0x03F4,%dx
+	inb	%dx,%al
+	andb	$0x80,%al
+	cmpb	$0x80,%al
+	jne	readFIFO
+	incw	%dx
+	inb	%dx,%al
 	ret
