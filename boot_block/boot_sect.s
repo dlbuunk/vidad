@@ -148,7 +148,63 @@ cal:	# calibrate
 	int	$0x10
 
 	# set up DMA
-	
+	movb	$0x00,%al	# turn DMAC on
+	outb	%al,$0xD0
+	outb	%al,$0x08
+	movb	$0xFF,%al	# master reset
+	outb	%al,$0xDA
+	outb	%al,$0x0D
+	movb	$0x0E,%al	# unmask cascade
+	outb	%al,$0xDE
+	movb	$0xFF,%al	# reset flip-flop
+	outb	%al,$0x0C
+	movb	$0x00,%al	# low address
+	outb	%al,$0x04
+	movb	$0x10,%al	# high address
+	outb	%al,$0x04
+	movb	$0x00,%al	# page address
+	outb	%al,$0x81
+	movb	$0xFF,%al	# reset flip-flop
+	outb	%al,$0x0C
+	movb	$0xFF,%al	# low count
+	outb	%al,$0x05
+	movb	$0x0F,%al	# high count
+	outb	%al,$0x05
+	movb	$0x46,%al	# single, up, no-auto, write, chan 2
+	outb	%al,$0x0B
+	movb	$0x0B,%al	# unmask chan 2
+	outb	%al,$0x0F
+
+	# floppy read
+	movb	$0x46,%ah	# single-track, MFM, no-SK, read
+	call	writeFIFO
+	movb	$0x00,%ah	# head<<2 | drive
+	call	writeFIFO
+	movb	$0x00,%ah	# cylinder
+	call	writeFIFO
+	movb	$0x00,%ah	# head
+	call	writeFIFO
+	movb	$0x01,%ah	# starting sector
+	call	writeFIFO
+	movb	$0x02,%ah	# 512 bytes/sector
+	call	writeFIFO
+	movb	$0x08,%ah	# sector count
+	call	writeFIFO
+	movb	$0x1B,%ah	# GAP1 default
+	call	writeFIFO
+	movb	$0xFF,%ah	# 512 bytes/sector
+	call	writeFIFO
+	call	waitfloppy
+
+	call	readFIFO
+	call	readFIFO
+	call	readFIFO
+
+	call	readFIFO
+	call	readFIFO
+	call	readFIFO
+
+	call	readFIFO
 
 	# print A
 	movw	$0x0E41,%ax
