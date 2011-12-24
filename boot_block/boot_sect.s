@@ -13,7 +13,7 @@ boot_sect_entry:
 	# set segment registers and stack
 	xorw	%ax,%ax
 	movw	%ax,%ss
-	movw	%ax,%sp
+	movw	$0x3000,%sp
 	movw	%sp,%bp
 	movw	%ax,%ds
 	movw	%ax,%es
@@ -33,7 +33,7 @@ IRQ0:
 	popw	%ax
 	iretw
 IRQ0.f:
-	.word	0x00
+	.byte	0x00
 
 IRQ6:
 	pushw	%ax
@@ -43,10 +43,25 @@ IRQ6:
 	popw	%ax
 	iretw
 IRQ6.f:
-	.word	0x00
-
+	.byte	0x00
 
 	# the actual start of the bootloader
+	nop
+
+	# init display
+	movb	$0x03,%ah
+	movb	$0x00,%bh
+	int	$0x10		# get cursor
+	pushw	%dx
+
+	movw	$0x0083,%ax
+	int	$0x10		# set video mode
+
+	movb	$0x02,%ah
+	movb	$0x00,%bh
+	popw	%dx
+	int	$0x10		# restore cursor position
+
 	# print 'V'
 	movw	$0x0E56,%ax
 	movw	$0x0007,%bx
@@ -206,14 +221,53 @@ cal:	# calibrate
 
 	call	readFIFO
 
+	# we assume the load went okay, if it did not, bad luck...
+
 	# print A
 	movw	$0x0E41,%ax
 	int	$0x10
 
-	#halt
+	# shut off the floppy motor
+	movw	$0x03F2,%dx
+	movb	$0x0C,%al
+	outb	%al,%dx
+	movw	$0x0005,%cx
+	call	timer
 	cli
-	hlt
 
+	# and shut off the entire FDC
+	movb	$0x00,%al
+	outb	%al,%dx
+
+	# why not kill the DMAC while we're at it?
+	movb	$0x0F,%al	# mask all channels
+	outb	%al,$0x0F
+	outb	%al,$0xDE
+	movb	$0x04,%al	# kill both DMACs
+	outb	%al,$0x08
+	outb	%al,$0xD0
+
+	# and mask the PIC, for good measure
+	movb	$0xFF,%al
+	outb	%al,$0x21
+
+	# print D
+	movw	$0x0E44,%ax
+	int	$0x10
+
+	# the boot sector is a few bytes short of the needed 512
+	nop
+	nop
+	nop
+	nop
+
+	# control transfer
+	push	0x127E
+	push	0x127C
+	retf
+	#this functions like a jmpf, so there is no return to this point
+
+	# here are some helper functions
 timer:
 	hlt
 	cmpb	$0x01,IRQ0.f
@@ -249,3 +303,5 @@ readFIFO:
 	incw	%dx
 	inb	%dx,%al
 	ret
+
+	.word 0xAA55
