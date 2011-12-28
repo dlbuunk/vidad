@@ -211,9 +211,9 @@ prr_e:	popw	%bx
 boot_block_entry:
 	.data
 msg_cpu:
-	.asciz	"\n\rViOS boot-block loaded.\n\rChecking CPU...         "
+	.asciz	"\n\rViOS boot-block loaded.\n\rCPU     "
 msg_cpu_error:
-	.asciz	"FAIL\n\rViOS cannot run on this CPU, aborting."
+	.asciz	"FAIL"
 	.text
 	.code16
 	movw	$msg_cpu,%si
@@ -259,7 +259,7 @@ check_386:
 	# check memory && other BIOS data
 	.data
 msg_memory:
-	.asciz	"OK\r\nChecking memory...      "
+	.asciz	"OK\r\nMemory  "
 	.text
 	.code16
 	movw	$msg_memory,%si
@@ -363,7 +363,7 @@ hw_end:
 	# tell everyone that it went OK, and go A20
 	.data
 msg_a20:
-	.asciz	"OK\r\nEnabling A20...         "
+	.asciz	"OK\r\nA20     "
 	.text
 	.code16
 	movw	msg_a20,%di
@@ -416,7 +416,7 @@ a20:
 	# preparing pmode
 	.data
 msg_pmode:
-	.asciz	"OK\r\nSwitching to pmode...   "
+	.asciz	"OK\r\nPmode   "
 	.text
 	.code16
 	movw	$msg_pmode,%si

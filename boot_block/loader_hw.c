@@ -167,7 +167,7 @@ void read_block(void * addr, word block)
 {
 	int bload = -1;
 	for (int i=0; i<3; i++)
-		if (block == block_loaded[1])
+		if (block == block_loaded[i])
 		{
 			bload = i;
 			goto end;
@@ -280,7 +280,7 @@ void exit_hw(void)
 void loader_hw(void)
 {
 	// Tell the (l)user what we are up to.
-	puts("OK\nInitializing hardware...");
+	puts("OK\nInit hw ");
 
 	// setup interrupt vectors, we know that the high part remains 0x0000
 	*((word *) 0x00000900) = (word)((dword) &irq0);
@@ -309,7 +309,7 @@ void loader_hw(void)
 	outb(0x0F, 0x0F);
 
 	// Hardware interrupts on.
-	asm("sti\n\t");
+	asm ("sti\n\t" : : : );
 
 	// Initialise the FDC.
 	outb(0x0C, 0x03F2);
