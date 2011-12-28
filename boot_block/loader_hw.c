@@ -17,11 +17,12 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-
+// General typedefs
 typedef unsigned char byte;
 typedef unsigned short int word;
 typedef unsigned int dword;
 
+// Common inb/outb functions
 void outb(byte val, word port)
 {
 	asm volatile (
@@ -45,6 +46,7 @@ byte inb(word port)
 	return val;
 }
 
+// Screen functions
 word cursor_pos;
 
 void putchar(char ch)
@@ -80,14 +82,23 @@ void puts(char *str)
 	}
 }
 
+// Hardware main loader
 void loader_hw(void)
 {
-	// get cursor position from vga registers.
+	// Get cursor position from vga registers.
 	outb(0x0E, 0x03D4);
 	cursor_pos = inb(0x03D5) << 8;
 	outb(0x0F, 0x03D4);
 	cursor_pos |= inb(0x03D5);
 
+	// Tell the (l)user what we are up to.
 	puts("OK\nInitializing hardware...");
+
+	// Initialise the PIC.
+//	outb(0x11, 0x20);
+//	outb(0x20, 0x21);
+//	outb(0x04, 0x21);
+//	outb(0x01, 0x21);
+//	outb(0xFF, 0x21);
 }
 

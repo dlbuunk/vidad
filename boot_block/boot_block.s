@@ -130,12 +130,12 @@
 	movw	$0x0028,%ax
 	movw	%ax,%es
 	movl	$0x000B8000,%ebx
-	movw	$exp_msg,%si
+	movl	$exp_msg,%esi
 exp_l:	lodsb
 	cmpb	$0x00,%al
 	je	exp_e
 	movb	%al,(%ebx)
-	inc	%bx
+	incw	%ebx
 	jmp	exp_l
 exp_e:
 	hlt
