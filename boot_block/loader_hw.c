@@ -82,6 +82,12 @@ void puts(char *str)
 	}
 }
 
+// irq handlers && functions
+extern void irq0(void);
+extern void irq6(void);
+extern void wait_irq0(void);
+extern void wait_irq6(void);
+
 // Hardware main loader
 void loader_hw(void)
 {
@@ -94,11 +100,33 @@ void loader_hw(void)
 	// Tell the (l)user what we are up to.
 	puts("OK\nInitializing hardware...");
 
+	// setup interrupt vectors, we know that the high part remains 0x0000
+	*((word *) 0x00000900) = (word)((dword) &irq0);
+	*((word *) 0x00000930) = (word)((dword) &irq6);
+
 	// Initialise the PIC.
-//	outb(0x11, 0x20);
-//	outb(0x20, 0x21);
-//	outb(0x04, 0x21);
-//	outb(0x01, 0x21);
-//	outb(0xFF, 0x21);
+	outb(0x11, 0x20);
+	outb(0x20, 0x21);
+	outb(0x04, 0x21);
+	outb(0x01, 0x21);
+	outb(0xBE, 0x21);
+
+	// Initialise the PIT at 100 Hz.
+	outb(0x34, 0x43);
+	outb(0x9C, 0x40);
+	outb(0x2E, 0x40);
+
+	// Initialise the DMAC.
+	outb(0x00, 0xD0); // turn on
+	outb(0x00, 0x08);
+	outb(0xFF, 0xDA); // reset
+	outb(0xFF, 0x0D);
+	outb(0x0E, 0xDE); // masks
+	outb(0x0F, 0x0F);
+
+	// Initialise the FDC
+	
+
+	// asm("sti\n\t");
 }
 

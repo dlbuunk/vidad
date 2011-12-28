@@ -135,7 +135,7 @@ exp_l:	lodsb
 	cmpb	$0x00,%al
 	je	exp_e
 	movb	%al,(%ebx)
-	incw	%ebx
+	incl	%ebx
 	jmp	exp_l
 exp_e:
 	hlt
@@ -143,6 +143,46 @@ exp_msg:
 	.asciz	"U n h a n d l e d   e x c e p t i o n . "
 
 	# other INT-handlers and helper functions come here
+
+	# irq 0 handler
+	.global	irq0
+irq0:
+	.code32
+	pushl	%eax
+	movb	$0x01,irq0f
+	movb	$0x20,%al
+	outb	%al,$0x20
+	popl	%eax
+	iretl
+irq0f:	.byte	0x00
+
+	.global	wait_irq0
+wait_irq0:
+	hlt
+	cmpb	$0x01,irq0f
+	jne	wait_irq0
+	movb	$0x00,irq0f
+	ret
+
+	# irq 6 handler
+	.global	irq6
+irq6:
+	.code32
+	pushl	%eax
+	movb	$0x01,irq6f
+	movb	$0x20,%al
+	outb	%al,$0x20
+	popl	%eax
+	iretl
+irq6f:	.byte	0x00
+
+	.global	wait_irq6
+wait_irq6:
+	hlt
+	cmpb	$0x01,irq6f
+	jne	wait_irq6
+	movb	$0x00,irq6f
+	ret
 
 	# real-mode BIOS-printing, %si is pointer to string to print
 print_r:
