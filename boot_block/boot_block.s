@@ -114,6 +114,16 @@
 	.byte	0xCF	# page-granular, 32-bit, limit 16:19
 	.byte	0x00	# base 24:31
 
+	# 8 reserved qwords
+	.quad	0
+	.quad	0
+	.quad	0
+	.quad	0
+	.quad	0
+	.quad	0
+	.quad	0
+	.quad	0
+
 	# first, the default EXCEP handler (point all IDT entries here)
 	.code32
 	cli
@@ -161,7 +171,7 @@ prr_e:	popw	%bx
 boot_block_entry:
 	.data
 msg_cpu:
-	.asciz	"\n\rViOS boot-block loaded.\n\rChecking CPU      "
+	.asciz	"\n\rViOS boot-block loaded.\n\rChecking CPU        "
 msg_cpu_error:
 	.asciz	"FAIL\n\rViOS cannot run on this CPU, aborting."
 	.text
@@ -209,7 +219,7 @@ check_386:
 	# check memory && other BIOS data
 	.data
 msg_memory:
-	.asciz	"OK\r\nChecking memory   "
+	.asciz	"OK\r\nChecking memory     "
 	.text
 	.code16
 	movw	$msg_memory,%si
@@ -313,11 +323,97 @@ hw_end:
 	# tell everyone that it went OK, and go A20
 	.data
 msg_a20:
-	.asciz	"OK\r\nEnabling A20      "
+	.asciz	"OK\r\nEnabling A20        "
 	.text
 	.code16
 	movw	msg_a20,%di
 	call	print_r
+
+	# clear the interrupts flag, it should already be down
+	# but BIOS can do anything...
+	cli
+	jmp	a20
+
+a20wait:
+	inb	$0x64,%al
+	test	$0x02,%al
+	jnz	a20wait
+	ret
+
+a20wait2:
+	inb	$0x64,%al
+	test	$0x01,%al
+	jz	a20wait2
+	ret
+
+a20:
+	# disable keyboard
+	call	a20wait
+	movb	$0xAD,%al
+	outb	%al,$0x64
+
+	# read from input
+	call	a20wait
+	mov	$0xD0,%al
+	outb	%al,$0x64
+	call	a20wait2
+	inb	$0x60,%al
+	pushw	%ax
+
+	# write to output
+	call	a20wait
+	movb	$0xD1,%al
+	outb	%al,$0x64
+	call	a20wait
+	popw	%ax
+	orb	$0x02,%al
+	outb	%al,$0x60
+
+	# wait for processing
+	call	a20wait
+	# and a20 should be enabled
+
+	# preparing pmode
+	.data
+msg_pmode:
+	.asciz	"OK\r\nSwitching to pmode  "
+	.text
+	.code16
+	movw	$msg_pmode,%si
+	call	print_r
+
+	# set up IDT
+	movw	$0x0800,%di
+idt_loop:
+	movw	$0x1300,(%di)	# offset low
+	incw	%di
+	incw	%di
+	movw	$0x0020,(%di)	# selector
+	incw	%di
+	incw	%di
+	movw	$0x8E00,(%di)	# present, ring 0, 32-bit interrupt gate
+	incw	%di
+	incw	%di
+	movw	$0x0000,(%di)	# offset high
+	incw	%di
+	incw	%di
+	cmpw	$0x1000,%di
+	jne	idt_loop
+
+	# copy GDT
+	movw	$0x1280,%si
+	movw	$0x2000,%di
+	movw	$0x0040,%cx	# 16 entries
+	rep	movsw
+
+	# setup GDTP && IDTP
+	movw	$0x0040,0x2E02	# 16 GDT entries
+	movw	$0x2000,0x2E04	# linear address of GDT low
+	movw	$0x0000,0x2E06	# linear address of GDT high
+
+	movw	$0x0800,0x2E0A	# 256 IDT entries
+	movw	$0x0800,0x2E0C	# linear address of IDT low
+	movw	$0x0000,0x2E0E	# linear address of IDT high
 
 	cli
 	hlt
