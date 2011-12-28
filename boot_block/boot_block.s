@@ -61,8 +61,8 @@
 	.quad	0
 
 	# 16-bit loader code
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0x99	# present, ring 0, non-system, executable,
 			# readable, not-accessed
@@ -70,8 +70,8 @@
 	.byte	0x00	# base 24:31
 
 	# 16-bit loader code
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0x92	# present, ring 0, non-system, executable,
 			# readable, not-accessed
@@ -79,8 +79,8 @@
 	.byte	0x00	# base 24:31
 
 	# 32-bit kernel code
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0x99	# present, ring 0, non-system, executable,
 			# readable, not-accessed
@@ -88,8 +88,8 @@
 	.byte	0x00	# base 24:31
 
 	# 32-bit kernel data
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0x92	# present, ring 0, non-system, non-executable,
 			# writeable, not-accessed
@@ -97,8 +97,8 @@
 	.byte	0x00	# base 24:31
 
 	# 32-bit user code
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0xF9	# present, ring 3, non-system, executable,
 			# readable, not-accessed
@@ -106,8 +106,8 @@
 	.byte	0x00	# base 24:31
 
 	# 32-bit user data
-	.word	0x0000	# base 0:15
 	.word	0xFFFF	# limit	0:15
+	.word	0x0000	# base 0:15
 	.byte	0x00	# base 16:23
 	.byte	0xF2	# present, ring 3, non-system, non-executable,
 			# writeable, not-accessed
@@ -381,6 +381,7 @@ msg_pmode:
 	.code16
 	movw	$msg_pmode,%si
 	call	print_r
+	cli	# i know, i am paranoid
 
 	# set up IDT
 	movw	$0x0800,%di
@@ -414,6 +415,47 @@ idt_loop:
 	movw	$0x0800,0x2E0A	# 256 IDT entries
 	movw	$0x0800,0x2E0C	# linear address of IDT low
 	movw	$0x0000,0x2E0E	# linear address of IDT high
+
+	# turn off NMI
+	inb	$0x70,%al
+	orb	$0x80,%al
+	outb	%al,$0x70
+
+	# switch to pmode
+	smsw	%ax
+	orb	$0x01,%al
+	lgdt	0x2E02
+	lmsw	%ax
+	jmpw	$0x0010,$pmode16_entry
+
+pmode16_entry:
+	.code16
+	# set up segment registers and stack
+	movw	$0x0018,%ax
+	movw	%ax,%ss
+	movw	$0x3000,%sp
+	movw	%sp,%bp
+	movw	%ax,%ds
+	# setup IVT
+	lidt	0x2E0A
+	# re-enable NMI
+	inb	$0x70,%al
+	andb	$0x7F,%al
+	outb	%al,$0x70
+	# and jump to the 32-bit segment
+	jmpl	$0x0020,$pmode32_entry
+
+pmode32_entry:
+	.code32
+	# setup segment registers and stack
+	movw	$0x0028,%ax
+	movw	%ax,%ss
+	movl	$0x00003000,%esp
+	movl	%esp,%ebp
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
 
 	cli
 	hlt
