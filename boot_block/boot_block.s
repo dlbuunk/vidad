@@ -246,6 +246,7 @@ memm_end:
 	subw	$0x2C00,%ax
 	movb	$0x20,%cl
 	divb	%cl
+	incb	%al
 	movb	%al,0x2DFF
 
 	# now try int 0x15, %ax = 0xE801
@@ -261,6 +262,7 @@ memm_end:
 	jcxz	mem_end
 	movw	%cx,%ax
 	movw	%dx,%bx
+	jmp	mem_end
 mem_err:
 	clc
 	movw	$0x0000,%ax
