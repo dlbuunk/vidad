@@ -6,20 +6,20 @@ first 1Mb is ID paged.
 0x00600 - 0x007FF :   0.5 kb : relocated boot sector
 0x00800 - 0x00FFF :   2   kb : IDT (0x100 entries)
 0x01000 - 0x01FFF :   4   kb : boot block
-0x02000 - 0x02BFF :   3   kb : GDT (0xC0 entries)
+0x02000 - 0x02BFF :   3   kb : sys-LDT (0x180 entries)
 0x02C00 - 0x02DFF :   0.5 kb : memory map etc
 0x02E00 - 0x02FFF :   0.5 kb : GDTP, IDTP and stack
 0x03000 - 0x03FFF :   4   kb : page directory
 0x04000 - 0x07FFF :  16   kb : page tables for first 16 Mb
 0x08000 - 0x0DFFF :  24   kb : floppy disk buffer for bootloader
 0x0E000 - 0x0FFFF :   8   kb : paging initialisation code
-0x10000 - 0x1FFFF :  64   kb : reserved
+0x10000 - 0x1FFFF :  64   kb : GDT (0x2000 entries)
 0x20000 - 0x5FFFF : 256   kb : DMA buffers, otherwise free
-0x60000 - 0x9DFFF : 248   kb : VBE v3 buffers, otherwise free
+0x60000 - 0x9DFFF : 248   kb : VBE v2/v3 buffers, otherwise free
 0x9E000 - 0x9FFFF :   8   kb : EBDA
 0xA0000 - 0xAFFFF :  64   kb : graphics video memory
 0xB0000 - 0xB7FFF :  32   kb : text mode video memory, mono
-0xB8000 - 0xBFFFF :  32   kb : text mode video memory, color
+0xB8000 - 0xBFFFF :  32   kb : text mode video memory, colour
 0xC0000 - 0xCFFFF :  64   kb : video BIOS
 0xD0000 - 0xEFFFF : 128   kb : memory hole
 0xF0000 - 0xFFFFF :  64   kb : system BIOS

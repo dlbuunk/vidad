@@ -8,10 +8,15 @@ OUTPUT(boot_block.tmp)
 
 SECTIONS
 {
-	. = 0x00001000;
+	. = 0x00001200;
 
 	.text :
 	{
 		*(.text)
+	}
+
+	.data :
+	{
+		*(.data)
 	}
 }
