@@ -1,9 +1,10 @@
-ENTRY (boot_block_entry)
+ENTRY(boot_block_entry)
 
 OUTPUT_FORMAT(binary)
 
+STARTUP(boot_block.o)
+
 INPUT(
-	boot_block.o
 	loader_hw.o
 	loader_m.o
 )
@@ -27,13 +28,5 @@ SECTIONS
 	.data :
 	{
 		*(.data)
-	}
-
-	.bss :
-	{
-		bss_start = . ;
-		*(COMMON)
-		*(.bss)
-		bss_end = . ;
 	}
 }

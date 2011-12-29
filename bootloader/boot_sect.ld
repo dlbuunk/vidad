@@ -1,4 +1,4 @@
-ENTRY (boot_sect_entry)
+ENTRY(boot_sect_entry)
 
 OUTPUT_FORMAT(binary)
 
