@@ -40,38 +40,54 @@ int strcmp(char * s1, char * s2)
 	return -1;
 }
 
+// Function to load a block within a file.
+int read_file(void * addr, char * filename, word block_no)
+{
+	word block;
+	for (int i=0; i<128; i++)
+		if (! strcmp((char *)((i<<5)+0xD008), filename))
+		{
+			block = *((word *)((i<<5)+0xD000));
+			for (;block_no;block_no--)
+			{
+				block = *((word *)(0xC000+(block<<1)));
+				if (block >= 0xFFF0) return 1;
+			}
+			read_block(addr, block);
+			return 0;
+		}
+	return -1;
+}
+
 // Loader main function
 void loader_main(void)
 {
 	// Tell the (l)user what we are up to.
 	puts("Kernel  ");
+
+	// load filesystem tables
 	read_block((void *) 0xC000, *((word *) 0x1210));
 	read_block((void *) 0xD000, *((word *) 0x1218));
 
-	word block;
-	for (int i=0; i<8; i++)
-		if(! strcmp((char *)((i<<5)+0xD008), "kernel.bin"))
-		{
-			read_block((void *) 0xE000,
-				block = *((word *)((i<<5)+0xD000)));
+	// read the kernel
+	if (read_file((void *) 0xE000, "kernel.bin", 0) != 0)
+	{
+		puts("FAIL");
+		return;
+	}
 
-		//	block = *((word *)((block<<1)+0xC000));
-		//	if (block < 0xFFF0)
-		//		read_block((void *) 0xF000, block);
+	puts("OK");
 
-			// now, run the kernel
-			(**((void (**)(
-				void (*)(void *, word),
-				void (*)(char *),
-				void (*)(int),
-				void (*)(void)
-			)) (0xE000 + *((word *) 0xE000))))(
-				&read_block,
-				&puts,
-				&timer,
-				&exit_hw
-			);
-			return;
-		}
-	puts("FAIL");
+	// now, run the kernel
+	(**((void (**)(
+		int (*)(void *, char *, word),
+		void (*)(char *),
+		void (*)(int),
+		void (*)(void)
+	)) (0xE000 + *((word *) 0xE000))))(
+		&read_file,
+		&puts,
+		&timer,
+		&exit_hw
+	);
 }

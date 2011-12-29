@@ -287,8 +287,6 @@ void loader_hw(void)
 	*((word *) 0x00000930) = (word)((dword) &irq6);
 
 	// Initialise the PIC.
-	asm ("clc");
-	asm ("clc");
 	outb(0x11, 0x20);
 	outb(0x20, 0x21);
 	outb(0x04, 0x21);

@@ -262,8 +262,8 @@ cal:	# calibrate
 	nop
 
 	# control transfer
-	push	0x127E
-	push	0x127C
+	push	0x123E
+	push	0x123C
 	retf
 	#this functions like a jmpf, so there is no return to this point
 

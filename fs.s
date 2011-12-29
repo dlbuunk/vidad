@@ -18,5 +18,3 @@ fs_entry:
 	.fill	14
 
 	.fill	126<<5
-
-	.asciz	"Hello, world!\n"

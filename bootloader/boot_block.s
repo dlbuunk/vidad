@@ -12,13 +12,12 @@
 # 0x208 | qword | grand number of blocks
 # 0x210 | qword | start of alloc table (block 1)
 # 0x218 | qword | start of root dir (block 2)
-# 0x220 | 23 dw | reserved
-# 0x27C | word  | start of code (offset)
-# 0x27E | word  | start of code (segment)
-# 0x280 | 8 qw  | GDT
-# 0x2C0 | 8 qw  | reserved
+# 0x220 | 7 dw  | reserved
+# 0x23C | word  | start of code (offset)
+# 0x23E | word  | start of code (segment)
+# 0x240 | 6 qw  | GDT
 #
-# Thus, 0.75 kb into the boot block, the loader code starts.
+# Thus, at 0x1260 the loader code starts.
 
 	.text
 	# each function in this file should specify .code16 or .code32 !
@@ -33,25 +32,12 @@
 	.quad	0x0000000000000168
 	.quad	0x0000000000000001
 	.quad	0x0000000000000002
-	# 0x20
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	# 0x40
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	# 0x60
 	.quad	0
 	.quad	0
 	.quad	0
 	.long	0
-	# 0x7C
 	.word	boot_block_entry
 	.word	0x0000
-	# 0x80
 
 	# start of GDT
 	# null entry
@@ -95,34 +81,6 @@
 			# writeable, not-accessed
 	.byte	0xCF	# page-granular, 32-bit, limit 16:19
 	.byte	0x00	# base 24:31
-
-	# 32-bit user code
-	.word	0xFFFF	# limit	0:15
-	.word	0x0000	# base 0:15
-	.byte	0x00	# base 16:23
-	.byte	0xF9	# present, ring 3, non-system, executable,
-			# readable, not-accessed
-	.byte	0xCF	# page-granular, 32-bit, limit 16:19
-	.byte	0x00	# base 24:31
-
-	# 32-bit user data
-	.word	0xFFFF	# limit	0:15
-	.word	0x0000	# base 0:15
-	.byte	0x00	# base 16:23
-	.byte	0xF2	# present, ring 3, non-system, non-executable,
-			# writeable, not-accessed
-	.byte	0xCF	# page-granular, 32-bit, limit 16:19
-	.byte	0x00	# base 24:31
-
-	# 8 reserved qwords
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
-	.quad	0
 
 	# first, the default EXCEP handler (point all IDT entries here)
 	.code32
@@ -426,7 +384,7 @@ msg_pmode:
 	# set up IDT
 	movw	$0x0800,%di
 idt_loop:
-	movw	$0x1300,(%di)	# offset low
+	movw	$0x1270,(%di)	# offset low
 	incw	%di
 	incw	%di
 	movw	$0x0020,(%di)	# selector
@@ -442,13 +400,13 @@ idt_loop:
 	jne	idt_loop
 
 	# copy GDT
-	movw	$0x1280,%si
+	movw	$0x1240,%si
 	movw	$0x2000,%di
-	movw	$0x0040,%cx	# 16 entries
+	movw	$0x0018,%cx	# 6 entries
 	rep	movsw
 
 	# setup GDTP && IDTP
-	movw	$0x0040,0x2E02	# 16 GDT entries
+	movw	$0x0030,0x2E02	# 6 GDT entries
 	movw	$0x2000,0x2E04	# linear address of GDT low
 	movw	$0x0000,0x2E06	# linear address of GDT high
 

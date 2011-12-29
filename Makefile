@@ -8,7 +8,7 @@ all: fs.s fs.ld
 	chmod -x fs.bin
 	cp boot_block/boot_block.bin image
 	dd if=fs.bin of=image seek=8
-	dd if=/dev/zero of=image seek=25 count=2855
+	dd if=/dev/zero of=image seek=24 count=2856
 	bochs -q
 
 .PHONEY: clean
