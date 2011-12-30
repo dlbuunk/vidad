@@ -107,7 +107,7 @@ void * page_alloc(dword lin)
 	dword phys = *--page_stack << 12;
 	if (! ((dword)page_stack | 0xFFF))
 		page_stack = *--stack_pages;
-	page_table[lin>>12] = phys | 0x03;
+	page_table[lin>>12] = phys | 0x07;
 	return (void *) phys;
 }
 
@@ -270,7 +270,7 @@ void page_init(
 	page_table = (dword *) 0x4000;
 	// ID-page the first 1 MB, no cache.
 	for (int i=0; i<0x100; i++)
-		page_table[i] = (i<<12) | 0x1B;
+		page_table[i] = (i<<12) | 0x1F;
 	// Clear the rest of the page tables.
 	for (int i=0x100; i<0x1000; i++)
 		page_table[i] = 0;
@@ -281,9 +281,10 @@ void page_init(
 	byte kernel_start = *((byte *) 0xE02B);
 	dword kernel_size = *((dword *) 0xE02C);
 	int need_load = 1;
+	void * phys;
 	for (dword j=0; j<kernel_size; j++)
 	{
-		void * phys = page_alloc((j<<12)+0x00100000);
+		phys = page_alloc((j<<12)+0x00100000);
 		if (! phys)
 		{
 			(*puts)("[] Error: out of memory\n");
@@ -303,7 +304,125 @@ void page_init(
 
 
 
+	// Sixthly, if on an 486+, temporary disable the cache.
+	int is_486;
+	asm volatile (
+		"pushfl\n\t"
+		"popl	%%eax\n\t"
+		"movl	%%eax,%%ecx\n\t"
+		"xorl	$0x00040000,%%eax\n\t"
+		"pushl	%%eax\n\t"
+		"popfl\n\t"
+		"pushfl\n\t"
+		"popl	%%eax\n\t"
+		"xorl	%%ecx,%%eax\n\t"
+		"pushl	%%ecx\n\t"
+		"popfl\n\t"
+		: "=a" (is_486)
+		:
+		: "%ecx"
+		) ;
+	if (is_486)
+		asm volatile (
+			"movl	%%cr0,%%eax\n\t"
+			"andl	$0xDFFFFFFF,%%eax\n\t" // write-trough caching
+			"orl	$0x40000000,%%eax\n\t" // no cache
+			"wbinvd\n\t"
+			"movl	%%eax,%%cr0\n\t"
+			"invd\n\t"
+			:
+			:
+			: "%eax"
+			) ;
+
+
+
+	// Seventhly, move the GDT and setup the (empty) sysLDT.
+	for (dword * j = (dword *) 0x00010000; j < (dword *) 0x00020000; j++)
+		*j = 0;
+	for (dword * j = (dword *) 0x00002000; j < (dword *) 0x00002C00; j++)
+		*j = 0;
+	// sys-LDT
+	*((qword *) 0x10008) = 0x0000820020000C00LL;
+	// 16-bit
+	*((qword *) 0x10010) = 0x00009A000000FFFFLL;
+	*((qword *) 0x10018) = 0x000092000000FFFFLL;
+	// 32-bit
+	*((qword *) 0x10020) = 0x00CF9A000000FFFFLL;
+	*((qword *) 0x10028) = 0x00CF92000000FFFFLL;
+	// GDTP
+	*((word *) 0x2E02) = 0xFFFF;
+	*((dword *) 0x2E04) = 0x00010000;
+	// Install, and reload segment registers.
+	asm volatile (
+		"lgdt	0x2E02\n\t"
+		"jmpl	$0x0020,$__special_GDT_jump\n"
+		"__special_GDT_jump:\n\t"
+		"movw	$0x0028,%%ax\n\t"
+		"movw	%%ax,%%ss\n\t"
+		"movw	%%ax,%%ds\n\t"
+		"movw	%%ax,%%es\n\t"
+		"movw	%%ax,%%fs\n\t"
+		"movw	%%ax,%%gs\n\t"
+		"movw	$0x0008,%%ax\n\t"
+		"lldt	%%ax\n\t"
+		:
+		:
+		: "memory"
+		) ;
+
+
+
+	// Eightly, create page directory, load CR3 and enable paging and cache.
+	for (dword * j = (dword *) 0x3000; j < (dword *) 0x4000; j++)
+		*j = 0;
+	*((dword *) 0x3000) = 0x00004007;
+	*((dword *) 0x3004) = 0x00005007;
+	*((dword *) 0x3008) = 0x00006007;
+	*((dword *) 0x300C) = 0x00007007;
+	asm volatile (
+		"movl	$0x00003000,%%eax\n\t"
+		"movl	%%eax,%%cr3\n\t"
+		"movl	%%cr0,%%eax\n\t"
+		"orl	$0x80000000,%%eax\n\t"
+		"movl	%%eax,%%cr0\n\t"
+		:
+		:
+		: "%eax"
+		, "memory"
+		) ;
+	if (is_486)
+		asm volatile (
+			"movl	%%cr0,%%eax\n\t"
+			"andl	$0xBFFFFFFF,%%eax\n\t"
+			"movl	%%eax,%%cr0\n\t"
+			:
+			:
+			: "%eax"
+			) ;
+
+
+
+	// Ninthly, map the page stack into kernel memory,
+	// and switch to logical addresses in stack_pages.
+	*((dword *)((kernel_size<<2) + 0x4400)) = 0x00100007;
+	stack_pages += kernel_size << 10; // stack_pages is a pointer!
+	//*((dword *)((kernel_size<<2) + 0x4404 + 0)) =
+	//	((dword *)((dword)stack_pages & 0xFFFFF000))[0] | 7;
+
+	for (int j=0; j<4; j++)
+	{
+		*((dword *)((kernel_size<<2) + 0x4404 + (j<<2))) =
+			((dword *)((dword)stack_pages & 0xFFFFF000))[j] | 7;
+		((dword *)((dword)stack_pages & 0xFFFFF000))[j] =
+			(kernel_size + 0x101 + j) << 12;
+	}
+
+
+
 	// Void-cast all unused arguments to please -Wall -Werror.
+	if (is_486)
+		info->cpu_type = 4;
 	(void) timer;
 	(void) exit_hw;
 }
