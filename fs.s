@@ -26,4 +26,4 @@ fs_entry:
 	.ascii	"kernel.bin"
 	.fill	14
 
-	.fill	126<<5
+	.fill	125<<5

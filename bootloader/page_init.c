@@ -121,12 +121,22 @@ void * page_alloc(dword lin)
 	return (void *) phys;
 }
 
+extern dword bss_start;
+extern dword bss_end;
+
 void page_init(
 	int (*read_file)(void *, char *, word),
 	void (*puts)(char *),
 	void (*timer)(int),
 	void (*exit_hw)(void))
 {
+	// Clear the BSS.
+	for (dword * i = &bss_start; i < &bss_end; i++)
+		*i = 0;
+
+	// Tell the (l)user what we are up to.
+	(*puts)("[] Start of page_init().\n");
+
 	// Init the loaderdata.
 	loaderdata.read_file = read_file;
 	loaderdata.puts = puts;
@@ -158,6 +168,7 @@ void page_init(
 
 
 	// Firstly, figure out how much low memory we have.
+	(*puts)("[] Calculating amount of low memory.\n");
 	unsigned int mem_low = 0; // blocks
 	for (int i=0; i<info->num_entries; i++)
 	{
@@ -182,8 +193,9 @@ void page_init(
 
 
 
-	// Secondly, create a memory map for the first 16 MiB
+	// Secondly, create a memory map for the first 16 MiB,
 	// 1 is useable, 0 is unuseable.
+	(*puts)("[] Building memory map.\n");
 	mem_map = (byte *) 0x10000;
 	dword mstart, mend;
 	for (int i=0; i<4096; i++)
@@ -240,12 +252,13 @@ void page_init(
 		for (dword j=0; j<mem_low; j++)
 			mem_map[j] = 1;
 		(*puts)("[] Warning: BIOS reports no memory above 1 MiB"
-			", assuming 14 MiB present");
+			", assuming 14 MiB present\n");
 	}
 
 
 
 	// Thirdly, setup the free page stack.
+	(*puts)("[] Setting up free page stack.\n");
 	stack_pages = (dword **) 0x00100000;
 	for (int k=0; k<0x1000; k++)
 		stack_pages[k] = (dword *) 0;
@@ -254,7 +267,7 @@ void page_init(
 	while (i<0x1000 && ! mem_map[i]) i++;
 	if (i == 0x1000)
 	{
-		(*puts)("[] Error: cannot find free page for page-stack");
+		(*puts)("[] Error: cannot find free page for page-stack\n");
 		return;
 	}
 
@@ -280,6 +293,7 @@ void page_init(
 
 
 	// Fourthly, setup the page tables.
+	(*puts)("[] Setup page tables.\n");
 	page_table = (dword *) 0x4000;
 	// ID-page the first 1 MB, no cache.
 	for (int i=0; i<0x100; i++)
@@ -291,6 +305,7 @@ void page_init(
 
 
 	// Fiftly, load the kernel.
+	(*puts)("[] Loading kernel.\n");
 	byte kernel_start = *((byte *) 0xE02B);
 	dword kernel_size = *((dword *) 0xE02C);
 	int need_load = 1;
@@ -318,6 +333,7 @@ void page_init(
 
 
 	// Sixthly, if on an 486+, temporary disable the cache.
+	(*puts)("[] Temporary disable cache.\n");
 	int is_486;
 	asm volatile (
 		"pushfl\n\t"
@@ -351,6 +367,7 @@ void page_init(
 
 
 	// Seventhly, move the GDT and setup the (empty) sysLDT.
+	(*puts)("[] Re-init GDT.\n");
 	for (dword * j = (dword *) 0x00010000; j < (dword *) 0x00020000; j++)
 		*j = 0;
 	for (dword * j = (dword *) 0x00002000; j < (dword *) 0x00002C00; j++)
@@ -387,6 +404,7 @@ void page_init(
 
 
 	// Eightly, create page directory, load CR3 and enable paging and cache.
+	(*puts)("[] Start paging.\n");
 	for (dword * j = (dword *) 0x3000; j < (dword *) 0x4000; j++)
 		*j = 0;
 	*((dword *) 0x3000) = 0x00004007;
@@ -418,6 +436,7 @@ void page_init(
 
 	// Ninthly, map the page stack into kernel memory,
 	// and switch to logical addresses in stack_pages.
+	(*puts)("[] Switching to linear addresses.\n");
 	*((dword *)((kernel_size<<2) + 0x4400)) = 0x00100007;
 	stack_pages += kernel_size << 10; // stack_pages is a pointer!
 	for (int j=0; j<4; j++)
@@ -436,9 +455,11 @@ void page_init(
 
 
 	// Make some final preparations and call the kernel.
+	(*puts)("[] Calling kernel proper.\n");
 	loaderdata.stack_pages = stack_pages;
 	loaderdata.page_stack = page_stack;
 	loaderdata.mem_low = mem_low;
 	if (is_486)
 		info->cpu_type = 4;
+	(*((void (*)(void *)) 0x00100000))((void *) &loaderdata);
 }
