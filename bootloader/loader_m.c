@@ -43,11 +43,13 @@ int strcmp(char * s1, char * s2)
 // Function to load a block within a file.
 int read_file(void * addr, char * filename, word block_no)
 {
+	word offset = *((word *) 0xD000);
+
 	word block;
 	for (int i=0; i<128; i++)
-		if (! strcmp((char *)((i<<5)+0xD008), filename))
+		if (! strcmp((char *)((i<<5)+0xD008+offset), filename))
 		{
-			block = *((word *)((i<<5)+0xD000));
+			block = *((word *)((i<<5)+0xD000+offset));
 			for (;block_no;block_no--)
 			{
 				block = *((word *)(0xC000+(block<<1)));

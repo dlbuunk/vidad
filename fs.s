@@ -9,6 +9,14 @@ fs_entry:
 	.word	0xFFF8
 	.fill	2043,2
 
+	# root dir header
+	.word	32
+	.word	0
+	.long	0
+	.quad	0
+	.quad	0
+	.quad	0
+
 	# root dir
 	.quad	2
 	.ascii	"."
