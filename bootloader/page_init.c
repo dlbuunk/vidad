@@ -95,6 +95,7 @@ void printd(dword val)
 // Paging init main functions
 
 byte * mem_map;
+dword ** stack_pages;
 dword * page_stack;
 
 void * page_alloc(dword lin)
@@ -102,7 +103,9 @@ void * page_alloc(dword lin)
 	lin &= 0xFFFFF000;
 	if (lin >= 0x01000000)
 		return 0;
-	dword phys = *page_stack++;
+	dword phys = *--page_stack << 12;
+	if (! ((dword)page_stack | 0xFFF))
+		page_stack = *--stack_pages;
 	mem_map[lin>>12] = phys | 0x03;
 	return (void *) phys;
 }
@@ -229,26 +232,36 @@ void page_init(
 
 
 	// Thirdly, setup the free page stack.
+	stack_pages = (dword **) 0x00100000;
+	for (int k=0; k<0x1000; k++)
+		stack_pages[k] = (dword *) 0;
 	page_stack = (dword *) 0;
-	for (int i=0xFFF; i>=0x103; i--)
-		if (mem_map[i])
-		{
-			page_stack = (dword *) ((i+1)<<12);
-			mem_map[i] = 0;
-			break;
-		}
-	if (! page_stack)
+	int i = 0x101;
+	while (i<0x1000 && ! mem_map[i]) i++;
+	if (i == 0x1000)
 	{
-		page_stack = (dword *) 0x00104000; // 1MiB + 16KiB
-		mem_map[0x100] = 0;
-		mem_map[0x101] = 0;
-		mem_map[0x102] = 0;
-		mem_map[0x103] = 0;
+		(*puts)("[] Error: cannot find free page for page-stack");
+		return;
 	}
 
-	for (int i=0xFFF; i>=0x100; i--)
-		if (mem_map[i])
-			*--page_stack = i<<12;
+	for (int k=0; k<4; k++)
+	{
+		while (i<0x1000 && ! mem_map[i]) i++;
+		if (i == 0x1000)
+			goto end_stack;
+		page_stack = (dword *) (i<<12);
+		*stack_pages++ = page_stack;
+		*page_stack++ = i++;
+		for (int j=0; j<0x3FF; j++)
+		{
+			while (i<0x1000 && ! mem_map[i]) i++;
+			if (i == 0x1000)
+				goto end_stack;
+			*page_stack++ = i++;
+		}
+	}
+
+	end_stack: ;
 
 
 
