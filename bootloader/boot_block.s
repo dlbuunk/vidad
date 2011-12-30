@@ -246,16 +246,16 @@ msg_memory:
 	movw	$0x2C00,%di
 	movl	$0x0000E820,%eax
 	movl	$0x00000000,%ebx
-	movl	$0x00000020,%ecx
+	movl	$0x00000014,%ecx
 	movl	$0x534D4150,%edx
 	int	$0x15
 	jc	memm_err
 	cmpl	$0x534D4150,%eax
 	jne	memm_err
 memm_loop:
-	addw	$0x20,%di
+	addw	$0x14,%di
 	movl	$0x0000E820,%eax
-	movl	$0x00000020,%ecx
+	movl	$0x00000014,%ecx
 	int	$0x15
 	jc	memm_errc
 	cmpl	$0x00000000,%ebx
