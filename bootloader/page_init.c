@@ -95,6 +95,7 @@ void printd(dword val)
 // Paging init main functions
 
 byte * mem_map;
+dword * page_table;
 dword ** stack_pages;
 dword * page_stack;
 
@@ -106,7 +107,7 @@ void * page_alloc(dword lin)
 	dword phys = *--page_stack << 12;
 	if (! ((dword)page_stack | 0xFFF))
 		page_stack = *--stack_pages;
-	mem_map[lin>>12] = phys | 0x03;
+	page_table[lin>>12] = phys | 0x03;
 	return (void *) phys;
 }
 
@@ -266,7 +267,7 @@ void page_init(
 
 
 	// Fourthly, setup the page tables.
-	dword * page_table = (dword *) 0x4000;
+	page_table = (dword *) 0x4000;
 	// ID-page the first 1 MB, no cache.
 	for (int i=0; i<0x100; i++)
 		page_table[i] = (i<<12) | 0x1B;
