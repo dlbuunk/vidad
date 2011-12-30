@@ -2,10 +2,10 @@
 	.global	fs_entry
 fs_entry:
 	# alloc table
-	.word	0xFFFC
-	.word	0xFFFC
-	.word	0xFFF8
-	.word	0xFFF8
+	.word	0xFFFC	# boot block
+	.word	0xFFF8	# allocation table
+	.word	0xFFF8	# root directory
+	.word	0xFFF8	# kernel.bin
 	.fill	2044,2
 
 	# root dir

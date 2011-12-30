@@ -70,13 +70,13 @@ void loader_main(void)
 	read_block((void *) 0xD000, *((word *) 0x1218));
 
 	// read the kernel
-	if (read_file((void *) 0xE000, "kernel.bin", 0) != 0)
+	if (read_file((void *) 0xE000, "kernel.bin", 0))
 	{
 		puts("FAIL");
 		return;
 	}
 
-	puts("OK");
+	puts("OK\n");
 
 	// now, run the kernel
 	(**((void (**)(

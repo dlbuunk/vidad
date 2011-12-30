@@ -63,7 +63,7 @@ void putchar(char ch)
 	else
 		*((word *)(0x000B8000 + (cursor_pos++ <<1))) = 0x0700 | ch;
 
-	if (cursor_pos > 2000)
+	if (cursor_pos >= 2000)
 	{
 		for (int i=0; i<4000; i+=2)
 			*((word *)(0x000B8000 + i)) =
