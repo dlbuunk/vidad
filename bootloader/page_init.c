@@ -27,7 +27,7 @@ typedef unsigned long long int qword;
 
 
 
-// Memory info structs
+// Memory info structs & loader struct
 struct MemInfo
 {
 	qword start;
@@ -46,11 +46,20 @@ struct Info
 	byte num_entries;
 };
 
+struct
+{
+	int (*read_file)(void *, char *, word);
+	void (*puts)(char *);
+	void (*timer)(int);
+	void (*exit_hw)(void);
+	dword ** stack_pages;
+	dword * page_stack;
+	dword mem_low;
+} loaderdata;
+
 
 
 // Helper functions
-void (*_puts)(char *);
-
 void printb(byte val)
 {
 	char out[3];
@@ -61,7 +70,7 @@ void printb(byte val)
 	if (out[1] > 0x39)
 		out[1] += 7;
 	out[2] = '\0';
-	(*_puts)(out);
+	(*loaderdata.puts)(out);
 }
 
 void printw(word val)
@@ -74,7 +83,7 @@ void printw(word val)
 			out[i] += 7;
 	}
 	out[4] = '\0';
-	(*_puts)(out);
+	(*loaderdata.puts)(out);
 }
 
 void printd(dword val)
@@ -87,7 +96,7 @@ void printd(dword val)
 			out[i] += 7;
 	}
 	out[8] = '\0';
-	(*_puts)(out);
+	(*loaderdata.puts)(out);
 }
 
 
@@ -105,6 +114,7 @@ void * page_alloc(dword lin)
 	if (lin >= 0x01000000)
 		return 0;
 	dword phys = *--page_stack << 12;
+	*page_stack = 0;
 	if (! ((dword)page_stack | 0xFFF))
 		page_stack = *--stack_pages;
 	page_table[lin>>12] = phys | 0x07;
@@ -117,8 +127,11 @@ void page_init(
 	void (*timer)(int),
 	void (*exit_hw)(void))
 {
-	// Make puts usefull for other functions.
-	_puts = puts;
+	// Init the loaderdata.
+	loaderdata.read_file = read_file;
+	loaderdata.puts = puts;
+	loaderdata.timer = timer;
+	loaderdata.exit_hw = exit_hw;
 
 	// Load the second part of the paging init code.
 	if (*((byte *) 0xE02B) == 2)
@@ -407,9 +420,6 @@ void page_init(
 	// and switch to logical addresses in stack_pages.
 	*((dword *)((kernel_size<<2) + 0x4400)) = 0x00100007;
 	stack_pages += kernel_size << 10; // stack_pages is a pointer!
-	//*((dword *)((kernel_size<<2) + 0x4404 + 0)) =
-	//	((dword *)((dword)stack_pages & 0xFFFFF000))[0] | 7;
-
 	for (int j=0; j<4; j++)
 	{
 		*((dword *)((kernel_size<<2) + 0x4404 + (j<<2))) =
@@ -417,12 +427,18 @@ void page_init(
 		((dword *)((dword)stack_pages & 0xFFFFF000))[j] =
 			(kernel_size + 0x101 + j) << 12;
 	}
+	dword temp = (dword) page_stack;
+	temp &= 0x00000FFF;
+	temp += (dword) *--stack_pages;
+	stack_pages++;
+	page_stack = (dword *) temp;
 
 
 
-	// Void-cast all unused arguments to please -Wall -Werror.
+	// Make some final preparations and call the kernel.
+	loaderdata.stack_pages = stack_pages;
+	loaderdata.page_stack = page_stack;
+	loaderdata.mem_low = mem_low;
 	if (is_486)
 		info->cpu_type = 4;
-	(void) timer;
-	(void) exit_hw;
 }
