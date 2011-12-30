@@ -216,6 +216,7 @@ void read_block(void * addr, word block)
 			block_loaded[0] = block;
 			block_loaded[1] = block+1;
 			bload = 0;
+			break;
 		case 5:
 			for (int i=0; i<4096; i++)
 				*((byte *)(0x8000+i)) = *((byte *)(0x8800+i));

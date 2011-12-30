@@ -12,7 +12,8 @@ image: fs.s fs.ld
 	cp bootloader/boot_block.bin image
 	dd if=fs.bin of=image seek=8
 	dd if=bootloader/page_init.bin of=image seek=24
-	dd if=/dev/zero of=image seek=29 count=2851
+	dd if=hello.asciz of=image seek=32
+	dd if=/dev/zero of=image seek=33 count=2847
 
 .PHONEY: clean
 clean:

@@ -5,8 +5,9 @@ fs_entry:
 	.word	0xFFFC	# boot block
 	.word	0xFFF8	# allocation table
 	.word	0xFFF8	# root directory
-	.word	0xFFF8	# kernel.bin
-	.fill	2044,2
+	.word	0x0004	# kernel.bin
+	.word	0xFFF8
+	.fill	2043,2
 
 	# root dir
 	.quad	2

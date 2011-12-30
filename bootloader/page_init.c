@@ -276,6 +276,32 @@ void page_init(
 
 
 
+	// Fiftly, load the kernel.
+	byte kernel_start = *((byte *) 0xE02B);
+	dword kernel_size = *((dword *) 0xE02C);
+	int need_load = 1;
+	for (dword j=0; j<kernel_size; j++)
+	{
+		void * phys = page_alloc((j<<12)+0x00100000);
+		if (! phys)
+		{
+			(*puts)("[] Error: out of memory\n");
+			return;
+		}
+		if (need_load)
+		{
+			int r=(*read_file)(phys, "kernel.bin", j+kernel_start);
+			if (r == 1) need_load = 0;
+			else if (r == -1)
+			{
+				(*puts)("[] Error, kernel not found.\n");
+				return;
+			}
+		}
+	}
+
+
+
 	// Void-cast all unused arguments to please -Wall -Werror.
 	(void) timer;
 	(void) exit_hw;
