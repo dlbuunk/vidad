@@ -21,8 +21,23 @@
 
 	# first the file header
 	# number of bytes in file header
-	.word	0x0002
+	# 0x00
+	.word	0x0020
+	.word	0
+	.long	0
+	.quad	0
+	# 0x10
+	.quad	0
+	.quad	0
 
 	# then the kernel header
+	# 0x20
 	.extern	page_init
-	.long	page_init
+	.long	page_init	# entry point
+	.ascii	"ViOS"		# magic
+	.byte	0x00		# major version
+	.byte	0x01		# minor version
+	.byte	0x00		# minor-minor version
+	.byte	0x01		# number of blocks in page-init code
+	.long	0x00000001	# number of blocks in kernel proper
+	# 0x30

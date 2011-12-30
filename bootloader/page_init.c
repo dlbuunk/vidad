@@ -92,7 +92,21 @@ void printd(dword val)
 
 
 
-// Paging init main function
+// Paging init main functions
+
+byte * mem_map;
+dword * page_stack;
+
+void * page_alloc(dword lin)
+{
+	lin &= 0xFFFFF000;
+	if (lin >= 0x01000000)
+		return 0;
+	dword phys = *page_stack++;
+	mem_map[lin>>12] = phys | 0x03;
+	return (void *) phys;
+}
+
 void page_init(
 	int (*read_file)(void *, char *, word),
 	void (*puts)(char *),
@@ -103,8 +117,22 @@ void page_init(
 	_puts = puts;
 
 	// Load the second part of the paging init code.
-	if ((*read_file)((void *) 0xF000, "kernel.bin", 1))
-		(*puts)("[] Warning: cannot load second block of kernel.\n");
+	if (*((byte *) 0xE02B) == 2)
+	{
+		if ((*read_file)((void *) 0xF000, "kernel.bin", 1))
+		{
+			(*puts)("[] Error: cannot load second block"
+				" of kernel.\n");
+				return;
+		}
+	}
+	else if (*((byte *) 0xE02B) > 2)
+	{
+		(*puts)("[] Error, paging initialization code too large\n");
+		return;
+	}
+	else if (*((byte *) 0xE02B) ==  0)
+		(*puts)("[] Warning, kernel header possibly corrupted.\n");
 
 	// Define the meminfo structs.
 	struct Info * info = (struct Info *) 0x2DF4;
@@ -139,7 +167,7 @@ void page_init(
 
 	// Secondly, create a memory map for the first 16 MiB
 	// 1 is useable, 0 is unuseable.
-	byte * mem_map = (byte *) 0x10000;
+	mem_map = (byte *) 0x10000;
 	dword mstart, mend;
 	for (int i=0; i<4096; i++)
 		mem_map[i] = 0;
@@ -190,7 +218,7 @@ void page_init(
 		for (dword j=0; j<mem_low; j++)
 			mem_map[j] = 1;
 	}
-	else // assume 14 MB high memory
+	else // Assume 14 MiB high memory.
 	{
 		for (dword j=0; j<mem_low; j++)
 			mem_map[j] = 1;
@@ -201,7 +229,7 @@ void page_init(
 
 
 	// Thirdly, setup the free page stack.
-	dword * page_stack = (dword *) 0;
+	page_stack = (dword *) 0;
 	for (int i=0xFFF; i>=0x103; i--)
 		if (mem_map[i])
 		{
@@ -229,6 +257,9 @@ void page_init(
 	// ID-page the first 1 MB, no cache.
 	for (int i=0; i<0x100; i++)
 		page_table[i] = (i<<12) | 0x1B;
+	// Clear the rest of the page tables.
+	for (int i=0x100; i<0x1000; i++)
+		page_table[i] = 0;
 
 
 
