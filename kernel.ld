@@ -8,6 +8,7 @@ INPUT
 (
 	int_entry.o
 	c_entry.o
+	cxx_entry.o
 )
 
 OUTPUT(kernel.bin)

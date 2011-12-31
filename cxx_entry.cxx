@@ -1,4 +1,4 @@
-//      c_entry.c
+//      cxx_entry.cxx
 //      
 //      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
 //      
@@ -17,9 +17,9 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-//	This is the C entry point of the kernel, it is used for setting up
-//	some specifics before running any C++ code. Those specifics include
-//	things like ctors && dtors, and clearing the bss.
+//	This is the C++ entrypoint of the kernel, it is responsible for
+//	ordering the heap to be initialized and calling the main startup
+//	sequence, system::init().
 
 // General typedefs and struct defenition.
 typedef unsigned char byte;
@@ -35,35 +35,8 @@ struct LoaderData
 	dword mem_low;
 };
 
-// Externals: bss, ctor, and dtor are here.
-extern dword bss_start;
-extern dword bss_end;
-extern void ctor_start(void);
-extern void ctor_end(void);
-extern void dtor_start(void);
-extern void dtor_end(void);
-
-extern void __cxx_entry(struct LoaderData *);
-
-// Main function, called from __kernel_entry.
-void __c_entry(struct LoaderData * loaderdata)
+// Main function, called from __c_entry().
+extern "C" void __cxx_entry(LoaderData * loaderdata)
 {
-	// Clear the BSS.
-	for (dword * i = &bss_start; i < &bss_end; i++)
-		*i = 0;
-
-	// Tell the (l)user what we are up to.
-	(*loaderdata->puts)("[    :  :  .  ] Kernel running, .bss cleared.\n");
-
-	// Call the constructors.
-	for (void (*i)(void) = &ctor_start; i < &ctor_end;)
-		(*i++)();
-
-	// Call the C++ entry point.
-	__cxx_entry(loaderdata);
-
-	// Call the destructors.
-	for (void (*i)(void) = &dtor_end; i > &dtor_start;)
-		(*--i)();
-	(*loaderdata->puts)("[    :  :  .  ] Kernel shutting down.\n");
+	(void) loaderdata;
 }
