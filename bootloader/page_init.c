@@ -127,16 +127,8 @@ void page_init(
 	void (*timer)(int),
 	void (*exit_hw)(void))
 {
-	// Clear the BSS.
-	for (dword * i = &bss_start; i < &bss_end; i++)
-		*i = 0;
-
 	// Tell the (l)user what we are up to.
 	(*puts)("[] Start of page_init().\n");
-
-	// Init the loaderdata.
-	loaderdata.puts = puts;
-	(void) timer;
 
 	// Load the second part of the paging init code.
 	if (*((byte *) 0xE02B) == 2)
@@ -155,6 +147,14 @@ void page_init(
 	}
 	else if (*((byte *) 0xE02B) ==  0)
 		(*puts)("[] Warning, kernel header possibly corrupted.\n");
+
+	// Clear the BSS.
+	for (dword * i = &bss_start; i < &bss_end; i++)
+		*i = 0;
+
+	// Init the loaderdata.
+	loaderdata.puts = puts;
+	(void) timer;
 
 	// Define the meminfo structs.
 	struct Info * info = (struct Info *) 0x2DF4;
