@@ -21,7 +21,7 @@
 //	some specifics before running any C++ code. Those specifics include
 //	things like ctors && dtors, and clearing the bss.
 
-// General typedefs and struct defenition.
+// General typedefs and struct definition.
 typedef unsigned char byte;
 typedef unsigned short int word;
 typedef unsigned int dword;

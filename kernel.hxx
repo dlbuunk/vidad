@@ -1,4 +1,4 @@
-//      cxx_entry.cxx
+//      kernel.hxx
 //      
 //      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
 //      
@@ -17,24 +17,12 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-//	This is the C++ entrypoint of the kernel, it is responsible for
-//	ordering the heap to be initialized and calling the main startup
-//	sequence, system::init().
+#ifndef KERNEL_HXX
+#define KERNEL_HXX
 
-#include "kernel.hxx"
-#include "util/util.hxx"
+typedef unsigned char byte;
+typedef unsigned short int word;
+typedef unsigned int dword;
+typedef unsigned long long int qword;
 
-// Loaderdata struct definition.
-struct LoaderData
-{
-	void (*puts)(char *);
-	dword ** stack_pages;
-	dword * page_stack;
-	dword mem_low;
-};
-
-// Main function, called from __c_entry().
-extern "C" void __cxx_entry(LoaderData * loaderdata)
-{
-	util::loader_puts = loaderdata->puts;
-}
+#endif // KERNEL_HXX

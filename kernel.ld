@@ -9,6 +9,8 @@ INPUT
 	int_entry.o
 	c_entry.o
 	cxx_entry.o
+	util/util.o
+	/* memory/memory.o */
 )
 
 OUTPUT(kernel.bin)

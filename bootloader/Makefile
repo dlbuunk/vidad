@@ -4,8 +4,6 @@ CC = /usr/local/cross/bin/i386-elf-gcc
 CCFLAGS = -Wall -Wextra -Werror \
 	-nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Os -std=gnu99
 
-all: boot_block.bin page_init.bin
-
 boot_block.bin: boot_sect.tmp boot_block.tmp
 	cp boot_sect.tmp boot_block.bin
 	dd if=boot_block.tmp of=boot_block.bin seek=1
