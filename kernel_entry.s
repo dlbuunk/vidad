@@ -189,7 +189,7 @@ __kernel_entry:
 
 	# call the C entry point
 	.extern	__c_entry
-	#call	__c_entry
+	call	__c_entry
 	popl	%eax
 
 	popl	%ebx

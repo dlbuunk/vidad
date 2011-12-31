@@ -14,15 +14,18 @@ image: fs.s fs.ld kernel.bin
 	dd if=kernel.bin of=image seek=32
 	dd if=/dev/zero of=image seek=2879 count=1
 
-kernel.bin: kernel_entry.o int_entry.o
+kernel.bin: kernel_entry.o int_entry.o c_entry.o
 	$(LD) -T kernel.ld
 	chmod -x kernel.bin
 
 kernel_entry.o: kernel_entry.s
 	$(AS) -o kernel_entry.o kernel_entry.s
 
-int_entry.o:
+int_entry.o: int_entry.cxx
 	$(CXX) $(CXXFLAGS) -c -o int_entry.o int_entry.cxx
+
+c_entry.o: c_entry.c
+	$(CC) $(CCFLAGS) -c -o c_entry.o c_entry.c
 
 .PHONEY: clean
 clean:

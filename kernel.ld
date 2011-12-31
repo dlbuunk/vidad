@@ -4,7 +4,11 @@ OUTPUT_FORMAT(binary)
 
 STARTUP(kernel_entry.o)
 
-INPUT(int_entry.o)
+INPUT
+(
+	int_entry.o
+	c_entry.o
+)
 
 OUTPUT(kernel.bin)
 
