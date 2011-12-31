@@ -13,11 +13,12 @@ image: fs.s fs.ld kernel.bin
 	dd if=fs.bin of=image seek=8
 	dd if=bootloader/page_init.bin of=image seek=24
 	dd if=kernel.bin of=image seek=32
-	dd if=/dev/zero of=image seek=33 count=2847
+	dd if=/dev/zero of=image seek=2879 count=1
 
 kernel.bin: kernel_entry.s
 	$(AS) -o kernel_entry.o kernel_entry.s
 	$(LD) -T kernel.ld
+	chmod -x kernel.bin
 
 .PHONEY: clean
 clean:

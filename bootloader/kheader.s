@@ -39,5 +39,6 @@
 	.byte	0x01		# minor version
 	.byte	0x00		# minor-minor version
 	.byte	0x01		# number of blocks in page-init code
-	.long	0x00000001	# number of blocks in kernel proper
+	.long	0x00000010	# number of blocks in kernel proper
+	# STACK			# in memory, not on disk
 	# 0x30
