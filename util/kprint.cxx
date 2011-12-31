@@ -22,7 +22,7 @@
 namespace util
 {
 
-void (*loader_puts)(char const *);
+void (*_loader_puts)(char const *);
 
 void kputs(char const * str)
 {
@@ -30,7 +30,41 @@ void kputs(char const * str)
 	strncat(buff, str, 160);
 	strcat(buff, "\n");
 	// For now, only use the loader_puts, later this should be inproved.
-	(*loader_puts)(buff);
+	(*_loader_puts)(buff);
+}
+
+// These functions are far from 'safe', so care must be taken when using them.
+void _format_str(char const * fstr, char * ostr, dword * args)
+{
+	while (*fstr != '\0')
+	{
+		if (*fstr == '%') switch (*++fstr)
+		{
+		case 't': // ViOS kernel specific, needs inprovement.
+			strcpy(ostr, "[   0:00:00.00]");
+			ostr += strlen(ostr);
+			break;
+		case 'c':
+			*ostr++ = (char const)(*args++);
+			break;
+		case 's':
+			strcpy(ostr, (char const *)(*args++));
+			ostr += strlen(ostr);
+			break;
+		default:
+			*ostr++ = *fstr;
+		}
+		else
+			*ostr++ = *fstr;
+		fstr++;
+	}
+}
+
+void kprintf(char const * fstr, ...)
+{
+	char ostr[512];
+	_format_str(fstr, ostr, (dword *) &fstr + 1);
+	(*_loader_puts)(ostr);
 }
 
 }

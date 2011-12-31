@@ -37,7 +37,7 @@ struct LoaderData
 extern "C" void __cxx_entry(LoaderData * loaderdata)
 {
 	// This should be before any use of util::kputs() or deriviatives!
-	util::loader_puts = loaderdata->puts;
+	util::_loader_puts = loaderdata->puts;
 
-	util::kputs("Hello from __cxx_entry().");
+	util::kprintf("%t Hello from %s %c\n", "__cxx_entry()", '!');
 }

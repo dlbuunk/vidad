@@ -26,18 +26,19 @@ namespace util
 {
 
 // from string.cxx
-size_t strlen(char const *);
-int strcmp(char const *, char const *);
-int strncmp(char const *, char const *, size_t);
-char * strcpy(char *, char const *);
-char * strncpy(char *, char const *, size_t);
-char * strcat(char *, char const *);
-char * strncat(char *, char const *, size_t);
+size_t strlen(char const * str);
+int strcmp(char const * s1, char const * s2);
+int strncmp(char const * s1, char const * s2, size_t num);
+char * strcpy(char * dest, char const * src);
+char * strncpy(char * dest, char const * src, size_t num);
+char * strcat(char * dest, char const * src);
+char * strncat(char * dest, char const * src, size_t num);
 
 // from kprint.cxx
-extern void (*loader_puts)(char const *);
-void kputs(char const *);
-
+extern void (*_loader_puts)(char const *);
+void kputs(char const * str);
+void _format_str(char const * fstr, char * ostr, dword * args);
+void kprintf(char const * fstr, ...);
 }
 
 #endif // UTIL_HXX
