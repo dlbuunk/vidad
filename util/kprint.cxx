@@ -29,8 +29,13 @@ void kputs(char const * str)
 	char buff[178] = { "[   0:00:00.00] " } ;
 	strncat(buff, str, 160);
 	strcat(buff, "\n");
+	_kprints(buff);
+}
+
+void _kprints(char const * str)
+{
 	// For now, only use the loader_puts, later this should be inproved.
-	(*_loader_puts)(buff);
+	(*_loader_puts)(str);
 }
 
 // These functions are far from 'safe', so care must be taken when using them.
@@ -51,6 +56,22 @@ void _format_str(char const * fstr, char * ostr, dword * args)
 			strcpy(ostr, (char const *)(*args++));
 			ostr += strlen(ostr);
 			break;
+		case 'x':
+		case 'X':
+			for (int i=28; i>=0; i-=4)
+			{
+				*ostr = ((*args >> i) & 0xF) + 0x30;
+				if (*ostr > 0x39)
+					*ostr += *fstr - 'X' + 7;
+				ostr++;
+			}
+			args++;
+			break;
+		case 'u':
+			break;
+		case 'i':
+		case 'd':
+			break;
 		default:
 			*ostr++ = *fstr;
 		}
@@ -58,13 +79,21 @@ void _format_str(char const * fstr, char * ostr, dword * args)
 			*ostr++ = *fstr;
 		fstr++;
 	}
+	*ostr = '\0';
 }
 
-void kprintf(char const * fstr, ...)
+int kprintf(char const * fstr, ...)
 {
 	char ostr[512];
 	_format_str(fstr, ostr, (dword *) &fstr + 1);
-	(*_loader_puts)(ostr);
+	_kprints(ostr);
+	return strlen(ostr);
+}
+
+int sprintf(char * ostr, char const * fstr, ...)
+{
+	_format_str(fstr, ostr, (dword *) &fstr + 1);
+	return strlen(ostr);
 }
 
 }

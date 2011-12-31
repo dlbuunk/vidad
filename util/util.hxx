@@ -36,9 +36,11 @@ char * strncat(char * dest, char const * src, size_t num);
 
 // from kprint.cxx
 extern void (*_loader_puts)(char const *);
-void kputs(char const * str);
+void _kprints(char const * str);
 void _format_str(char const * fstr, char * ostr, dword * args);
-void kprintf(char const * fstr, ...);
+void kputs(char const * str);
+int kprintf(char const * fstr, ...);
+int sprintf(char * ostr, char const * fstr, ...);
 }
 
 #endif // UTIL_HXX

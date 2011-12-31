@@ -49,6 +49,7 @@ char * strcpy(char * dest, char const * src)
 	char * str_out = dest;
 	while (*src)
 		*dest++ = *src++;
+	*dest = '\0';
 	return str_out;
 }
 
@@ -57,6 +58,7 @@ char * strncpy(char * dest, char const * src, size_t num)
 	char * str_out = dest;
 	for (size_t i=0; i<num && *src; i++)
 		*dest++ = *src++;
+	*dest = '\0';
 	return str_out;
 }
 
@@ -67,6 +69,7 @@ char * strcat(char * dest, char const * src)
 		dest++;
 	while (*src)
 		*dest++ = *src++;
+	*dest = '\0';
 	return str_out;
 }
 
@@ -77,6 +80,7 @@ char * strncat(char * dest, char const * src, size_t num)
 		dest++;
 	for (size_t i=0; i<num && *src; i++)
 		*dest++ = *src++;
+	*dest = '\0';
 	return str_out;
 }
 
