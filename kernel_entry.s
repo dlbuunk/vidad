@@ -222,7 +222,7 @@ __int_handler:
 	pushl	%eax
 	pushl	%esp
 	.extern	__int_entry
-	#call	__int_entry
+	call	__int_entry
 	popl	%esp
 	popl	%eax
 	popl	%ebx

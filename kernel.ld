@@ -2,7 +2,9 @@ ENTRY(__kernel_entry)
 
 OUTPUT_FORMAT(binary)
 
-INPUT(kernel_entry.o)
+STARTUP(kernel_entry.o)
+
+INPUT(int_entry.o)
 
 OUTPUT(kernel.bin)
 
