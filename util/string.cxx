@@ -1,4 +1,4 @@
-//      kernel.hxx
+//      string.cxx
 //      
 //      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
 //      
@@ -17,14 +17,19 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#ifndef KERNEL_HXX
-#define KERNEL_HXX
+#include "util.hxx"
 
-typedef unsigned char byte;
-typedef unsigned short int word;
-typedef unsigned int dword;
-typedef unsigned long long int qword;
+namespace util
+{
 
-typedef unsigned int size_t;
+char * strncat(char * dest, char const * src, size_t num)
+{
+	char * str_out = dest;
+	while (*dest)
+		dest++;
+	for (size_t i=0; i<num && *src; i++)
+		*dest++ = *src++;
+	return str_out;
+}
 
-#endif // KERNEL_HXX
+}

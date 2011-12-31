@@ -1,7 +1,13 @@
 include ../kernel.mk
 
-util.o:
-	$(CXX) $(CXXFLAGS) -c -o util.o kprint.cxx
+util.o: string.o kprint.o
+	$(LD) -r -o util.o string.o kprint.o
+
+string.o: string.cxx
+	$(CXX) $(CXXFLAGS) -c -o string.o string.cxx
+
+kprint.o: kprint.cxx
+	$(CXX) $(CXXFLAGS) -c -o kprint.o kprint.cxx
 
 .PHONEY: clean
 clean:

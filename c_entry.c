@@ -29,7 +29,7 @@ typedef unsigned long long int qword;
 
 struct LoaderData
 {
-	void (*puts)(char *);
+	void (*puts)(char const *);
 	dword ** stack_pages;
 	dword * page_stack;
 	dword mem_low;

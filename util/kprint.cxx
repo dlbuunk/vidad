@@ -17,9 +17,20 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
+#include "util.hxx"
+
 namespace util
 {
 
-void (*loader_puts)(char *);
+void (*loader_puts)(char const *);
+
+void kputs(char const * str)
+{
+	char buff[82] = { "[   0:00:00.00] " } ;
+	strncat(buff, str, 64);
+	strncat(buff, "\n", 1);
+	// For now, only use the loader_puts, later this should be inproved.
+	(*loader_puts)(buff);
+}
 
 }

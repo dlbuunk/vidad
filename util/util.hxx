@@ -24,7 +24,14 @@
 
 namespace util
 {
-	extern void (*loader_puts)(char *);
+
+// from string.cxx
+char * strncat(char *, char const *, size_t);
+
+// from kprint.cxx
+extern void (*loader_puts)(char const *);
+void kputs(char const *);
+
 }
 
 #endif // UTIL_HXX

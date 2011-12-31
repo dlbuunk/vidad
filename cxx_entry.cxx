@@ -27,7 +27,7 @@
 // Loaderdata struct definition.
 struct LoaderData
 {
-	void (*puts)(char *);
+	void (*puts)(char const *);
 	dword ** stack_pages;
 	dword * page_stack;
 	dword mem_low;
@@ -36,5 +36,8 @@ struct LoaderData
 // Main function, called from __c_entry().
 extern "C" void __cxx_entry(LoaderData * loaderdata)
 {
+	// This should be before any use of util::kputs() or deriviatives!
 	util::loader_puts = loaderdata->puts;
+
+	util::kputs("Hello from __cxx_entry()");
 }
