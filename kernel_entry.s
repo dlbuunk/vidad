@@ -27,9 +27,16 @@
 __kernel_entry:
 	pushl	%ebp
 	movl	%esp,%ebp
+	movl	8(%ebp),%eax
 	# The main stack resides at 0x0010F000.
 	# At 0x0011000 there is a TSS-stack for interrupts.
 	movl	$0x10F000,%esp	# STACK
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
 
 	# setup the TSS
 	movw	$0x0067,0x10040
@@ -180,6 +187,16 @@ __kernel_entry:
 	movl	$0x0800,0x2E0C
 	lidt	0x2E0A
 
+	# call the C entry point
+	.extern	__c_entry
+	#call	__c_entry
+	popl	%eax
+
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	movl	%ebp,%esp
+	popl	%ebp
 	movl	%ebp,%esp
 	popl	%ebp
 	ret
@@ -193,7 +210,6 @@ __install_int:
 	stosl
 	ret
 
-	#.extern __int_entry
 __int_handler:
 	pushl	%ds
 	pushl	%es
@@ -205,6 +221,7 @@ __int_handler:
 	pushl	%ebx
 	pushl	%eax
 	pushl	%esp
+	.extern	__int_entry
 	#call	__int_entry
 	popl	%esp
 	popl	%eax

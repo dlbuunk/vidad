@@ -48,10 +48,7 @@ struct Info
 
 struct
 {
-	int (*read_file)(void *, char *, word);
 	void (*puts)(char *);
-	void (*timer)(int);
-	void (*exit_hw)(void);
 	dword ** stack_pages;
 	dword * page_stack;
 	dword mem_low;
@@ -138,10 +135,8 @@ void page_init(
 	(*puts)("[] Start of page_init().\n");
 
 	// Init the loaderdata.
-	loaderdata.read_file = read_file;
 	loaderdata.puts = puts;
-	loaderdata.timer = timer;
-	loaderdata.exit_hw = exit_hw;
+	(void) timer;
 
 	// Load the second part of the paging init code.
 	if (*((byte *) 0xE02B) == 2)
@@ -456,6 +451,7 @@ void page_init(
 
 	// Make some final preparations and call the kernel.
 	(*puts)("[] Calling kernel proper.\n");
+	(*exit_hw)();
 	loaderdata.stack_pages = stack_pages;
 	loaderdata.page_stack = page_stack;
 	loaderdata.mem_low = mem_low;

@@ -105,19 +105,20 @@
 	.code32
 	cli
 	movw	$0x0028,%ax
-	movw	%ax,%es
+	movw	%ax,%ds
 	movl	$0x000B8000,%ebx
 	movl	$exp_msg,%esi
+	movb	$0x20,%ah
 exp_l:	lodsb
 	cmpb	$0x00,%al
 	je	exp_e
-	movb	%al,(%ebx)
+	movw	%ax,(%ebx)
+	incl	%ebx
 	incl	%ebx
 	jmp	exp_l
-exp_e:
-	hlt
+exp_e:	hlt
 exp_msg:
-	.asciz	"U n h a n d l e d   e x c e p t i o n . "
+	.asciz	"Unhandled exception."
 
 	# other INT-handlers and helper functions come here
 

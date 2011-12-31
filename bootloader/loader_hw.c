@@ -258,6 +258,10 @@ extern void loader_main(void);
 
 void exit_hw(void)
 {
+	static byte used = 0;
+	if (used)
+		return;
+	used = 1;
 	// Floppy motor off.
 	outb(0x0C, 0x03F2);
 	timer(10); // 100 ms
