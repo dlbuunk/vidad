@@ -26,6 +26,12 @@ namespace util
 {
 
 // from string.cxx
+size_t strlen(char const *);
+int strcmp(char const *, char const *);
+int strncmp(char const *, char const *, size_t);
+char * strcpy(char *, char const *);
+char * strncpy(char *, char const *, size_t);
+char * strcat(char *, char const *);
 char * strncat(char *, char const *, size_t);
 
 // from kprint.cxx

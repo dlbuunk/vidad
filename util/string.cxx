@@ -22,6 +22,54 @@
 namespace util
 {
 
+size_t strlen(char const * str)
+{
+	size_t len = 0;
+	while (*str)
+		len++, str++;
+	return len;
+}
+
+int strcmp(char const * s1, char const * s2)
+{
+	while (*s1 && ! (*s1 - *s2))
+		s1++, s2++;
+	return *s1 - *s2;
+}
+
+int strncmp(char const * s1, char const * s2, size_t num)
+{
+	for (size_t i=0; i<num && *s1 && ! (*s1 - *s2); i++)
+		s1++, s2++;
+	return *s1 - *s2;
+}
+
+char * strcpy(char * dest, char const * src)
+{
+	char * str_out = dest;
+	while (*src)
+		*dest++ = *src++;
+	return str_out;
+}
+
+char * strncpy(char * dest, char const * src, size_t num)
+{
+	char * str_out = dest;
+	for (size_t i=0; i<num && *src; i++)
+		*dest++ = *src++;
+	return str_out;
+}
+
+char * strcat(char * dest, char const * src)
+{
+	char * str_out = dest;
+	while (*dest)
+		dest++;
+	while (*src)
+		*dest++ = *src++;
+	return str_out;
+}
+
 char * strncat(char * dest, char const * src, size_t num)
 {
 	char * str_out = dest;

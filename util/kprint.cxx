@@ -26,9 +26,9 @@ void (*loader_puts)(char const *);
 
 void kputs(char const * str)
 {
-	char buff[82] = { "[   0:00:00.00] " } ;
-	strncat(buff, str, 64);
-	strncat(buff, "\n", 1);
+	char buff[178] = { "[   0:00:00.00] " } ;
+	strncat(buff, str, 160);
+	strcat(buff, "\n");
 	// For now, only use the loader_puts, later this should be inproved.
 	(*loader_puts)(buff);
 }
