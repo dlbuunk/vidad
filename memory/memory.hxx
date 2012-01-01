@@ -63,6 +63,8 @@ extern dword * page_stack;
 extern Pentry * PD;
 
 void page_init(LoaderData * loaderdata);
+void clear_tlb(void * addr);
+
 void * page_alloc(long int num);
 void page_free(void * ptr);
 void page_free(void * ptr, long int num);

@@ -19,7 +19,6 @@
 
 #include "util.hxx"
 using util::kputs;
-using util::kprintf;
 
 #include "memory.hxx"
 
@@ -85,7 +84,6 @@ void * page_alloc(long int num)
 		for(int j=((i==init_i)?lpage&0x3FF:0);
 			j<((i<(lpage+num)>>10)?0x400:(lpage+num)&0x3FF); j++)
 		{
-			kprintf("%t memory::page_alloc: %u %u\n", i, j);
 			paddr = *--page_stack;
 
 			// If the page-stack page is empty...
@@ -125,16 +123,17 @@ void * page_alloc(long int num)
 
 void page_free(void * ptr)
 {
+	// Cut off the pointer.
+	ptr = (void *)((dword) ptr & 0xFFFFF000);
+
 	// Calculate the indices.
 	int i = (dword)ptr >> 22;
 	int j = (dword)ptr >> 12;
-	kprintf("%t memory::page_free: %u %u\n", i, j);
 
 	// If the page-stack page is full, keep the page mapped.
 	if (! ((dword) page_stack & 0xFFF))
 	{
 		*stack_pages++ = page_stack = (dword *) ptr;
-		*page_stack++ = PD[i][j].ptr;
 		PD[i][j].present = 1;
 		PD[i][j].writea = 1;
 		PD[i][j].user = 1;
@@ -145,6 +144,8 @@ void page_free(void * ptr)
 		PD[i][j].size = 0;
 		PD[i][j].global = 0;
 		PD[i][j].avail = 0;
+		clear_tlb(ptr);
+		*page_stack++ = PD[i][j].ptr;
 		return;
 	}
 
@@ -154,6 +155,7 @@ void page_free(void * ptr)
 	PD[i][j].ptr = 0;
 	// Place the entry on the page stack.
 	*page_stack++ = paddr;
+	clear_tlb(ptr);
 }
 
 void page_free(void * ptr, long int num)
@@ -163,6 +165,20 @@ void page_free(void * ptr, long int num)
 		page_free(ptr);
 		ptr = (byte *)ptr + 0x1000;
 	}
+}
+
+void clear_tlb(void * addr)
+{
+	if (*((byte *)0x2DFE) >= 4)
+		asm volatile ( "invlpg	%0\n\t" : : "m" (*(byte *)addr) : ) ;
+	else
+		asm volatile (
+			"movl	%%cr3,%%eax\n\t"
+			"movl	%%eax,%%cr3\n\t"
+			:
+			:
+			: "%eax"
+			) ;
 }
 
 }
