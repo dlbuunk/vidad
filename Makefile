@@ -35,7 +35,7 @@ int_entry.o: int_entry.cxx kernel.hxx util/util.hxx
 c_entry.o: c_entry.c
 	$(CC) $(CCFLAGS) -c -o c_entry.o c_entry.c
 
-cxx_entry.o: cxx_entry.cxx kernel.hxx util/util.hxx
+cxx_entry.o: cxx_entry.cxx kernel.hxx util/util.hxx memory/memory.hxx
 	$(CXX) $(CXXFLAGS) -c -o cxx_entry.o cxx_entry.cxx
 
 util/util.o: force_look

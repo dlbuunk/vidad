@@ -17,14 +17,55 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
+#include "util.hxx"
+using util::kprintf;
+
 #include "memory.hxx"
 
 namespace memory
 {
 
+dword ** stack_pages;
+dword * page_stack;
+Pentry * PD;
+
 void page_init(LoaderData * loaderdata)
 {
-	(void) loaderdata;
+	// Look, this is very simple, all paging structures are already set up,
+	// so the only thing we have to do is initialise a few pointers to them.
+	stack_pages = loaderdata->stack_pages;
+	page_stack = loaderdata->page_stack;
+	PD = (Pentry *) 0x3000;
+}
+
+void * page_alloc(long int num)
+{
+	// Firstly, find a location in linaddr where we can put the
+	// requested number of pages
+	int k = num;
+	for (int i=0; i<1024; i++)
+	{
+		if (! PD[i].present)
+		{
+			k = num;
+			continue;
+		}
+		for (int j=0; j<1024; j++)
+		{
+			if (PD[i][j].present)
+				k = num;
+			else
+				k--;
+			if (! k) // address frame found.
+			{
+				j -= num - 1;
+				while (j<0)
+					i--, j+= 1024;
+				return (void *)((i<<22) + (j<<12));
+			}
+		}
+	}
+	return (void *) 0xDEADBEEF;
 }
 
 }

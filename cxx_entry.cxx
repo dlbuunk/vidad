@@ -23,33 +23,16 @@
 
 #include "kernel.hxx"
 #include "util.hxx"
+#include "memory.hxx"
 
-// Loaderdata struct definition.
-// BIG FAT NOTE: this struct appears in bootloader/page_init.c,
-// c_entry.c cxx_entry.cxx and memory/memory.hxx.
-// If changed in one place, update the others!
-struct LoaderData
-{
-	void (*puts)(char const *);
-	dword ** stack_pages;
-	dword * page_stack;
-	dword mem_low;
-};
 
 // Main function, called from __c_entry().
-extern "C" void __cxx_entry(LoaderData * loaderdata)
+extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 {
 	// This should be before any use of util::kputs() or deriviatives!
 	util::_loader_puts = loaderdata->puts;
 
-	// Do some testing.
-	char buf1[80] = { "Testing util::memcpy()" } ;
-	char buf2[80];
-	util::memcpy(buf2, buf1, util::strlen(buf1));
-	util::memset((int *) &buf2[16], 0x7465736D, 1);
-	util::sprintf(buf1, "%t %s %s", buf2, "and util::sprintf().\n");
-	util::memcpy(buf2, buf1, util::strlen(buf1));
-	util::kprintf(buf2);
-
-	//asm ( "int	$0x40\n\t" ) ;
+	// Init the paging code.
+	memory::page_init(loaderdata);
+	util::kprintf("%t 0x%X\n", memory::page_alloc(2000));
 }

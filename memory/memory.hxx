@@ -27,7 +27,7 @@ namespace memory
 
 // Loaderdata struct definition.
 // BIG FAT NOTE: this struct appears in bootloader/page_init.c,
-// c_entry.c cxx_entry.cxx and memory/memory.hxx.
+// c_entry.c and memory/memory.hxx.
 // If changed in one place, update the others!
 struct LoaderData
 {
@@ -37,10 +37,35 @@ struct LoaderData
 	dword mem_low;
 };
 
-// from page.cxx
-void page_init(LoaderData * loaderdata);
+// Physical memory management, page.cxx.
+struct Pentry
+{
+	unsigned present: 1;
+	unsigned writea : 1;
+	unsigned user   : 1;
+	unsigned wr_thr : 1;
+	unsigned cache  : 1;
+	unsigned access : 1;
+	unsigned dirty  : 1;
+	unsigned size   : 1;
+	unsigned global : 1;
+	unsigned avail  : 3;
+	unsigned ptr   : 20;
 
-// from malloc.cxx
+	Pentry& operator[](const int& i)
+	{
+		return ((Pentry *)(ptr << 12))[i];
+	}
+};
+
+extern dword ** stack_pages;
+extern dword * page_stack;
+extern Pentry * PD;
+
+void page_init(LoaderData * loaderdata);
+void * page_alloc(long int num);
+
+// Heap management, malloc.cxx.
 void * malloc(size_t size);
 void free(void * ptr);
 
