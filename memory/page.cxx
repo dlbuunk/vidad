@@ -38,46 +38,22 @@ void page_init(LoaderData * loaderdata)
 	PD = (Pentry *) 0x3000;
 }
 
-
-// This code should be cleaner...
 void * page_alloc(long int num)
 {
 	// Firstly, find a location in linaddr where we can put the
 	// requested number of pages
-	void * laddr;
 	dword paddr;
-	long int lpage;
-	int k = num;
-	for (int i=0; i<1024; i++)
+	void * laddr = get_laddr(num);
+	long int lpage = (long int) laddr >> 12;
+
+	if (! lpage)
 	{
-		if (! PD[i].present)
-		{
-			k = num;
-			continue;
-		}
-		for (int j=0; j<1024; j++)
-		{
-			if (PD[i][j].present)
-				k = num;
-			else
-				k--;
-			if (! k) // address frame found.
-			{
-				j -= num - 1;
-				while (j<0)
-					i--, j+= 1024;
-				lpage = (i<<10) + j;
-				laddr = (void *)((i<<22) + (j<<12));
-				goto phys_alloc;
-			}
-		}
+		// Non enough linear adrress space, return null pointer.
+		kputs("memory::page_alloc: ERROR: out of linear adrress space.");
+		return (void *) 0;
 	}
-	// Non enough linear adrress space, return null pointer.
-	kputs("memory::page_alloc: ERROR: out of linear adrress space.");
-	return (void *) 0;
 
 	// Now allocate physical pages
-	phys_alloc:;
 	int init_i = lpage>>10;
 	for (int i=lpage>>10; i<=(lpage+num)>>10; i++)
 	{
@@ -165,6 +141,36 @@ void page_free(void * ptr, long int num)
 		page_free(ptr);
 		ptr = (byte *)ptr + 0x1000;
 	}
+}
+
+void * get_laddr(long int num)
+{
+	void * laddr;
+	int k = num;
+	for (int i=0; i<1024; i++)
+	{
+		if (! PD[i].present)
+		{
+			k = num;
+			continue;
+		}
+		for (int j=0; j<1024; j++)
+		{
+			if (PD[i][j].present)
+				k = num;
+			else
+				k--;
+			if (! k) // address frame found.
+			{
+				j -= num - 1;
+				while (j<0)
+					i--, j+= 1024;
+				laddr = (void *)((i<<22) + (j<<12));
+				return laddr;
+			}
+		}
+	}
+	return 0;
 }
 
 void clear_tlb(void * addr)
