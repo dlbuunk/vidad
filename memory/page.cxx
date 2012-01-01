@@ -87,11 +87,17 @@ void * page_alloc(long int num)
 		{
 			kprintf("%t memory::page_alloc: %u %u\n", i, j);
 			paddr = *--page_stack;
-			*page_stack = 0;
+
+			// If the page-stack page is empty...
 			if (! ((dword) page_stack & 0xFFF))
 			{
+				// ...map the page out.
+				PD[(dword)*stack_pages>>22]
+					[(dword)*stack_pages>>12].present = 0;
+				PD[(dword)*stack_pages>>22]
+					[(dword)*stack_pages>>12].ptr = 0;
 				page_stack = *--stack_pages;
-				*stack_pages = 0;
+
 				if (! ((dword) stack_pages & 0xFFF))
 				{
 					// And we are OOM.
@@ -119,7 +125,44 @@ void * page_alloc(long int num)
 
 void page_free(void * ptr)
 {
-	ptr = (void *)((dword)ptr & 0xFFFFF000);
+	// Calculate the indices.
+	int i = (dword)ptr >> 22;
+	int j = (dword)ptr >> 12;
+	kprintf("%t memory::page_free: %u %u\n", i, j);
+
+	// If the page-stack page is full, keep the page mapped.
+	if (! ((dword) page_stack & 0xFFF))
+	{
+		*stack_pages++ = page_stack = (dword *) ptr;
+		*page_stack++ = PD[i][j].ptr;
+		PD[i][j].present = 1;
+		PD[i][j].writea = 1;
+		PD[i][j].user = 1;
+		PD[i][j].wr_thr = 0;
+		PD[i][j].cache = 0;
+		PD[i][j].access = 0;
+		PD[i][j].dirty = 0;
+		PD[i][j].size = 0;
+		PD[i][j].global = 0;
+		PD[i][j].avail = 0;
+		return;
+	}
+
+	// Wipe the entry from the page table.
+	dword paddr = PD[i][j].ptr;
+	PD[i][j].present = 0;
+	PD[i][j].ptr = 0;
+	// Place the entry on the page stack.
+	*page_stack++ = paddr;
+}
+
+void page_free(void * ptr, long int num)
+{
+	for (long int i=0; i<num; i++)
+	{
+		page_free(ptr);
+		ptr = (byte *)ptr + 0x1000;
+	}
 }
 
 }

@@ -115,9 +115,11 @@ void * page_alloc(dword lin)
 	if (lin >= 0x01000000)
 		return 0;
 	dword phys = *--page_stack << 12;
-	*page_stack = 0;
 	if (! ((dword)page_stack & 0xFFF))
+	{
+		page_table[(dword)*page_stack] = 0;
 		page_stack = *--stack_pages;
+	}
 	page_table[lin>>12] = phys | 0x07;
 	return (void *) phys;
 }

@@ -65,6 +65,7 @@ extern Pentry * PD;
 void page_init(LoaderData * loaderdata);
 void * page_alloc(long int num);
 void page_free(void * ptr);
+void page_free(void * ptr, long int num);
 
 // Heap management, malloc.cxx.
 void * malloc(size_t size);
