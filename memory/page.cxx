@@ -39,6 +39,8 @@ void page_init(LoaderData * loaderdata)
 	PD = (Pentry *) 0x3000;
 }
 
+
+// This code should be cleaner...
 void * page_alloc(long int num)
 {
 	// Firstly, find a location in linaddr where we can put the
@@ -77,9 +79,10 @@ void * page_alloc(long int num)
 
 	// Now allocate physical pages
 	phys_alloc:;
+	int init_i = lpage>>10;
 	for (int i=lpage>>10; i<=(lpage+num)>>10; i++)
 	{
-		for(int j=((i<(lpage+num)>>10)?lpage&0x3FF:0);
+		for(int j=((i==init_i)?lpage&0x3FF:0);
 			j<((i<(lpage+num)>>10)?0x400:(lpage+num)&0x3FF); j++)
 		{
 			kprintf("%t memory::page_alloc: %u %u\n", i, j);
@@ -112,6 +115,11 @@ void * page_alloc(long int num)
 	}
 	(void) paddr;
 	return laddr;
+}
+
+void page_free(void * ptr)
+{
+	ptr = (void *)((dword)ptr & 0xFFFFF000);
 }
 
 }
