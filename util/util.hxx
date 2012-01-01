@@ -25,6 +25,33 @@
 namespace util
 {
 
+// memory function templates
+template <typename T>
+int memcmp(T const * m1, T const * m2, size_t num)
+{
+	if (! num)
+		return 0;
+	for (size_t i=0; i<(num-1) && ! (*m1-*m2); i++)
+		m1++, m2++;
+	return *m1 - *m2;
+}
+
+template <typename T>
+T * memcpy(T * dest, T const * src, size_t num)
+{
+	T * orig_ptr = dest;
+	if (! num)
+		return dest;
+	for (size_t i=0; i<num; i++)
+		*dest++ = *src++;
+	return orig_ptr;
+}
+
+
+
+
+//void * memset(byte * str, byte val, size_t num);
+
 // from string.cxx
 size_t strlen(char const * str);
 int strcmp(char const * s1, char const * s2);
@@ -41,6 +68,7 @@ void _format_str(char const * fstr, char * ostr, dword * args);
 void kputs(char const * str);
 int kprintf(char const * fstr, ...);
 int sprintf(char * ostr, char const * fstr, ...);
+
 }
 
 #endif // UTIL_HXX

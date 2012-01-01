@@ -39,6 +39,13 @@ extern "C" void __cxx_entry(LoaderData * loaderdata)
 	// This should be before any use of util::kputs() or deriviatives!
 	util::_loader_puts = loaderdata->puts;
 
-	util::kprintf("%t Hello from %s %c\n", "__cxx_entry()", '!');
-	asm ( "int	$0x40\n\t" ) ;
+	// Do some testing.
+	char buf1[80] = { "%t Testing util::memcpy()" } ;
+	char buf2[80];
+	util::memcpy(buf2, buf1, util::strlen(buf1));
+	util::sprintf(buf1, "%s %s", buf2, "and util::sprintf().\n");
+	util::memcpy(buf2, buf1, util::strlen(buf1));
+	util::kprintf(buf2);
+
+	//asm ( "int	$0x40\n\t" ) ;
 }
