@@ -23,7 +23,7 @@
 #ifndef UTIL_HXX
 #define UTIL_HXX
 
-#include "../kernel.hxx"
+#include "kernel.hxx"
 
 namespace util
 {

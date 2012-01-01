@@ -22,7 +22,7 @@
 //	sequence, system::init().
 
 #include "kernel.hxx"
-#include "util/util.hxx"
+#include "util.hxx"
 
 // Loaderdata struct definition.
 struct LoaderData

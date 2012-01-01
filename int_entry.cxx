@@ -24,7 +24,7 @@
 //	to the appropriate handlers elsewhere.
 
 #include "kernel.hxx"
-#include "util/util.hxx"
+#include "util.hxx"
 
 // Structure definitions
 struct IntData

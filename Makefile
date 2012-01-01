@@ -29,13 +29,13 @@ kernel.bin: kernel_entry.o int_entry.o c_entry.o cxx_entry.o \
 kernel_entry.o: kernel_entry.s
 	$(AS) -o kernel_entry.o kernel_entry.s
 
-int_entry.o: int_entry.cxx
+int_entry.o: int_entry.cxx kernel.hxx util/util.hxx
 	$(CXX) $(CXXFLAGS) -c -o int_entry.o int_entry.cxx
 
 c_entry.o: c_entry.c
 	$(CC) $(CCFLAGS) -c -o c_entry.o c_entry.c
 
-cxx_entry.o: cxx_entry.cxx
+cxx_entry.o: cxx_entry.cxx kernel.hxx util/util.hxx
 	$(CXX) $(CXXFLAGS) -c -o cxx_entry.o cxx_entry.cxx
 
 util/util.o: force_look

@@ -1,3 +1,5 @@
+vios_root = /root/vidad
+
 LD = /usr/local/cross/bin/i386-elf-ld
 AS = /usr/local/cross/bin/i386-elf-as
 CC = /usr/local/cross/bin/i386-elf-gcc
@@ -7,4 +9,5 @@ CCFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-builtin \
 	-Wall -Wextra -Werror -std=gnu99 -O3
 CXXFLAGS= -nostdlib -nostartfiles -nodefaultlibs -fno-builtin \
 	-fno-exceptions -fno-rtti -fno-stack-protector \
-	-Wall -Wextra -Werror -std=gnu++98 -O3
+	-Wall -Wextra -Werror -std=gnu++98 -O3 \
+	-I$(vios_root)/include/
