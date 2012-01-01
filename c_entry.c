@@ -21,12 +21,16 @@
 //	some specifics before running any C++ code. Those specifics include
 //	things like ctors && dtors, and clearing the bss.
 
-// General typedefs and struct definition.
+// General typedefs.
 typedef unsigned char byte;
 typedef unsigned short int word;
 typedef unsigned int dword;
 typedef unsigned long long int qword;
 
+// Loaderdata struct definition.
+// BIG FAT NOTE: this struct appears in bootloader/page_init.c,
+// c_entry.c cxx_entry.cxx and memory/memory.hxx.
+// If changed in one place, update the others!
 struct LoaderData
 {
 	void (*puts)(char const *);

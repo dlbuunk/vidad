@@ -46,6 +46,10 @@ struct Info
 	byte num_entries;
 };
 
+// Loaderdata struct definition.
+// BIG FAT NOTE: this struct appears in bootloader/page_init.c,
+// c_entry.c cxx_entry.cxx and memory/memory.hxx.
+// If changed in one place, update the others!
 struct
 {
 	void (*puts)(char *);

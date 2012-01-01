@@ -1,6 +1,6 @@
-//      cxx_entry.cxx
+//      memory.hxx
 //      
-//      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
+//      Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
 //      
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-//	This is the C++ entrypoint of the kernel, it is responsible for
-//	ordering the heap to be initialized and calling the main startup
-//	sequence, system::init().
+#ifndef MEMORY_HXX
+#define MEMORY_HXX
 
 #include "kernel.hxx"
-#include "util.hxx"
+
+namespace memory
+{
 
 // Loaderdata struct definition.
 // BIG FAT NOTE: this struct appears in bootloader/page_init.c,
@@ -36,20 +37,13 @@ struct LoaderData
 	dword mem_low;
 };
 
-// Main function, called from __c_entry().
-extern "C" void __cxx_entry(LoaderData * loaderdata)
-{
-	// This should be before any use of util::kputs() or deriviatives!
-	util::_loader_puts = loaderdata->puts;
+// from page.cxx
+void page_init(LoaderData * loaderdata);
 
-	// Do some testing.
-	char buf1[80] = { "Testing util::memcpy()" } ;
-	char buf2[80];
-	util::memcpy(buf2, buf1, util::strlen(buf1));
-	util::memset((int *) &buf2[16], 0x7465736D, 1);
-	util::sprintf(buf1, "%t %s %s", buf2, "and util::sprintf().\n");
-	util::memcpy(buf2, buf1, util::strlen(buf1));
-	util::kprintf(buf2);
+// from malloc.cxx
+void * malloc(size_t size);
+void free(void * ptr);
 
-	//asm ( "int	$0x40\n\t" ) ;
 }
+
+#endif // MEMORY_HXX

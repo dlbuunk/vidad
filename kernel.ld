@@ -9,8 +9,14 @@ INPUT
 	int_entry.o
 	c_entry.o
 	cxx_entry.o
+	/* system/system.o */
 	util/util.o
-	/* memory/memory.o */
+	memory/memory.o
+	/* thread/thread.o */
+	/* stream/stream.o */
+	/* event/event.o */
+	/* process/process.o */
+	/* io/io.o */
 )
 
 OUTPUT(kernel.bin)

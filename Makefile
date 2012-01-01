@@ -22,7 +22,7 @@ bootloader/page_init.bin: force_look
 	make -C bootloader page_init.bin
 
 kernel.bin: kernel_entry.o int_entry.o c_entry.o cxx_entry.o \
-		util/util.o # memory/memory.o
+		util/util.o memory/memory.o
 	$(LD) -T kernel.ld
 	chmod -x kernel.bin
 
@@ -41,6 +41,9 @@ cxx_entry.o: cxx_entry.cxx kernel.hxx util/util.hxx
 util/util.o: force_look
 	make -C util
 
+memory/memory.o: force_look
+	make -C memory
+
 .PHONEY: force_look
 force_look:
 	true
@@ -49,5 +52,5 @@ force_look:
 clean:
 	make -C bootloader clean
 	make -C util clean
-	# make -C memory clean
+	make -C memory clean
 	rm -rf image *.{o,bin}
