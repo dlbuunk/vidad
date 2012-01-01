@@ -18,6 +18,7 @@
 //      MA 02110-1301, USA.
 
 #include "util.hxx"
+using util::kputs;
 using util::kprintf;
 
 #include "memory.hxx"
@@ -42,6 +43,9 @@ void * page_alloc(long int num)
 {
 	// Firstly, find a location in linaddr where we can put the
 	// requested number of pages
+	void * laddr;
+	dword paddr;
+	long int lpage;
 	int k = num;
 	for (int i=0; i<1024; i++)
 	{
@@ -61,11 +65,53 @@ void * page_alloc(long int num)
 				j -= num - 1;
 				while (j<0)
 					i--, j+= 1024;
-				return (void *)((i<<22) + (j<<12));
+				lpage = (i<<10) + j;
+				laddr = (void *)((i<<22) + (j<<12));
+				goto phys_alloc;
 			}
 		}
 	}
-	return (void *) 0xDEADBEEF;
+	// Non enough linear adrress space, return null pointer.
+	kputs("memory::page_alloc: ERROR: out of linear adrress space.");
+	return (void *) 0;
+
+	// Now allocate physical pages
+	phys_alloc:;
+	for (int i=lpage>>10; i<=(lpage+num)>>10; i++)
+	{
+		for(int j=((i<(lpage+num)>>10)?lpage&0x3FF:0);
+			j<((i<(lpage+num)>>10)?0x400:(lpage+num)&0x3FF); j++)
+		{
+			kprintf("%t memory::page_alloc: %u %u\n", i, j);
+			paddr = *--page_stack;
+			*page_stack = 0;
+			if (! ((dword) page_stack & 0xFFF))
+			{
+				page_stack = *--stack_pages;
+				*stack_pages = 0;
+				if (! ((dword) stack_pages & 0xFFF))
+				{
+					// And we are OOM.
+					kputs("memory::page_alloc: "
+					"ERROR: out of memory.");
+					return (void *) 0;
+				}
+			}
+			PD[i][j].ptr = paddr;
+			PD[i][j].present = 1;
+			PD[i][j].writea = 1;
+			PD[i][j].user = 1;
+			PD[i][j].wr_thr = 0;
+			PD[i][j].cache = 0;
+			PD[i][j].access = 0;
+			PD[i][j].dirty = 0;
+			PD[i][j].size = 0;
+			PD[i][j].global = 0;
+			PD[i][j].avail = 0;
+		}
+	}
+	(void) paddr;
+	return laddr;
 }
 
 }

@@ -34,5 +34,5 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 
 	// Init the paging code.
 	memory::page_init(loaderdata);
-	util::kprintf("%t 0x%X\n", memory::page_alloc(2000));
+	util::kprintf("%t 0x%X\n", memory::page_alloc(3820));
 }
