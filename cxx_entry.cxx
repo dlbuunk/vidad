@@ -40,5 +40,5 @@ extern "C" void __cxx_entry(LoaderData * loaderdata)
 	util::_loader_puts = loaderdata->puts;
 
 	util::kprintf("%t Hello from %s %c\n", "__cxx_entry()", '!');
-	util::kprintf("%t 0x%X\n", 0x19AF);
+	asm ( "int	$0x40\n\t" ) ;
 }

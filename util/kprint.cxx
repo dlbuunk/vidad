@@ -41,6 +41,9 @@ void _kprints(char const * str)
 // These functions are far from 'safe', so care must be taken when using them.
 void _format_str(char const * fstr, char * ostr, dword * args)
 {
+	char buf[12];
+	int num;
+	unsigned int unum;
 	while (*fstr != '\0')
 	{
 		if (*fstr == '%') switch (*++fstr)
@@ -68,9 +71,37 @@ void _format_str(char const * fstr, char * ostr, dword * args)
 			args++;
 			break;
 		case 'u':
+			unum = *args++;
+			for (int i=10; i>=0; i--)
+			{
+				buf[i] = unum % 10 + 0x30;
+				unum /= 10;
+				if (unum)
+					continue;
+				buf[11] = '\0';
+				strcpy(ostr, &buf[i]);
+				ostr += strlen(ostr);
+				break;
+			}
 			break;
 		case 'i':
 		case 'd':
+			num = (int) *args;
+			if (num < 0)
+				num = -num;
+			for (int i=10; i>=0; i--)
+			{
+				buf[i] = num % 10 + 0x30;
+				num /= 10;
+				if (num)
+					continue;
+				buf[11] = '\0';
+				if ((int)*args++ < 0)
+					buf[--i] = '-';
+				strcpy(ostr, &buf[i]);
+				ostr += strlen(ostr);
+				break;
+			}
 			break;
 		default:
 			*ostr++ = *fstr;
