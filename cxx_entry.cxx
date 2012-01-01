@@ -40,10 +40,11 @@ extern "C" void __cxx_entry(LoaderData * loaderdata)
 	util::_loader_puts = loaderdata->puts;
 
 	// Do some testing.
-	char buf1[80] = { "%t Testing util::memcpy()" } ;
+	char buf1[80] = { "Testing util::memcpy()" } ;
 	char buf2[80];
 	util::memcpy(buf2, buf1, util::strlen(buf1));
-	util::sprintf(buf1, "%s %s", buf2, "and util::sprintf().\n");
+	util::memset((int *) &buf2[16], 0x7465736D, 1);
+	util::sprintf(buf1, "%t %s %s", buf2, "and util::sprintf().\n");
 	util::memcpy(buf2, buf1, util::strlen(buf1));
 	util::kprintf(buf2);
 

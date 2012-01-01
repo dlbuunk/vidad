@@ -17,6 +17,9 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
+
+// TODO: optimize memcpy/memset
+
 #ifndef UTIL_HXX
 #define UTIL_HXX
 
@@ -47,10 +50,16 @@ T * memcpy(T * dest, T const * src, size_t num)
 	return orig_ptr;
 }
 
-
-
-
-//void * memset(byte * str, byte val, size_t num);
+template <typename T>
+T * memset(T * mem, T val, size_t num)
+{
+	T * orig_ptr = mem;
+	if  (! num)
+		return mem;
+	for (size_t i=0; i<num; i++)
+		*mem++ = val;
+	return orig_ptr;
+}
 
 // from string.cxx
 size_t strlen(char const * str);
