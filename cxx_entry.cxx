@@ -46,10 +46,14 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	util::kprintf("%t heapalloc is at 0x%X.\n", heap_alloc_array);
 
 	// And test the memory allocator:
-	memory::heapalloc->malloc(42);
-	memory::heapalloc->malloc(0x20000);
-	memory::heapalloc->malloc(1);
-	memory::heapalloc->malloc(14);
+	void * m3 = memory::heapalloc->malloc(42);
+	void * m1 = memory::heapalloc->malloc(0x20000);
+	void * m0 = memory::heapalloc->malloc(1);
+	void * m2 = memory::heapalloc->malloc(14);
+	memory::heapalloc->free(m0);
+	memory::heapalloc->free(m1);
+	memory::heapalloc->free(m2);
+	memory::heapalloc->free(m3);
 
-	memory::heapalloc->~HeapAlloc();
+	//memory::heapalloc->~HeapAlloc();
 }

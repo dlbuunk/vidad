@@ -7,8 +7,9 @@ fs_entry:
 	.word	0xFFF8	# root directory
 	.word	0x0004	# kernel.bin
 	.word	0x0005
+	.word	0x0006
 	.word	0xFFF8
-	.fill	2042,2
+	.fill	2041,2
 
 	# root dir header
 	.word	32

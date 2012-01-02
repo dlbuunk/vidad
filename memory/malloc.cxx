@@ -167,7 +167,35 @@ void * HeapAlloc::malloc(size_t size)
 
 void HeapAlloc::free(void * ptr)
 {
-	(void) ptr;
+	Mobject * obj = (Mobject *) ptr;
+	obj--;
+	obj->used = 0;
+
+	// Merge forward blocks.
+	while (obj->next && ! obj->next->used && ! obj->next->pages)
+	{
+		obj->size += sizeof(Mobject);
+		obj->size += obj->next->size;
+		obj->next->next->prev = obj;
+		obj->next = obj->next->next;
+	}
+
+	// Merge backward blocks.
+	while (obj->prev && ! obj->prev->used && ! obj->pages)
+	{
+		obj->prev->size += sizeof(Mobject);
+		obj->prev->size += obj->size;
+		obj->prev->next = obj->next;
+		obj = obj->prev;
+	}
+
+	// See if we can unmap pages
+	if (obj->size + sizeof(Mobject) == obj->pages << 12 && obj != first)
+	{
+		obj->prev->next = obj->next;
+		obj->next->prev = obj->prev;
+		page_free((void *) obj, obj->pages);
+	}
 }
 
 }
