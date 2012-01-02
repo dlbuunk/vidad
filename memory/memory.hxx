@@ -22,6 +22,11 @@
 
 #include "kernel.hxx"
 
+//
+#include "util.hxx"
+using util::kputs;
+//
+
 namespace memory
 {
 
@@ -73,8 +78,24 @@ void page_free(void * ptr);
 void page_free(void * ptr, long int num);
 
 // Heap management, malloc.cxx.
-void * malloc(size_t size);
-void free(void * ptr);
+// As one instance of this class is created before new is functional
+// (aka circular dependency) creating the first instance is quite, hmm, weird.
+class HeapAlloc
+{
+	public:
+	HeapAlloc()
+	{
+		kputs("HeapAlloc()");
+	}
+	void * malloc(size_t size);
+	void free(void * ptr);
+	private:
+
+
+}; // DO NOT create a global instance, for this would call page_alloc()
+// before page_init() is run, thereby whrecking the page allocation system.
+
+extern HeapAlloc * heapalloc;
 
 }
 

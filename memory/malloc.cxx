@@ -22,6 +22,8 @@
 namespace memory
 {
 
+HeapAlloc * heapalloc;
+
 void * malloc(size_t size)
 {
 	(void) size;

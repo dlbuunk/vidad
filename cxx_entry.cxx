@@ -25,6 +25,8 @@
 #include "util.hxx"
 #include "memory.hxx"
 
+// Special array, needed to hold the main HeapAlloc object.
+byte heap_alloc_array[sizeof(memory::HeapAlloc)];
 
 // Main function, called from __c_entry().
 extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
@@ -34,10 +36,9 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 
 	// Init the paging code.
 	memory::page_init(loaderdata);
-	void * a0 = memory::page_alloc(2);
-	void * a1 = memory::page_alloc(1);
-	a0 = memory::page_realloc(a0, 2, 3);
-	//memory::page_free(a1, 1);
-	util::kprintf("%t 0x%x\n", a0);
-	(void) a1;
+
+	// Init main heap.
+	memory::heapalloc = (memory::HeapAlloc *) heap_alloc_array;
+	memory::heapalloc->HeapAlloc();
+	util::kprintf("%t heapalloc is at 0x%X.\n", &memory::heapalloc);
 }
