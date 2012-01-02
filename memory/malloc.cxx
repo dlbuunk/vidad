@@ -70,6 +70,10 @@ HeapAlloc::~HeapAlloc()
 
 void * HeapAlloc::malloc(size_t size)
 {
+	// Align the size.
+	size--;
+	size &= ~(sizeof(size_t) - 1);
+	size += sizeof(size_t);
 	// Find a large enough object...
 	Mobject * obj = first;
 	while (1)
@@ -129,9 +133,32 @@ void * HeapAlloc::malloc(size_t size)
 				obj->next->pages = 0;
 				obj->next->used = 0;
 				obj->size = size;
+			}
+			return (void *)((size_t) obj + sizeof(Mobject));
+		}
+
+		// We aren't on the end of the chain.
+		if (obj->size >= size)
+		{
+			if (obj->size < size + sizeof(Mobject) + 16)
+			{
+				// 'Perfect' fit, do not split.
+				obj->used = 1;
 				return (void *)((size_t) obj + sizeof(Mobject));
 			}
+			// Split the block.
+			((Mobject *)((size_t)obj + sizeof(Mobject) + size))
+				->next = obj->next;
+			obj->next =(Mobject*)((size_t)obj+sizeof(Mobject)+size);
+			obj->next->prev = obj;
+			obj->next->pages = 0;
+			obj->next->size = obj->size - size - sizeof(Mobject);
+			obj->next->used = 0;
+			obj->size = size;
+			obj->used = 1;
+			return (void *)((size_t) obj + sizeof(Mobject));
 		}
+		// Nothing found, look further in the next cycle of the loop.
 	}
 }
 

@@ -48,4 +48,6 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	// And test the memory allocator:
 	memory::heapalloc->malloc(42);
 	memory::heapalloc->malloc(0x20000);
+	memory::heapalloc->malloc(1);
+	memory::heapalloc->malloc(14);
 }
