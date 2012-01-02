@@ -110,9 +110,18 @@ void * page_realloc(void * ptr, long int nold, long int nnew)
 	jmax = (((dword)laddr>>12) + nold) & 0x3FF;
 	for (; i<=imax; i++, p++)
 		for (j = (i==iorig ? j:0); j < (i<imax ? 0x400:jmax); j++, q++)
+		{
 			PD[i][j] = PD[p][q];
+			PD[p][q].present = 0;
+			PD[p][q].ptr = 0;
+			clear_tlb((void *)((p<<22) + (q<<12)));
+		}
 
 	// Finally, map in the new memory.
+	if (j & 0x3FF)
+		i--;
+	else
+		j = 0;
 	iorig = i;
 	imax = (((dword)laddr>>12) + nnew) >> 10;
 	jmax = (((dword)laddr>>12) + nnew) & 0x3FF;

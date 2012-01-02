@@ -37,6 +37,7 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	void * a0 = memory::page_alloc(2);
 	void * a1 = memory::page_alloc(1);
 	a0 = memory::page_realloc(a0, 2, 3);
-	memory::page_free(a1, 1);
+	//memory::page_free(a1, 1);
 	util::kprintf("%t 0x%x\n", a0);
+	(void) a1;
 }
