@@ -55,6 +55,7 @@ HeapAlloc::~HeapAlloc()
 	// Calling page_free() with num==0 does not blow thing up.
 	Mobject * obj = first;
 	while (obj->next)
+	{
 		if (obj->pages)
 		{
 			// We have reached the next page range,
@@ -64,6 +65,8 @@ HeapAlloc::~HeapAlloc()
 			ptr = (void *) obj;
 			num = obj->pages;
 		}
+		obj = obj->next;
+	}
 	// And free the last remaining memory.
 	page_free(ptr, num);
 }
