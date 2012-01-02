@@ -89,8 +89,7 @@ void * HeapAlloc::malloc(size_t size)
 				{
 					// There is just enough memory.
 					obj->used = 1;
-					return (void *)
-						((size_t)obj + sizeof(Mobject));
+					return (void *)(obj+1);
 				}
 				// Okay, there is enough memory, allocate.
 				obj->next = (Mobject *)
@@ -102,7 +101,7 @@ void * HeapAlloc::malloc(size_t size)
 				obj->next->used = 0;
 				obj->size = size;
 				obj->used = 1;
-				return (void *)((size_t) obj + sizeof(Mobject));
+				return (void *)(obj+1);
 			}
 			// And there is not enough memory, page more in.
 			long int num_pages = PAGE_NUM;
@@ -116,7 +115,7 @@ void * HeapAlloc::malloc(size_t size)
 					return 0;
 			}
 			// New memory is paged in.
-			obj->next->prev = 0;
+			obj->next->prev = obj;
 			obj = obj->next;
 			obj->next = 0;
 			obj->pages = num_pages;
@@ -134,7 +133,7 @@ void * HeapAlloc::malloc(size_t size)
 				obj->next->used = 0;
 				obj->size = size;
 			}
-			return (void *)((size_t) obj + sizeof(Mobject));
+			return (void *)(obj+1);
 		}
 
 		// We aren't on the end of the chain.
@@ -144,7 +143,7 @@ void * HeapAlloc::malloc(size_t size)
 			{
 				// 'Perfect' fit, do not split.
 				obj->used = 1;
-				return (void *)((size_t) obj + sizeof(Mobject));
+				return (void *)(obj+1);
 			}
 			// Split the block.
 			((Mobject *)((size_t)obj + sizeof(Mobject) + size))
@@ -156,7 +155,8 @@ void * HeapAlloc::malloc(size_t size)
 			obj->next->used = 0;
 			obj->size = size;
 			obj->used = 1;
-			return (void *)((size_t) obj + sizeof(Mobject));
+			obj->next->next->prev = obj->next;
+			return (void *)(obj+1);
 		}
 		// Nothing found, look further in the next cycle of the loop.
 	}
