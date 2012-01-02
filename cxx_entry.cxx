@@ -41,6 +41,14 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	// This should be before any use of util::kputs() or deriviatives!
 	util::_loader_puts = loaderdata->puts;
 
+	// If we are running an old 386, bail out.
+	// On a 386, both 'lock cmpxchgb' and 'inldpg' are unavailable.
+	if (*((byte *) 0x2DFE) == 3)
+	{
+		kputs("cxx_entry: Error, ViOS cannot run on an old 386.");
+		return;
+	}
+
 	// Init the paging code.
 	kputs("cxx_entry: Initializing the main paging code.");
 	memory::page_init(loaderdata);

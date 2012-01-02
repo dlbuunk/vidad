@@ -252,16 +252,7 @@ void * get_laddr(long int num)
 
 void clear_tlb(void * addr)
 {
-	if (*((byte *)0x2DFE) >= 4)
-		asm volatile ( "invlpg	%0\n\t" : : "m" (*(byte *)addr) : ) ;
-	else
-		asm volatile (
-			"movl	%%cr3,%%eax\n\t"
-			"movl	%%eax,%%cr3\n\t"
-			:
-			:
-			: "%eax"
-			) ;
+	asm volatile ( "invlpg	%0\n\t" : : "m" (*(byte *)addr) : ) ;
 }
 
 }
