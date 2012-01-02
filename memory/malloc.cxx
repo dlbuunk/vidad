@@ -79,8 +79,15 @@ void * HeapAlloc::malloc(size_t size)
 		if (! obj->next)
 		{
 			// We are at the end of the chain.
-			if (obj->size >= size)
+			if (obj->size >= size && ! obj->used)
 			{
+				if (obj->size < sizeof(Mobject) + 16 + size)
+				{
+					// There is just enough memory.
+					obj->used = 1;
+					return (void *)
+						((size_t)obj + sizeof(Mobject));
+				}
 				// Okay, there is enough memory, allocate.
 				obj->next = (Mobject *)
 					((size_t) obj + size + sizeof(Mobject));
@@ -110,7 +117,20 @@ void * HeapAlloc::malloc(size_t size)
 			obj->next = 0;
 			obj->pages = num_pages;
 			obj->used = 1;
-			
+			obj->size = (num_pages << 12) - sizeof(Mobject);
+			if (obj->size >= size + sizeof(Mobject) + 16)
+			{
+				// Split new block.
+				obj->next = (Mobject *)
+					((size_t) obj + size + sizeof(Mobject));
+				obj->next->prev = obj;
+				obj->next->next = 0;
+				obj->next->size =obj->size-size-sizeof(Mobject);
+				obj->next->pages = 0;
+				obj->next->used = 0;
+				obj->size = size;
+				return (void *)((size_t) obj + sizeof(Mobject));
+			}
 		}
 	}
 }
