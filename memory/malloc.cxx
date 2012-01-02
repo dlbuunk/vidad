@@ -198,4 +198,20 @@ void HeapAlloc::free(void * ptr)
 	}
 }
 
+size_t HeapAlloc::status()
+{
+	if (! first)
+		return 0;
+
+	Mobject * obj = first;
+	size_t size = 0;
+	do
+	{
+		if (! obj->used)
+			size += obj->size;
+		obj = obj->next;
+	} while (obj);
+	return size;
+}
+
 }

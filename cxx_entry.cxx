@@ -23,6 +23,9 @@
 
 #include "kernel.hxx"
 #include "util.hxx"
+using util::kputs;
+using util::kprintf;
+
 #include "memory.hxx"
 
 
@@ -39,21 +42,21 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	util::_loader_puts = loaderdata->puts;
 
 	// Init the paging code.
+	kputs("cxx_entry: Initializing the main paging code.");
 	memory::page_init(loaderdata);
 
 	// Init main heap.
+	kputs("cxx_entry: Trying to create the main heap.");
 	memory::heapalloc = new ((void *) heap_alloc_array) memory::HeapAlloc();
-	util::kprintf("%t heapalloc is at 0x%X.\n", heap_alloc_array);
-
-	// And test the memory allocator:
-	void * m3 = memory::heapalloc->malloc(42);
-	void * m1 = memory::heapalloc->malloc(0x20000);
-	void * m0 = memory::heapalloc->malloc(1);
-	void * m2 = memory::heapalloc->malloc(14);
-	memory::heapalloc->free(m0);
-	memory::heapalloc->free(m1);
-	memory::heapalloc->free(m2);
-	memory::heapalloc->free(m3);
+	size_t f = memory::heapalloc->status();
+	if (f == 0)
+	{
+		kputs("cxx_entry: And we failed, exiting.");
+		return;
+	}
+	f >>= 10;
+	f++;
+	kprintf("%t cxx_entry: And we have %u KiB allocated in the heap.\n", f);
 
 	//memory::heapalloc->~HeapAlloc();
 }
