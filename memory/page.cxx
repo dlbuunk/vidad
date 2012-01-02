@@ -141,6 +141,12 @@ void page_free(void * ptr)
 	int i = (dword)ptr >> 22;
 	int j = (dword)ptr >> 12;
 
+	if (! PD[i][j].present)
+	{
+		kputs("page_free: cannot unmap a page that is not mapped");
+		return;
+	}
+
 	// If the page-stack page is full, keep the page mapped.
 	if (! ((dword) page_stack & 0xFFF))
 	{
