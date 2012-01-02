@@ -25,6 +25,6 @@ typedef unsigned short int word;
 typedef unsigned int dword;
 typedef unsigned long long int qword;
 
-typedef unsigned int size_t;
+typedef unsigned long int size_t;
 
 #endif // KERNEL_HXX

@@ -27,6 +27,9 @@
 
 // Special array, needed to hold the main HeapAlloc object.
 byte heap_alloc_array[sizeof(memory::HeapAlloc)];
+// And a special overload...
+void * operator new(size_t, void *p) { return p; }
+
 
 // Main function, called from __c_entry().
 extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
@@ -38,7 +41,8 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	memory::page_init(loaderdata);
 
 	// Init main heap.
-	memory::heapalloc = (memory::HeapAlloc *) heap_alloc_array;
-	memory::heapalloc->HeapAlloc();
-	util::kprintf("%t heapalloc is at 0x%X.\n", &memory::heapalloc);
+	memory::heapalloc = new ((void *) heap_alloc_array) memory::HeapAlloc();
+	util::kprintf("%t heapalloc is at 0x%X.\n", heap_alloc_array);
+
+	
 }

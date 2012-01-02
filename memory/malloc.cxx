@@ -17,6 +17,9 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
+#include "util.hxx"
+using util::kputs;
+
 #include "memory.hxx"
 
 namespace memory
@@ -24,13 +27,44 @@ namespace memory
 
 HeapAlloc * heapalloc;
 
-void * malloc(size_t size)
+HeapAlloc::HeapAlloc()
+{
+	first = (Mobject *) page_alloc(32); // 128 KiB should be enough...
+	first->pages = 32;
+	first->size = 32<<12;
+	first->used = 0;
+	first->next = 0;
+	first->prev = 0;
+}
+
+HeapAlloc::~HeapAlloc()
+{
+	// Okay, deallocate all memory...
+	void * ptr = 0;
+	long int num = 0;
+	// Calling page_free() with num==0 does not blow thing up.
+	Mobject * obj = first;
+	while (obj->next)
+		if (obj->pages)
+		{
+			// We have reached the next page range,
+			// deallocate the previous one.
+			page_free(ptr, num);
+			// And mark this one for later deallocation.
+			ptr = (void *) obj;
+			num = obj->pages;
+		}
+	// And free the last remaining memory.
+	page_free(ptr, num);
+}
+
+void * HeapAlloc::malloc(size_t size)
 {
 	(void) size;
 	return 0;
 }
 
-void free(void * ptr)
+void HeapAlloc::free(void * ptr)
 {
 	(void) ptr;
 }

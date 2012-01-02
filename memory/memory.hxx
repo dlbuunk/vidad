@@ -22,11 +22,6 @@
 
 #include "kernel.hxx"
 
-//
-#include "util.hxx"
-using util::kputs;
-//
-
 namespace memory
 {
 
@@ -83,14 +78,21 @@ void page_free(void * ptr, long int num);
 class HeapAlloc
 {
 	public:
-	HeapAlloc()
-	{
-		kputs("HeapAlloc()");
-	}
+	HeapAlloc();
+	~HeapAlloc();
 	void * malloc(size_t size);
 	void free(void * ptr);
-	private:
 
+	private:
+	struct Mobject
+	{
+		Mobject * prev;
+		Mobject * next;
+		size_t size;
+		unsigned long int pages;
+		bool used;
+	};
+	Mobject * first;
 
 }; // DO NOT create a global instance, for this would call page_alloc()
 // before page_init() is run, thereby whrecking the page allocation system.
