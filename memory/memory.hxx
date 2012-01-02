@@ -65,8 +65,10 @@ extern Pentry * PD;
 void page_init(LoaderData * loaderdata);
 void clear_tlb(void * addr);
 void * get_laddr(long int num);
+int phys_alloc(int i, int j);
 
 void * page_alloc(long int num);
+void * page_realloc(void * ptr, long int nold, long int nnew);
 void page_free(void * ptr);
 void page_free(void * ptr, long int num);
 

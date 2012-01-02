@@ -34,12 +34,9 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 
 	// Init the paging code.
 	memory::page_init(loaderdata);
-	void * a0 = memory::page_alloc(3);
+	void * a0 = memory::page_alloc(2);
 	void * a1 = memory::page_alloc(1);
-	memory::page_free(a0,3);
-	void * a2 = memory::page_alloc(2);
-	void * a3 = memory::page_alloc(2);
-	(void) a1;
-	(void) a2;
-	(void) a3;
+	a0 = memory::page_realloc(a0, 2, 3);
+	memory::page_free(a1, 1);
+	util::kprintf("%t 0x%x\n", a0);
 }

@@ -42,58 +42,84 @@ void * page_alloc(long int num)
 {
 	// Firstly, find a location in linaddr where we can put the
 	// requested number of pages
-	dword paddr;
 	void * laddr = get_laddr(num);
 	long int lpage = (long int) laddr >> 12;
 
 	if (! lpage)
 	{
 		// Non enough linear adrress space, return null pointer.
-		kputs("memory::page_alloc: ERROR: out of linear adrress space.");
+		kputs("memory::page_alloc: ERROR: out of linear adrress space."
+			);
 		return (void *) 0;
 	}
 
 	// Now allocate physical pages
 	int init_i = lpage>>10;
 	for (int i=lpage>>10; i<=(lpage+num)>>10; i++)
-	{
-		for(int j=((i==init_i)?lpage&0x3FF:0);
+		for (int j=((i==init_i)?lpage&0x3FF:0);
 			j<((i<(lpage+num)>>10)?0x400:(lpage+num)&0x3FF); j++)
-		{
-			paddr = *--page_stack;
+			if (phys_alloc(i, j))
+				return 0;
+	return laddr;
+}
 
-			// If the page-stack page is empty...
-			if (! ((dword) page_stack & 0xFFF))
-			{
-				// ...map the page out.
-				PD[(dword)*stack_pages>>22]
-					[(dword)*stack_pages>>12].present = 0;
-				PD[(dword)*stack_pages>>22]
-					[(dword)*stack_pages>>12].ptr = 0;
-				page_stack = *--stack_pages;
+void * page_realloc(void * ptr, long int nold, long int nnew)
+{
+	ptr = (void *)((dword)ptr & 0xFFFFF000);
 
-				if (! ((dword) stack_pages & 0xFFF))
-				{
-					// And we are OOM.
-					kputs("memory::page_alloc: "
-					"ERROR: out of memory.");
-					return (void *) 0;
-				}
-			}
-			PD[i][j].ptr = paddr;
-			PD[i][j].present = 1;
-			PD[i][j].writea = 1;
-			PD[i][j].user = 1;
-			PD[i][j].wr_thr = 0;
-			PD[i][j].cache = 0;
-			PD[i][j].access = 0;
-			PD[i][j].dirty = 0;
-			PD[i][j].size = 0;
-			PD[i][j].global = 0;
-			PD[i][j].avail = 0;
-		}
+	if (nold == nnew)
+		return ptr;
+	if (nold > nnew)
+	{
+		page_free((void *)((dword)ptr + (nnew<<12)), nold-nnew);
+		return ptr;
 	}
-	(void) paddr;
+	// Okay, we have to increase the size of the memory range.
+	// First see if we can do that without moving.
+	int i = (((dword)ptr>>12) + nold) >> 10;
+	int imax = (((dword)ptr>>12) + nnew) >> 10;
+	int iorig = i;
+	int j = (((dword)ptr>>12) + nold) & 0x3FF;
+	int jmax = (((dword)ptr>>12) + nnew) & 0x3FF;
+	for (; i<=imax; i++)
+		for (j = (i==iorig ? j : 0); j < (i<imax ? 0x400 : jmax); j++)
+			if (PD[i][j].present) goto fail;
+	// We succeeded!
+	// Map in the new pages.
+	i = (((dword)ptr>>12) + nold) >> 10;
+	j = (((dword)ptr>>12) + nold) & 0x3FF;
+	for (; i<=imax; i++)
+		for (j = (i==iorig ? j : 0); j < (i<imax ? 0x400 : jmax); j++)
+			if (phys_alloc(i, j))
+				return 0;
+	return ptr;
+
+	fail:; // We could not extend the memory range, find a new one.
+	void * laddr = get_laddr(nnew);
+	if (! laddr)
+		return 0;
+	// Okay, found, map in the original part.
+	// Note that we do not touch the physical pages.
+	// Here is i, j for target, p, q for source.
+	int p = (dword)ptr >> 22;
+	int q = ((dword)ptr >> 12) & 0x3FF;
+	i = (dword)laddr >> 22;
+	imax = (((dword)laddr>>12) + nold) >> 10;
+	iorig = i;
+	j = ((dword)laddr >> 12) & 0x3FF;
+	jmax = (((dword)laddr>>12) + nold) & 0x3FF;
+	for (; i<=imax; i++, p++)
+		for (j = (i==iorig ? j:0); j < (i<imax ? 0x400:jmax); j++, q++)
+			PD[i][j] = PD[p][q];
+
+	// Finally, map in the new memory.
+	iorig = i;
+	imax = (((dword)laddr>>12) + nnew) >> 10;
+	jmax = (((dword)laddr>>12) + nnew) & 0x3FF;
+	for (; i<=imax; i++)
+		for (j = (i==iorig ? j : 0); j < (i<imax ? 0x400 : jmax); j++)
+			if (phys_alloc(i, j))
+				return 0;
 	return laddr;
 }
 
@@ -141,6 +167,42 @@ void page_free(void * ptr, long int num)
 		page_free(ptr);
 		ptr = (byte *)ptr + 0x1000;
 	}
+}
+
+int phys_alloc(int i, int j)
+{
+	dword paddr = *--page_stack;
+
+	// If the page-stack page is empty...
+	if (! ((dword) page_stack & 0xFFF))
+	{
+		// ...map the page out.
+		PD[(dword)*stack_pages>>22]
+			[(dword)*stack_pages>>12].present = 0;
+		PD[(dword)*stack_pages>>22]
+			[(dword)*stack_pages>>12].ptr = 0;
+		page_stack = *--stack_pages;
+
+		if (! ((dword) stack_pages & 0xFFF))
+		{
+			// And we are OOM.
+			kputs("memory::page_alloc: "
+			"ERROR: out of memory.");
+			return 1;
+		}
+	}
+	PD[i][j].ptr = paddr;
+	PD[i][j].present = 1;
+	PD[i][j].writea = 1;
+	PD[i][j].user = 1;
+	PD[i][j].wr_thr = 0;
+	PD[i][j].cache = 0;
+	PD[i][j].access = 0;
+	PD[i][j].dirty = 0;
+	PD[i][j].size = 0;
+	PD[i][j].global = 0;
+	PD[i][j].avail = 0;
+	return 0;
 }
 
 void * get_laddr(long int num)
