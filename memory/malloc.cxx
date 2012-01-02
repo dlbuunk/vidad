@@ -22,6 +22,8 @@ using util::kputs;
 
 #include "memory.hxx"
 
+#define PAGE_NUM 32
+
 namespace memory
 {
 
@@ -29,9 +31,17 @@ HeapAlloc * heapalloc;
 
 HeapAlloc::HeapAlloc()
 {
-	first = (Mobject *) page_alloc(32); // 128 KiB should be enough...
-	first->pages = 32;
-	first->size = 32<<12;
+	first = (Mobject *) page_alloc(PAGE_NUM); // 128 KiB should be enough...
+	if (! first)
+	{
+		kputs("memory::HeapAlloc: Failed to init the requested heap.");
+		return;
+		// There is no other way to communicate this message,
+		// so everyone is expected to see if status() returns nonzero
+		// as it should. (And abort otherwise)
+	}
+	first->pages = PAGE_NUM;
+	first->size = (PAGE_NUM<<12) - sizeof(Mobject);
 	first->used = 0;
 	first->next = 0;
 	first->prev = 0;
@@ -60,8 +70,49 @@ HeapAlloc::~HeapAlloc()
 
 void * HeapAlloc::malloc(size_t size)
 {
-	(void) size;
-	return 0;
+	// Find a large enough object...
+	Mobject * obj = first;
+	while (1)
+	{
+		while (obj->used && obj->next)
+			obj = obj->next;
+		if (! obj->next)
+		{
+			// We are at the end of the chain.
+			if (obj->size >= size)
+			{
+				// Okay, there is enough memory, allocate.
+				obj->next = (Mobject *)
+					((size_t) obj + size + sizeof(Mobject));
+				obj->next->prev = obj;
+				obj->next->next = 0;
+				obj->next->size =obj->size-size-sizeof(Mobject);
+				obj->next->pages = 0;
+				obj->next->used = 0;
+				obj->size = size;
+				obj->used = 1;
+				return (void *)((size_t) obj + sizeof(Mobject));
+			}
+			// And there is not enough memory, page more in.
+			long int num_pages = PAGE_NUM;
+			if (((size-1+sizeof(Mobject))>>12) + 1 > PAGE_NUM)
+				num_pages = ((size-1+sizeof(Mobject))>>12) + 1;
+			if (! (obj->next = (Mobject *) page_alloc(num_pages)))
+			{
+				// Paging failed, retry.
+				num_pages = ((size-1+sizeof(Mobject))>>12) + 1;
+				if(!(obj->next=(Mobject*)page_alloc(num_pages)))
+					return 0;
+			}
+			// New memory is paged in.
+			obj->next->prev = 0;
+			obj = obj->next;
+			obj->next = 0;
+			obj->pages = num_pages;
+			obj->used = 1;
+			
+		}
+	}
 }
 
 void HeapAlloc::free(void * ptr)
