@@ -1,0 +1,86 @@
+Welcome to the ViOS project,
+this is an attempt to write an OS for the x86 architecture.
+The project is (almost) fully written in C++.
+The goal is to write a mostly monolithic kernel.
+As for naming, i am nut sure yet, both ViOS and Vidad seem nice.
+
+After a half-succesfull attempt in early 2011, i am now doing a full rewrite.
+(Now is early january 2012)
+
+
+===== Outline of the project ===================================================
+
+The ViOS kernel consists of the following parts, whose names are the same
+on directories and on namespaces.
+
+==> A bootloader, specifically written for the kernel.
+==> Some functions for early kernel init (*_entry files).
+
+==> util, contains memory (memcpy/memset), string, and kernel output functions.
+	As the project goes along several parts of needed functionality may
+	be added (think of locks).
+
+==> system, contains the main part of startup/shutdown code.
+
+==> memory, the memory management code, provides both physical memory management
+	(paging) and logical memory management (new/delete).
+==> stream, contains the interface for the stream model. Most data is
+	transferred throug a stream.
+==> event, contains the code for the event subsystem, all sorts of "events"
+	are passed throug this system, IRQ's, some keystrokes, signals.
+==> thread, provides the code for multithreading.
+
+==> process, manages processes and exposes kernel functions to userspace.
+==> IO, contains all in-kernel drivers.
+
+
+===== Status of the project ====================================================
+(as of January 3, 2012)
+
+==> Bootloader done.
+==> *_entry files mostly complete.
+==> util contains several useful functions.
+==> memory is mostly functional.
+
+And that's about it.
+
+
+===== Further planning =========================================================
+
+Next thing is thread, as most code should be able to run in a multithreaded
+environement, it is better to write this first, before a LOT of other code
+breaks because of multithreading. Locks (semaphore, mutex, spinlock???)
+should be added to util.
+
+After that comes the stream interface and a proper screen driver.
+
+Keyboard handling will require irq's and thus event, which, when finished
+should make it possible to finally have a function terminal!
+
+Apart from user programs the kernel proper should than be functional, i will
+than add several drivers.
+
+
+===== Building && running ======================================================
+
+To buid the kernel run:
+	make image
+in the main dir.
+
+
+To test you need bochs, just run:
+	make
+
+If you want to test it on a real computer, you'll need to have a floppy drive.
+First copy the kernel to the floppy (this will shred the floppy!):
+	dd if=image of=/dev/fd0u1440 count=72
+and then reboot to test it. (at your own risk)
+
+
+===== Contact ==================================================================
+
+The Vidad kernel is written by D.L.Buunk (dlbuunk@gmail.com).
+
+Issues can be submitted to the issue tracker of the main Vidad repository.
+
+NOTE: the kernel/bootloader is released under the GPL version 2.
