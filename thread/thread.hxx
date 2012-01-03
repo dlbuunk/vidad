@@ -56,6 +56,7 @@ class Thread
 	Thread * prev;
 	Thread * next;
 	friend void sched();
+	friend void thread_switch();
 
 	// Linked list helper functions.
 	void insert_alive();
@@ -70,16 +71,13 @@ class Thread
 	void * stack_base;
 
 	// registers
-	dword eax;
-	dword ebx;
-	dword ecx;
-	dword edx;
-	dword esi;
-	dword edi;
-	dword * ebp;
-	dword * esp;
-	void (*eip)(void *);
-	dword eflags;
+	struct
+	{
+		dword * ebp;
+		dword * esp;
+		void (*eip)(void *);
+		dword eflags;
+	} volatile regs;
 };
 
 extern Thread * current;

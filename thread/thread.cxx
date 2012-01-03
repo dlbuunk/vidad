@@ -41,14 +41,14 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 	if (! stack_base)
 		system::panic("thread::Thread::Thread:"
 			" could not allocate pages for a stack");
-	esp = (dword *) stack_base;
-	esp += pages << 10;
-	ebp = esp;
-	*--esp = (dword) this;	// argument of die
-	*--esp = (dword) arg;	// argument of init AND return adress of die
-	*--esp = (dword) &die;	// return adress of init
-	eflags = 0x00200202;
-	eip = init;
+	regs.esp = (dword *) stack_base;
+	regs.esp += pages << 10;
+	regs.ebp = regs.esp;
+	*--regs.esp = (dword) this;	// argument of die
+	*--regs.esp = (dword) arg;	// argument of init AND return adress of die
+	*--regs.esp = (dword) &die;	// return adress of init
+	regs.eflags = 0x00200202;
+	regs.eip = init;
 	state = dead;
 	running = 0;
 }
@@ -360,6 +360,27 @@ void sched()
 
 void thread_switch(Thread * o, Thread * n)
 {
+	// old in edi, new in esi
+	asm volatile (
+	"movl	%%ebp,(%%edi)\n\t"
+	"movl	%%esp,4(%%edi)\n\t"
+	"movl	$1f,8(%%edi)\n\t"
+	"pushfl\n\t"
+	"popl	%%eax\n\t"
+	"movl	%%eax,12(%%edi)\n\t"
+	"movl	12(%%esi),%%eax\n\t"
+	"pushl	%%eax\n\t"
+	"popfl\n\t"
+	"movl	(%%esi),%%ebp\n\t"
+	"movl	4(%%esi),%%esp\n\t"
+	"movl	8(%%esi),%%eax\n\t"
+	"jmpl	*%%eax\n"
+	"1:\n\t"
+	:
+	: "S" (n) , "D" (o)
+	: "%eax", "%ebx", "%ecx", "%edx"
+	, "%ebp", "%esp", "memory"
+	) ;
 }
 
 }
