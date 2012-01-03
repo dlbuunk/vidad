@@ -27,18 +27,41 @@
 namespace thread
 {
 
+enum ThreadState
+{
+	dead = 0,
+	alive,
+	alarm, // asleep WITH alarm clock
+	asleep // and without
+};
+
 class Thread
 {
 	public:
-	Thread(void (*init)(Thread *th), unsigned long int pages = 1);
+	Thread(void (*init)(void*), void *arg = 0, unsigned long int pages = 1);
 	~Thread();
 
-	void yield();
+	void live(int p=1);
+	void sleep(dword ticks=0);
+	void wake();
+	void kill();
 
 	private:
+
+	// scheduling-related
+	int prio;
+	dword timer_ticks;
+	ThreadState state;
+	Thread * prev;
+	Thread * next;
+
+	// Linked list helper functions.
+	void insert_alive();
+	void insert_alarm();
+	void insert_sleep();
+
 	// exit function, gets called when init returns
 	static void die(Thread * th);
-	bool died;
 
 	// stack
 	unsigned long int stack_pages;
@@ -53,13 +76,15 @@ class Thread
 	dword edi;
 	dword * ebp;
 	dword * esp;
-	void (*eip)(Thread *);
+	void (*eip)(void *);
 	dword eflags;
 };
 
-void scheduler();
-void sched_add(Thread * th);
-void sched_rm(Thread * th);
+extern Thread * alives;
+extern Thread * alarms;
+extern Thread * sleeps;
+
+void sched();
 
 }
 
