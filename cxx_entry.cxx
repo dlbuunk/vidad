@@ -30,12 +30,36 @@ using util::kprintf;
 
 #include "memory.hxx"
 
+// These are the global overloads of new and delete.
+
+void * operator new(size_t size)
+{
+	return memory::heapalloc->malloc(size);
+}
+
+void * operator new[](size_t size)
+{
+	return memory::heapalloc->malloc(size);
+}
+
+void operator delete(void * p)
+{
+	return memory::heapalloc->free(p);
+}
+
+void operator delete[](void * p)
+{
+	return memory::heapalloc->free(p);
+}
+
+// And a few overloads needed for placement new.
+void * operator new(size_t, void * p) { return p; }
+void * operator new[](size_t, void * p) { return p; }
+void operator delete(void *, void *) { }
+void operator delete[](void *, void *) { }
 
 // Special array, needed to hold the main HeapAlloc object.
 byte heap_alloc_array[sizeof(memory::HeapAlloc)];
-// And a special overload...
-void * operator new(size_t, void *p) { return p; }
-
 
 // Main function, called from __c_entry().
 extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
