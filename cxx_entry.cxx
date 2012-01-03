@@ -29,6 +29,7 @@ using util::kputs;
 using util::kprintf;
 
 #include "memory.hxx"
+#include "system.hxx"
 
 // These are the global overloads of new and delete.
 
@@ -91,6 +92,9 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	f >>= 10;
 	f++;
 	kprintf("%t cxx_entry: And we have %u KiB allocated in the heap.\n", f);
+
+	// And run the main startup routine in system.
+	system::init(loaderdata->mem_low);
 
 	//memory::heapalloc->~HeapAlloc();
 }

@@ -9,8 +9,8 @@ INPUT
 	int_entry.o
 	c_entry.o
 	cxx_entry.o
-	/* system/system.o */
 	util/util.o
+	system/system.o
 	memory/memory.o
 	/* thread/thread.o */
 	/* stream/stream.o */
