@@ -12,7 +12,7 @@ INPUT
 	util/util.o
 	system/system.o
 	memory/memory.o
-	/* thread/thread.o */
+	thread/thread.o
 	/* stream/stream.o */
 	/* event/event.o */
 	/* process/process.o */
