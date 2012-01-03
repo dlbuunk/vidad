@@ -31,6 +31,8 @@ void init(dword mem_low);
 // mem_low being the only bootloader non-fixed address parameter that still
 // needs to be distributed to it's final place...
 
+void panic(char const * msg);
+
 }
 
 #endif // SYSTEM_HXX

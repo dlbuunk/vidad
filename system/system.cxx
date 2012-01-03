@@ -33,4 +33,12 @@ void init(dword mem_low)
 	kprintf("%t system::init: mem_low == %u .\n", mem_low);
 }
 
+void panic(char const * msg)
+{
+	kputs(msg);
+	kputs("system::panic: kernel panic, system halted\n");
+	asm volatile ( "cli\n\t" : : : ) ;
+	for ( ; ; ) asm volatile ( "hlt\n\t" : : : ) ;
+}
+
 }

@@ -27,7 +27,39 @@
 namespace thread
 {
 
-void schedule();
+class Thread
+{
+	public:
+	Thread(void (*init)(Thread *th), unsigned long int pages = 1);
+	~Thread();
+
+	void yield();
+
+	private:
+	// exit function, gets called when init returns
+	static void die(Thread * th);
+	bool died;
+
+	// stack
+	unsigned long int stack_pages;
+	void * stack_base;
+
+	// registers
+	dword eax;
+	dword ebx;
+	dword ecx;
+	dword edx;
+	dword esi;
+	dword edi;
+	dword * ebp;
+	dword * esp;
+	void (*eip)(Thread *);
+	dword eflags;
+};
+
+void scheduler();
+void sched_add(Thread * th);
+void sched_rm(Thread * th);
 
 }
 
