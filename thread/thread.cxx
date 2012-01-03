@@ -50,6 +50,7 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 	eflags = 0x00200202;
 	eip = init;
 	state = dead;
+	running = 0;
 }
 
 // live does activate the thread, but only if it is dead.
@@ -253,7 +254,7 @@ void Thread::die(Thread * th)
 	// Should de-schedule, but not deallocate
 	th->kill();
 	sched();
-	// Just in case some idiot re-schedules the thread.
+	// Just in case some idiot manages to re-schedule the thread.
 	for ( ; ; )
 	{
 		kputs("thread::Thread::die: warning: zombie thread active.");
@@ -316,11 +317,48 @@ void Thread::insert_sleep()
 		next->prev = this;
 }
 
+Thread * current = 0;
 Thread * alives = 0;
 Thread * alarms = 0;
 Thread * sleeps = 0;
 
+// This function figures out which task to switch.
+// It takes the last thread on the highest prio level.
+// (unless that thread is the current one)
+// THIS ALGORITHM IS SINGLE CPU!
 void sched()
+{
+	Thread * old = current;
+	Thread * th = alives;
+
+	// Check if there are no living threads.
+	if (! alives)
+		system::panic("thread::sched: nu living threads.");
+
+	// Check if this is the only living thread.
+	if (alives == current && ! alives->next)
+		return;
+
+	// Check if there is only one living thread.
+	if (! alives->next)
+	{
+		current = alives;
+		thread_switch(old, current);
+		return;
+	}
+
+	// Check if the current thread is the only one in it's prio level.
+	if (alives == current && alives->next->prio < alives->prio)
+		th = alives->next;
+
+	// Loop over the threads until the prio goes down.
+	while (th->next && th->next->prio == th->prio)
+		th = th->next;
+
+	thread_switch(old, current = th);
+}
+
+void thread_switch(Thread * o, Thread * n)
 {
 }
 

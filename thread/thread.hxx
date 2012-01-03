@@ -52,8 +52,10 @@ class Thread
 	int prio;
 	dword timer_ticks;
 	ThreadState state;
+	bool running;
 	Thread * prev;
 	Thread * next;
+	friend void sched();
 
 	// Linked list helper functions.
 	void insert_alive();
@@ -80,11 +82,13 @@ class Thread
 	dword eflags;
 };
 
+extern Thread * current;
 extern Thread * alives;
 extern Thread * alarms;
 extern Thread * sleeps;
 
 void sched();
+void thread_switch(Thread * o, Thread * n);
 
 }
 
