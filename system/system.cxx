@@ -79,6 +79,18 @@ void init(void * mem_low_p)
 {
 	// Still needs to be distributed.
 	kprintf("%t system::init: mem_low == %u.\n", mem_low_p);
+
+	// Testing buffers.
+	byte msg[16];
+	util::Buffer buf(16);
+	buf.w(63);
+	buf.w(63);
+	buf.w(33);
+	buf.r();
+	buf.r();
+	buf.r();
+	kprintf("%t buffer_test_write: %i.\n", buf.w((byte const *) "Hello, world!", 14));
+	kprintf("%t buffer_test_read : %i, %s.\n", buf.r(msg, 14), msg);
 }
 
 void panic(char const * msg)
