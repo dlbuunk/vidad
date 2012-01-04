@@ -355,11 +355,41 @@ void sched()
 	while (th->next && th->next->prio == th->prio)
 		th = th->next;
 
-	thread_switch(old, current = th);
+	// Move the thread to the front
+	if (th->next)
+		th->next->prev = th->prev;
+	if (th->prev)
+		th->prev->next = th->prev;
+	else
+		alives = 0;
+	current = th;
+	if (alives == old)
+	{
+		th->prev = old;
+		if (old->next)
+			old->next->prev = th;
+		th->next = old->next;
+		old->next = th;
+	}
+	else if (! alives)
+	{
+		alives = th;
+	}
+	else
+	{
+		th->next = alives;
+		th->next->prev = th;
+		th->prev = 0;
+		alives = th;
+	}
+
+	thread_switch(old, current);
 }
 
 void thread_switch(Thread * o, Thread * n)
 {
+	o->running = 0;
+	n->running = 1;
 	// old in edi, new in esi
 	asm volatile (
 	"movl	%%ebp,(%%edi)\n\t"

@@ -49,14 +49,14 @@ class Thread
 	private:
 
 	// scheduling-related
+	friend void sched();
+	friend void thread_switch(Thread *, Thread *);
 	int prio;
 	dword timer_ticks;
 	ThreadState state;
 	bool running;
 	Thread * prev;
 	Thread * next;
-	friend void sched();
-	friend void thread_switch();
 
 	// Linked list helper functions.
 	void insert_alive();
