@@ -75,12 +75,12 @@ void Thread::live(int p)
 		if (prio == p)
 			return;
 		// Replace in list of living threads.
-		if (prev)
-			prev->next = next;
-		else
-			alives = next;
-		if (next)
-			next->prev = prev;
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alives[prio] = 0;
+		else if (alives[prio] == this)
+			alives[prio] = next;
 		prio = p;
 		insert_alive();
 	}
@@ -110,12 +110,12 @@ void Thread::sleep(dword ticks)
 	if (state == alive)
 	{
 		// Remove from living threads
-		if (prev)
-			prev->next = next;
-		else
-			alives = next;
-		if (next)
-			next->prev = prev;
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alives[prio] = 0;
+		else if (alives[prio] == this)
+			alives[prio] = next;
 	}
 
 	else if (state == asleep && ticks == 0)
@@ -124,23 +124,23 @@ void Thread::sleep(dword ticks)
 	else if (state == asleep)
 	{
 		// remove from sleeping threads
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			sleeps = 0;
+		else if (sleeps == this)
 			sleeps = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == alarm)
 	{
 		// remove from alarming threads
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alarms = 0;
+		else if (alarms == this)
 			alarms = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == dead)
@@ -178,22 +178,22 @@ void Thread::wake()
 
 	else if (state == asleep)
 	{
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			sleeps = 0;
+		else if (sleeps == this)
 			sleeps = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == alarm)
 	{
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alarms = 0;
+		else if (alarms == this)
 			alarms = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == dead)
@@ -218,32 +218,32 @@ void Thread::kill()
 {
 	if (state == alive)
 	{
-		if (prev)
-			prev->next = next;
-		else
-			alives = next;
-		if (next)
-			next->prev = prev;
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alives[prio] = 0;
+		else if (alives[prio] == this)
+			alives[prio] = next;
 	}
 
 	else if (state == alarm)
 	{
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			alarms = 0;
+		else if (alarms == this)
 			alarms = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == asleep)
 	{
-		if (prev)
-			prev->next = next;
-		else
+		next->prev = prev;
+		prev->next = next;
+		if (next == this)
+			sleeps = 0;
+		else if (sleeps == this)
 			sleeps = next;
-		if (next)
-			next->prev = prev;
 	}
 
 	else if (state == dead)
@@ -279,125 +279,84 @@ void Thread::die(Thread * th)
 
 void Thread::insert_alive()
 {
-	next = 0;
-	prev = 0;
-	Thread * th = alives;
-	if (! th)
+	if (! alives[prio])
 	{
-		// There aro no living threads.
-		alives = this;
+		alives[prio] = this;
+		next = this;
+		prev = this;
 		return;
 	}
-	while (th->next && th->next->prio > prio)
-		th = th->next;
-	if (th->next)
-	{
-		next = th->next;
-		next->prev = this;
-	}
-	prev = th;
-	th->next = this;
+
+	prev = alives[prio]->prev;
+	next = alives[prio];
+	alives[prio]->prev->next = this;
+	alives[prio]->prev = this;
 }
 
 void Thread::insert_alarm()
 {
-	next = 0;
-	prev = 0;
-	Thread * th = alarms;
-	if (! th)
+	// This is going to be slightly more difficult...
+	if (! alarms)
 	{
-		// There are no alarming threads
+		alarms = this;
+		next = this;
+		prev = this;
+		return;
+	}
+
+	if (timer_ticks > alarms->prev->timer_ticks)
+	{
+		// Insert 1 before alarms.
+		prev = alarms->prev;
+		next = alarms;
+		alarms->prev->next = this;
+		alarms->prev = this;
+		return;
+	}
+
+	if (timer_ticks < alarms->timer_ticks)
+	{
+		// Insert AT alarms.
+		next = alarms;
+		prev = alarms->prev;
+		alarms->prev->next = this;
+		alarms->prev = this;
 		alarms = this;
 		return;
 	}
-	while (th->next && th->next->timer_ticks < timer_ticks)
+
+	// Okay, should inser somewhere in the middle.
+	Thread * th = alarms;
+	while (th->timer_ticks < timer_ticks)
 		th = th->next;
-	if (th->next)
-	{
-		next = th->next;
-		next->prev = this;
-	}
-	prev = th;
-	th->next = this;
+	// th now pointing to what should become next.
+	prev = th->prev;
+	next = th;
+	th->prev->next = this;
+	th->prev = this;
 }
 
 void Thread::insert_sleep()
 {
-	prev = 0;
+	if (! sleeps)
+	{
+		sleeps = this;
+		next = this;
+		prev = this;
+		return;
+	}
+
+	prev = sleeps->prev;
 	next = sleeps;
-	sleeps = this;
-	if (next)
-		next->prev = this;
+	sleeps->prev->next = this;
+	sleeps->prev = this;
 }
 
 Thread * current = 0;
-Thread * alives = 0;
+Thread * alives[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 Thread * alarms = 0;
 Thread * sleeps = 0;
-
-// This function figures out which task to switch.
-// It takes the last thread on the highest prio level.
-// (unless that thread is the current one)
-// THIS ALGORITHM IS SINGLE CPU!
-void sched()
-{
-	Thread * old = current;
-	Thread * th = alives;
-
-	// Check if there are no living threads.
-	if (! alives)
-		system::panic("thread::sched: nu living threads.");
-
-	// Check if this is the only living thread.
-	if (alives == current && ! alives->next)
-		return;
-
-	// Check if there is only one living thread.
-	if (! alives->next)
-	{
-		current = alives;
-		thread_switch(old, current);
-		return;
-	}
-
-	// Check if the current thread is the only one in it's prio level.
-	if (alives == current && alives->next->prio < alives->prio)
-		th = alives->next;
-
-	// Loop over the threads until the prio goes down.
-	while (th->next && th->next->prio == th->prio)
-		th = th->next;
-
-	// Move the thread to the front
-	if (th->next)
-		th->next->prev = th->prev;
-	if (th->prev)
-		th->prev->next = th->prev;
-	else
-		alives = 0;
-	current = th;
-	if (alives == old)
-	{
-		th->prev = old;
-		if (old->next)
-			old->next->prev = th;
-		th->next = old->next;
-		old->next = th;
-	}
-	else if (! alives)
-	{
-		alives = th;
-	}
-	else
-	{
-		th->next = alives;
-		th->next->prev = th;
-		th->prev = 0;
-		alives = th;
-	}
-
-	thread_switch(old, current);
-}
 
 void thread_switch(Thread * o, Thread * n)
 {

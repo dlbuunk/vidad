@@ -81,7 +81,7 @@ class Thread
 };
 
 extern Thread * current;
-extern Thread * alives;
+extern Thread * alives[];
 extern Thread * alarms;
 extern Thread * sleeps;
 
