@@ -29,26 +29,37 @@ using util::kprintf;
 namespace system
 {
 
-void thAf(void * discard)
+thread::Thread * thA, * thB, * thC;
+
+void thAf(void * str)
 {
-	(void) discard;
 	for (int i=0; i<4; i++)
 	{
-		kprintf("%t Hello from thread A.\n");
+		kprintf("%t Hello from thread %s.\n", str);
+		if (i == 0)
+			thC->sleep();
 		thread::sched();
 	}
-	for (;;);
 }
 
-void thBf(void * discard)
+void thBf(void * str)
 {
-	(void) discard;
 	for (int i=0; i<4; i++)
 	{
-		kprintf("%t Hello from thread B.\n");
+		kprintf("%t Hello from thread %s.\n", str);
+		if (i == 2)
+			thC->wake();
 		thread::sched();
 	}
-	for (;;);
+}
+
+void thCf(void * str)
+{
+	for (int i=0; i<4; i++)
+	{
+		kprintf("%t Hello from thread %s.\n", str);
+		thread::sched();
+	}
 }
 
 void init(dword mem_low)
@@ -64,11 +75,15 @@ void init(dword mem_low)
 	thread::sched();
 	kprintf("%t system::init: still running\n");
 
-	thread::Thread thA(&thAf);
-	thA.live();
-	thread::Thread thB(&thBf);
-	thB.live();
+	thA = new thread::Thread(&thAf, (void *) "A");
+	thA->live();
+	thB = new thread::Thread(&thBf, (void *) "B");
+	thB->live();
+	thC = new thread::Thread(&thCf, (void *) "C");
+	thC->live(2);
 	thread::sched();
+	kprintf("%t Hello from sys_idle.\n");
+	for (;;);
 }
 
 void panic(char const * msg)

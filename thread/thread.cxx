@@ -362,17 +362,18 @@ Thread * sleeps = 0;
 // Single CPU only.
 void sched()
 {
+	Thread * old;
 	for (int i=31; i>=0; i--)
 	{
 		if (! alives[i])
 			continue;
-		if (alives[i]->next->running && i)
+		if (alives[i]->next == alives[i] && alives[i]->running && i > 1)
 			continue;
 		// Okay, found thread to run.
 		alives[i] = alives[i]->next;
-		current->running = false;
-		alives[i]->running = true;
-		thread_switch(current, alives[i]);
+		(old = current)->running = false;
+		(current = alives[i])->running = true;
+		thread_switch(old, current);
 		return;
 	}
 	// No threads found, panic.
