@@ -24,13 +24,29 @@ using util::kputs;
 using util::kprintf;
 
 #include "system.hxx"
+#include "thread.hxx"
 
 namespace system
 {
 
+void thAf(void * discard)
+{
+	(void) discard;
+	kprintf("%t Hello from thread A.\n");
+	for(;;);
+}
+
 void init(dword mem_low)
 {
 	kprintf("%t system::init: mem_low == %u .\n", mem_low);
+
+	// Testing multi-threading.
+	kprintf("%t system::init: testing multithreading\n");
+	thread::Thread sys_idle(0,0,0);
+	sys_idle.live(0);
+	thread::current = &sys_idle;
+	thread::sched();
+	kprintf("%t system::init: still running\n");
 }
 
 void panic(char const * msg)

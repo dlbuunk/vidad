@@ -32,11 +32,24 @@ namespace thread
 Thread::~Thread()
 {
 	kill();
-	memory::page_free(stack_base, stack_pages);
+	// stack_base is 0 iff this is the null-thread.
+	if (stack_base)
+		memory::page_free(stack_base, stack_pages);
 }
 
 Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 {
+	if (! pages)
+	{
+		// This is not an error, it is actually an order to turn the
+		// currently running code into an thread. (on system::init)
+		state = dead;
+		running = 1;
+		stack_pages = 0xDEADDEAD;
+		stack_base = 0;
+		// registers need no init, they are set when switching out.
+		return;
+	}
 	stack_base = memory::page_alloc(pages);
 	if (! stack_base)
 		system::panic("thread::Thread::Thread:"
@@ -44,9 +57,9 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 	regs.esp = (dword *) stack_base;
 	regs.esp += pages << 10;
 	regs.ebp = regs.esp;
-	*--regs.esp = (dword) this;	// argument of die
-	*--regs.esp = (dword) arg;	// argument of init AND return adress of die
-	*--regs.esp = (dword) &die;	// return adress of init
+	*--regs.esp = (dword) this; // argument of die
+	*--regs.esp = (dword) arg;  // argument of init AND return adress of die
+	*--regs.esp = (dword) &die; // return adress of init
 	regs.eflags = 0x00200202;
 	regs.eip = init;
 	state = dead;
@@ -392,6 +405,7 @@ void thread_switch(Thread * o, Thread * n)
 	n->running = 1;
 	// old in edi, new in esi
 	asm volatile (
+	"xchg	%%bx,%%bx\n\t"
 	"movl	%%ebp,(%%edi)\n\t"
 	"movl	%%esp,4(%%edi)\n\t"
 	"movl	$1f,8(%%edi)\n\t"
@@ -407,7 +421,7 @@ void thread_switch(Thread * o, Thread * n)
 	"jmpl	*%%eax\n"
 	"1:\n\t"
 	:
-	: "S" (n) , "D" (o)
+	: "S" (&n->regs) , "D" (&o->regs)
 	: "%eax", "%ebx", "%ecx", "%edx"
 	, "%ebp", "%esp", "memory"
 	) ;
