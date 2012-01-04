@@ -1,19 +1,19 @@
 //      cxx_entry.cxx
-//      
+//
 //      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
 //
 //      This file is part of ViOS.
-//      
+//
 //      ViOS is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -94,7 +94,7 @@ extern "C" void __cxx_entry(memory::LoaderData * loaderdata)
 	kprintf("%t cxx_entry: And we have %u KiB allocated in the heap.\n", f);
 
 	// And run the main startup routine in system.
-	system::init(loaderdata->mem_low);
+	system::init_nt(loaderdata->mem_low);
 
-	//memory::heapalloc->~HeapAlloc();
+	memory::heapalloc->~HeapAlloc();
 }

@@ -9,13 +9,13 @@
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
 //
-//      This program is distributed in the hope that it will be useful,
+//      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
 //
 //      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
+//      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
@@ -26,6 +26,9 @@
 
 namespace thread
 {
+
+const int prio_max = 31;
+const int prio_min = 1;
 
 enum ThreadState
 {
@@ -41,7 +44,7 @@ class Thread
 	Thread(void (*init)(void*), void *arg = 0, unsigned long int pages = 1);
 	~Thread();
 
-	void live(int p=1);
+	void live(int p=4);
 	void sleep(dword ticks=0);
 	void wake();
 	void kill();

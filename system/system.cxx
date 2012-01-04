@@ -9,13 +9,13 @@
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
 //
-//      This program is distributed in the hope that it will be useful,
+//      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
 //
 //      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
+//      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
@@ -25,65 +25,60 @@ using util::kprintf;
 
 #include "system.hxx"
 #include "thread.hxx"
+using thread::Thread;
+using thread::sched;
 
 namespace system
 {
 
-thread::Thread * thA, * thB, * thC;
+thread::Thread * init_thread;
+void init(void * mem_low_p);
 
-void thAf(void * str)
+void init_nt(dword mem_low)
 {
-	for (int i=0; i<4; i++)
-	{
-		kprintf("%t Hello from thread %s.\n", str);
-		if (i == 0)
-			thC->sleep();
-		thread::sched();
-	}
-}
-
-void thBf(void * str)
-{
-	for (int i=0; i<4; i++)
-	{
-		kprintf("%t Hello from thread %s.\n", str);
-		if (i == 2)
-			thC->wake();
-		thread::sched();
-	}
-}
-
-void thCf(void * str)
-{
-	for (int i=0; i<4; i++)
-	{
-		kprintf("%t Hello from thread %s.\n", str);
-		thread::sched();
-	}
-}
-
-void init(dword mem_low)
-{
-	kprintf("%t system::init: mem_low == %u .\n", mem_low);
-
-	// Testing multi-threading.
-	kprintf("%t system::init: testing multithreading\n");
-	kprintf("%t system::init: alives is at 0x%X.\n", thread::alives);
-	thread::Thread sys_idle(0,0,0);
+	// Starting multi-threading.
+	kprintf("%t system::init_nt: starting multithreading\n");
+	Thread sys_idle(0,0,0);
 	thread::current = &sys_idle;
 	sys_idle.live(0);
-	thread::sched();
-	kprintf("%t system::init: still running\n");
+	sched();
 
-	thA = new thread::Thread(&thAf, (void *) "A");
-	thA->live();
-	thB = new thread::Thread(&thBf, (void *) "B");
-	thB->live();
-	thC = new thread::Thread(&thCf, (void *) "C");
-	thC->live(2);
-	thread::sched();
-	kprintf("%t Hello from sys_idle.\n");
-	for (;;);
+	// Creating main init thread.
+	init_thread = new Thread(&init, (void *) mem_low, 4);
+	init_thread->live(8);
+	sched();
+
+	// This is where the sys_idle thread comes when activated.
+	for ( ; ; )
+	{
+		// Check if there are living threads with prio>0.
+		for (int i=31; i>0; i--)
+		{
+			if (thread::alives[i])
+				goto end_loop;
+		}
+
+		// Check if there are any alarming || sleeping threads.
+		if (thread::alarms || thread::sleeps)
+			goto end_loop;
+
+		// There are no other threads, bail out...
+		break;
+
+		end_loop:;
+		asm volatile ( "hlt\n\t" : : : ) ;
+		sched();
+	}
+
+	// Shutdown routine.
+	kputs("system::init_nt: no more living threads with prio > 0 left.");
+	delete init_thread;
+}
+
+void init(void * mem_low_p)
+{
+	// Still needs to be distributed.
+	kprintf("%t system::init: mem_low == %u.\n", mem_low_p);
 }
 
 void panic(char const * msg)

@@ -9,13 +9,13 @@
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
 //
-//      This program is distributed in the hope that it will be useful,
+//      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
 //
 //      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
+//      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
@@ -54,7 +54,7 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 	stack_base = memory::page_alloc(pages);
 	if (! stack_base)
 		system::panic("thread::Thread::Thread:"
-			" could not allocate pages for a stack");
+			" could not allocate pages for a stack.");
 	regs.esp = (dword *) stack_base;
 	regs.esp += pages << 10;
 	regs.ebp = regs.esp;
@@ -83,18 +83,30 @@ void Thread::live(int p)
 		else if (alives[prio] == this)
 			alives[prio] = next;
 		prio = p;
+		if (prio > prio_max)
+			prio = prio_max;
+		if (prio < prio_min && stack_base)
+			prio = prio_min;
 		insert_alive();
 	}
 
 	if (state == asleep && state == alarm)
 	{
 		prio = p;
+		if (prio > prio_max)
+			prio = prio_max;
+		if (prio < prio_min && stack_base)
+			prio = prio_min;
 		return;
 	}
 
 	if (state == dead)
 	{
 		prio = p;
+		if (prio > prio_max)
+			prio = prio_max;
+		if (prio < prio_min && stack_base)
+			prio = prio_min;
 		state = alive;
 		// Insert into the list of living threads.
 		insert_alive();
@@ -248,10 +260,7 @@ void Thread::kill()
 	}
 
 	else if (state == dead)
-	{
-		kputs("thread::Thread::sleep: warning:"
-			" trying to kill a dead thread");
-	}
+		;
 
 	else
 	{

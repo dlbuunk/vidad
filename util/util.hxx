@@ -30,6 +30,7 @@
 namespace util
 {
 
+/*
 // memory function templates
 template <typename T>
 int memcmp(T const * m1, T const * m2, size_t num)
@@ -62,7 +63,7 @@ T * memset(T * mem, T val, size_t num)
 		*mem++ = val;
 	return orig_ptr;
 }
-
+*/
 // from string.cxx
 size_t strlen(char const * str);
 int strcmp(char const * s1, char const * s2);

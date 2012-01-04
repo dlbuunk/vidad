@@ -9,13 +9,13 @@
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
 //
-//      This program is distributed in the hope that it will be useful,
+//      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
 //
 //      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
+//      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
@@ -27,7 +27,8 @@
 namespace system
 {
 
-void init(dword mem_low);
+void init_nt(dword mem_low);
+void init(void * mem_low_p);
 // mem_low being the only bootloader non-fixed address parameter that still
 // needs to be distributed to it's final place...
 
