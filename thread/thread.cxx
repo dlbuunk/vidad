@@ -44,12 +44,13 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 		// This is not an error, it is actually an order to turn the
 		// currently running code into an thread. (on system::init)
 		state = dead;
-		running = 1;
+		running = true;
 		stack_pages = 0xDEADDEAD;
 		stack_base = 0;
 		// registers need no init, they are set when switching out.
 		return;
 	}
+	stack_pages = pages;
 	stack_base = memory::page_alloc(pages);
 	if (! stack_base)
 		system::panic("thread::Thread::Thread:"
@@ -63,7 +64,7 @@ Thread::Thread(void (*init)(void *), void * arg, unsigned long int pages)
 	regs.eflags = 0x00200202;
 	regs.eip = init;
 	state = dead;
-	running = 0;
+	running = false;
 }
 
 // live does activate the thread, but only if it is dead.
@@ -358,13 +359,41 @@ Thread * alives[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 Thread * alarms = 0;
 Thread * sleeps = 0;
 
+// Single CPU only.
+void sched()
+{
+	for (int i=31; i>=0; i--)
+	{
+		if (! alives[i])
+			continue;
+		if (alives[i]->next->running && i)
+			continue;
+		// Okay, found thread to run.
+		alives[i] = alives[i]->next;
+		current->running = false;
+		alives[i]->running = true;
+		thread_switch(current, alives[i]);
+		return;
+	}
+	// No threads found, panic.
+	system::panic("thread::sched: no threads to run"
+		" and no sys_idle thread present.");
+}
+
 void thread_switch(Thread * o, Thread * n)
 {
-	o->running = 0;
-	n->running = 1;
+	if (o == n)
+	{
+		// DEBUG
+	//	kputs("OLD == NEW");
+		//~DEBUG
+		return;
+	}
 	// old in edi, new in esi
 	asm volatile (
-	"xchg	%%bx,%%bx\n\t"
+	// DEBUG
+//	"xchg	%%bx,%%bx\n\t"
+	//~DEBUG
 	"movl	%%ebp,(%%edi)\n\t"
 	"movl	%%esp,4(%%edi)\n\t"
 	"movl	$1f,8(%%edi)\n\t"

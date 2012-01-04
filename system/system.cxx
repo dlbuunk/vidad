@@ -32,8 +32,23 @@ namespace system
 void thAf(void * discard)
 {
 	(void) discard;
-	kprintf("%t Hello from thread A.\n");
-	for(;;);
+	for (int i=0; i<4; i++)
+	{
+		kprintf("%t Hello from thread A.\n");
+		thread::sched();
+	}
+	for (;;);
+}
+
+void thBf(void * discard)
+{
+	(void) discard;
+	for (int i=0; i<4; i++)
+	{
+		kprintf("%t Hello from thread B.\n");
+		thread::sched();
+	}
+	for (;;);
 }
 
 void init(dword mem_low)
@@ -42,17 +57,24 @@ void init(dword mem_low)
 
 	// Testing multi-threading.
 	kprintf("%t system::init: testing multithreading\n");
+	kprintf("%t system::init: alives is at 0x%X.\n", thread::alives);
 	thread::Thread sys_idle(0,0,0);
-	sys_idle.live(0);
 	thread::current = &sys_idle;
+	sys_idle.live(0);
 	thread::sched();
 	kprintf("%t system::init: still running\n");
+
+	thread::Thread thA(&thAf);
+	thA.live();
+	thread::Thread thB(&thBf);
+	thB.live();
+	thread::sched();
 }
 
 void panic(char const * msg)
 {
 	kputs(msg);
-	kputs("system::panic: kernel panic, system halted\n");
+	kputs("system::panic: kernel panic, system halted.\n");
 	asm volatile ( "cli\n\t" : : : ) ;
 	for ( ; ; ) asm volatile ( "hlt\n\t" : : : ) ;
 }
