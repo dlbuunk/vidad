@@ -86,19 +86,34 @@ class Buffer
 {
 	public:
 
-	Buffer(size_t n);
+	Buffer();
 	~Buffer();
 
 	byte r();
-	int r(byte * p, size_t n);
-	bool cr();
-	int w(byte v);
-	int w(byte const * p, size_t n);
-	bool cw();
+	size_t r(byte * p, size_t n);
+	bool cr()
+	{
+		if (wp == rp)
+			return false;
+		return true;
+	}
+
+	void w(byte v);
+	size_t w(byte const * p, size_t n);
 
 	private:
-	byte * b;
-	size_t ri, wi, size;
+	byte * rp, * wp;
+	//static size_t const buf_size = 1000; // perhaps a wee bit large...
+	static size_t const buf_size = 8;
+
+	struct BufferBlock
+	{
+		BufferBlock * next;
+		byte data[buf_size];
+	};
+
+	BufferBlock * first;
+	BufferBlock * last;
 };
 
 }

@@ -24,75 +24,84 @@
 namespace util
 {
 
-Buffer::Buffer(size_t n)
+Buffer::Buffer()
 {
-	b = new byte[n];
-	size = n;
-	ri = wi = 0;
+	first = new BufferBlock();
+	first->next = 0;
+	rp = wp = first->data;
+	last = first;
 }
+
 Buffer::~Buffer()
 {
-	delete b;
+	BufferBlock * temp;
+	while (first != last)
+	{
+		temp = first;
+		first = first->next;
+		delete temp;
+	}
+	delete last;
+}
+
+size_t Buffer::w(byte const * p, size_t n)
+{
+	size_t num = n;
+	while (num + (wp - last->data) >= buf_size)
+	{
+		memcpy(wp, p, last->data - wp + buf_size);
+		p += last->data - wp + buf_size;
+		num -= last->data - wp + buf_size;
+		last->next = new BufferBlock();
+		last = last->next;
+		wp = last->data;
+	}
+	memcpy(wp, p, num);
+	wp += num;
+	return n;
+}
+
+void Buffer::w(byte v)
+{
+	w(&v, 1);
+}
+
+size_t Buffer::r(byte *p, size_t n)
+{
+	size_t num = n;
+	while (first != last && num + (rp - first->data) >= buf_size)
+	{
+		memcpy(p, rp, buf_size + first->data - rp);
+		p += first->data - rp + buf_size;
+		num -= first->data - rp + buf_size;
+		BufferBlock * temp = first;
+		first = first->next;
+		delete temp;
+		rp = first->data;
+	}
+	if (first != last)
+	{
+		memcpy(p, rp, num);
+		rp += num;
+		return n;
+	}
+	if (wp < rp + num)
+	{
+		memcpy(p, rp, wp - rp);
+		num -= wp - rp;
+		rp = wp;
+		return n - num;
+	}
+	memcpy(p, rp, num);
+	rp += num;
+	return n;
 }
 
 byte Buffer::r()
 {
-	if (! cr())
-		return 0xFF;
-	byte rv = b[ri++];
-	if (ri == size)
-		ri = 0;
-	return rv;
-}
-
-int Buffer::r(byte * p, size_t n)
-{
-	size_t num = 0;
-	while (cr())
-	{
-		*p++ = r();
-		num++;
-		if (n == num)
-			break;
-	}
-	return num;
-}
-
-bool Buffer::cr()
-{
-	if (ri == wi)
-		return false;
-	return true;
-}
-
-int Buffer::w(byte v)
-{
-	if (! cw())
-		return -1;
-	b[wi++] = v;
-	if (wi == size)
-		wi = 0;
-	return 0;
-}
-
-int Buffer::w(byte const * p, size_t n)
-{
-	size_t num = 0;
-	while (cw())
-	{
-		w(*p++);
-		num++;
-		if (num == n)
-			break;
-	}
-	return num;
-}
-
-bool Buffer::cw()
-{
-	if (ri - wi == 1 || (! ri && size - wi == 1))
-		return false;
-	return true;
+	byte b;
+	r(&b, 1);
+	return b;
 }
 
 }

@@ -82,7 +82,7 @@ void init(void * mem_low_p)
 
 	// Testing buffers.
 	byte msg[16];
-	util::Buffer buf(16);
+	util::Buffer buf;
 	buf.w(63);
 	buf.w(63);
 	buf.w(33);
