@@ -1,9 +1,9 @@
 include ../kernel.mk
 
-system.o: system.cxx system.hxx
+system.o: system.cxx system.hxx ../include/thread.hxx ../include/util.hxx
 	$(CXX) $(CXXFLAGS) -c -o system.o system.cxx
 
-system.hxx: ../kernel.hxx
+system.hxx ../include.hxx ../include/util.hxx: ../kernel.hxx
 
 .PHONEY: clean
 clean:

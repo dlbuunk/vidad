@@ -3,11 +3,14 @@ include ../kernel.mk
 memory.o: page.o malloc.o
 	$(LD) -r -o memory.o page.o malloc.o
 
-page.o: page.cxx memory.hxx
+page.o: page.cxx memory.hxx ../include/util.hxx
 	$(CXX) $(CXXFLAGS) -c -o page.o page.cxx
 
-malloc.o: malloc.cxx memory.hxx
+malloc.o: malloc.cxx memory.hxx ../include/util.hxx
 	$(CXX) $(CXXFLAGS) -c -o malloc.o malloc.cxx
+
+memory.hxx ../include/util.hxx:
+	../kernel.hxx
 
 .PHONEY: clean
 clean:
