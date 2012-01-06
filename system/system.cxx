@@ -60,14 +60,15 @@ void init_nt(dword mem_low)
 
 		// Check if there are any alarming || sleeping threads.
 		if (thread::alarms || thread::sleeps)
+		{
+			asm volatile ( "hlt\n\t" : : : ) ;
 			goto end_loop;
+		}
 
 		// There are no other threads, bail out...
 		break;
 
-		end_loop:;
-		asm volatile ( "hlt\n\t" : : : ) ;
-		sched();
+		end_loop: sched();
 	}
 
 	// Shutdown routine.
