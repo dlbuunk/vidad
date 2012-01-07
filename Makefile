@@ -22,7 +22,7 @@ bootloader/page_init.bin: force_look
 	make -C bootloader page_init.bin
 
 kernel.bin: kernel_entry.o int_entry.o c_entry.o cxx_entry.o \
-		util/util.o system/system.o \
+		util/util.o system/system.o io/io.o \
 		memory/memory.o thread/thread.o
 	$(LD) -T kernel.ld
 	chmod -x kernel.bin
@@ -44,6 +44,9 @@ util/util.o: force_look
 
 system/system.o: force_look
 	make -C system
+
+io/io.o: force_look
+	make -C io
 
 memory/memory.o: force_look
 	make -C memory

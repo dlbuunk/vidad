@@ -16,7 +16,7 @@ INPUT
 	/* stream/stream.o */
 	/* event/event.o */
 	/* process/process.o */
-	/* io/io.o */
+	io/io.o
 )
 
 OUTPUT(kernel.bin)
