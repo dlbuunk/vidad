@@ -1,0 +1,4 @@
+execfile("../SConset")
+env.Replace(CPPPATH="../include")
+
+env.Program("util.o", ["string.cxx", "buffer.cxx", "kprint.cxx"])

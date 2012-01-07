@@ -2,25 +2,6 @@ ENTRY(__kernel_entry)
 
 OUTPUT_FORMAT(binary)
 
-STARTUP(kernel_entry.o)
-
-INPUT
-(
-	int_entry.o
-	c_entry.o
-	cxx_entry.o
-	util/util.o
-	system/system.o
-	memory/memory.o
-	thread/thread.o
-	/* stream/stream.o */
-	/* event/event.o */
-	/* process/process.o */
-	io/io.o
-)
-
-OUTPUT(kernel.bin)
-
 SECTIONS
 {
 	. = 0x00100000;

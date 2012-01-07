@@ -1,0 +1,4 @@
+execfile("../SConset")
+env.Replace(CPPPATH="../include")
+
+env.Program("thread.o", ["threads.cxx"])

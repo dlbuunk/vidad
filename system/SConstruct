@@ -1,0 +1,4 @@
+execfile("../SConset")
+env.Replace(CPPPATH="../include")
+
+env.Program("system.o", ["sysinit.cxx"])

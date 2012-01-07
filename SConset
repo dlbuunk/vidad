@@ -1,0 +1,8 @@
+env = Environment()
+env.Replace(LINK = "/usr/local/cross/bin/i386-elf-ld")
+env.Replace(AS = "/usr/local/cross/bin/i386-elf-as")
+env.Replace(CC = "/usr/local/cross/bin/i386-elf-gcc -std=gnu99")
+env.Replace(CXX = "/usr/local/cross/bin/i386-elf-g++ -std=gnu++98")
+env.Replace(CCFLAGS = "-nostdlib -nostartfiles -nodefaultlibs -fno-builtin -Wall -Wextra -Werror -O3")
+env.Replace(CXXFLAGS= "-fno-exceptions -fno-rtti -fno-stack-protector")
+env.Replace(LINKFLAGS = "-r")

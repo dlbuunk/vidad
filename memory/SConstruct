@@ -1,0 +1,4 @@
+execfile("../SConset")
+env.Replace(CPPPATH="../include")
+
+env.Program("memory.o", ["page.cxx", "malloc.cxx"])
