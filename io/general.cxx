@@ -1,4 +1,4 @@
-//      manager.hxx
+//      manager.cxx
 //
 //      Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
 //
@@ -19,20 +19,15 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#ifndef IO_MANAGER_HXX
-#define IO_MANAGER_HXX
+#include "util.hxx"
+using util::kputs;
+using util::kprintf;
 
-#include "kernel.hxx"
+#include "io.hxx"
 
 namespace io
 {
 
-namespace manager
-{
-
 
 
 }
-
-}
-#endif // IO_MANAGER_HXX
