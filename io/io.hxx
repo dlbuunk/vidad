@@ -27,8 +27,19 @@
 namespace io
 {
 
-
-
+// Port I/O functions.
+void outb(byte val, word port);
+void outw(word val, word port);
+void outd(dword val, word port);
+byte inb(word port);
+word inw(word port);
+dword ind(word port);
+void outsb(byte * ptr, word port, size_t count);
+void outsw(word * ptr, word port, size_t count);
+void outsd(dword * ptr, word port, size_t count);
+void insb(byte * ptr, word port, size_t count);
+void insw(word * ptr, word port, size_t count);
+void insd(dword * ptr, word port, size_t count);
 
 }
 

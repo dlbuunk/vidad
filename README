@@ -2,7 +2,7 @@ Welcome to the ViOS project,
 this is an attempt to write an OS for the x86 architecture.
 The project is (almost) fully written in C++.
 The goal is to write a mostly monolithic kernel.
-As for naming, i am nut sure yet, both ViOS and Vidad seem nice.
+As for naming, i am not sure yet, both ViOS and Vidad seem nice.
 
 After a half-succesfull attempt in early 2011, i am now doing a full rewrite.
 (Now is early january 2012)
@@ -35,41 +35,51 @@ on directories and on namespaces.
 
 
 ===== Status of the project ====================================================
-(as of January 3, 2012)
+(as of January 8, 2012)
 
 ==> Bootloader done.
 ==> *_entry files mostly complete.
 ==> util contains several useful functions.
+==> system contains a bit of startup code.
 ==> memory is mostly functional.
+==> stream: well, there is a header, outlining the ideas...
+==> there are port io functions in io.
 
 And that's about it.
 
 
 ===== Further planning =========================================================
 
-Next thing is thread, as most code should be able to run in a multithreaded
-environement, it is better to write this first, before a LOT of other code
-breaks because of multithreading. Locks (semaphore, mutex, spinlock???)
-should be added to util.
-
-After that comes the stream interface and a proper screen driver.
+The stream interface should be worked out, this requires writing a system
+for translating device/file numbers to Stream pointers.
+We will need a proper screen driver, but i prefer writing a PCI driver first.
+(For obvious reasons) I might wat to write a few other basic drivers as well.
 
 Keyboard handling will require irq's and thus event, which, when finished
-should make it possible to finally have a function terminal!
+should make it possible to finally have a functional terminal!
 
 Apart from user programs the kernel proper should than be functional, i will
 than add several drivers.
 
+==> Apart from that i will try adding bootblocks for harddisk (PATA?/SATA?),
+	CD-ROM (El-Torito no-emulation), and multiboot (Grub).
+
 
 ===== Building && running ======================================================
 
+ViOS now uses Scons to build.
+
+Compiling ViOS works best when using a cross-compiler, but any ordinary
+compiler (with gcc-style inline asm) should do. Changing 'Csonset' should do.
+
+
 To buid the kernel run:
-	make image
+	scons
 in the main dir.
 
 
 To test you need bochs, just run:
-	make
+	bochs
 
 If you want to test it on a real computer, you'll need to have a floppy drive.
 First copy the kernel to the floppy (this will shred the floppy!):
