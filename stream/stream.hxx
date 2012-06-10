@@ -23,6 +23,8 @@
 #define STREAM_HXX
 
 #include "kernel.hxx"
+#include "util.hxx"
+using util::strncpy;
 
 #define DEV_ID_LEN 80
 
@@ -38,7 +40,6 @@ class Stream
 		s_size = 0;
 	}
 	virtual ~Stream() {}
-	char const * get_pid() { return s_pid; }
 	char const * get_id() { return s_id; }
 	qword get_size() { return s_size; }
 	virtual void flush() {};
@@ -109,13 +110,13 @@ class Stream_rwsb: public Stream_r, public Stream_w, public Stream_s
 class Device
 {
 	public:
-	Device()
+	Device(char const * to_dev_id, byte devtype)
 	{
-		type = 0;
+		type = devtype;
 		open_write = false;
 		open_read = 0;
 		reg_subdev = 0;
-		dev_id[0] = ';';
+		strncpy(dev_id, to_dev_id, DEV_ID_LEN);
 	}
 	byte get_type() { return type; }
 	bool can_close()
@@ -126,13 +127,13 @@ class Device
 			return true;
 	}
 
-	virtual Stream_r open_r() { return 0; }
-	virtual Stream_rs open_rs() { return 0; }
-	virtual Stream_w open_w() { return 0; }
-	virtual Stream_ws open_ws() { return 0; }
-	virtual Stream_rwsb open_rwsb() { return 0; }
+	virtual Stream_r * open_r() { return 0; }
+	virtual Stream_rs * open_rs() { return 0; }
+	virtual Stream_w * open_w() { return 0; }
+	virtual Stream_ws * open_ws() { return 0; }
+	virtual Stream_rwsb * open_rwsb() { return 0; }
 
-	virtual Device open_subdev(int num_subdev)
+	virtual Device * open_subdev(int num_subdev)
 	{
 		if (num_subdev = 0 && reg_subdev)
 			return reg_subdev;
@@ -157,6 +158,32 @@ class Device
 	unsigned int open_read;
 	Device * reg_subdev;
 	char dev_id[DEV_ID_LEN];
+};
+
+class Filesys: public Device
+{
+	public:
+	Filesys(char const * dev_id, byte devtype) : Device(dev_id, devtype)
+	{
+		fopen_write = 0;
+		fopen_read = 0;
+	}
+
+	// Ordinary lookup
+	virtual char const * name_to_num(char const * name) = 0;
+	virtual unsigned int name_to_num_raw(char const * name) = 0;
+	// And the reverse lookup
+	virtual char const * num_to_name(unsigned int num) = 0;
+	// TODO: stat should be here too
+
+	virtual Stream_r * open_r(unsigned int num) = 0;
+	virtual Stream_rs * open_rs(unsigned int num) = 0;
+	virtual Stream_w * open_w(unsigned int num) = 0;
+	virtual Stream_ws * open_ws(unsigned int num) = 0;
+
+	protected:
+	unsigned int fopen_write;
+	unsigned long long int fopen_read;
 };
 
 }
