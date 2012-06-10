@@ -50,7 +50,7 @@ And that's about it.
 
 ===== Further planning =========================================================
 
-The stream interface should be worked out, this requires writing a system
+The stream interface should be completed, this requires writing a system
 for translating device/file numbers to Stream pointers.
 We will need a proper screen driver, but i prefer writing a PCI driver first.
 (For obvious reasons) I might wat to write a few other basic drivers as well.

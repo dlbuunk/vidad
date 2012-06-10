@@ -15,7 +15,7 @@ kernel.Replace(LINKFLAGS = "-T kernel.ld")
 kernel.Program("kernel.binx", ["kernel_entry.s", "int_entry.cxx", "c_entry.c", "cxx_entry.cxx", \
 		"util/util.o", "system/system.o", "memory/memory.o", "thread/thread.o", "io/io.o"])
 kernel.Depends("kernel.binx", "kernel.ld")
-kernel.Command("kernel.bin", "kernel.binx", "chmod -x kernel.binx && cp kernel.bin{x,}")
+kernel.Command("kernel.bin", "kernel.binx", "chmod -x kernel.binx && cp kernel.binx kernel.bin")
 
 
 
@@ -30,7 +30,7 @@ fs = env.Clone()
 fs.Replace(LINKFLAGS = "-T fs.ld")
 fs.Program("fs.binx", ["fs.s"])
 fs.Depends("fs.binx", "fs.ld")
-fs.Command("fs.bin", "fs.binx", "chmod -x fs.binx && cp fs.bin{x,}")
+fs.Command("fs.bin", "fs.binx", "chmod -x fs.binx && cp fs.binx fs.bin")
 
 env.Command("image", ["boot_block.bin", "page_init.bin", "fs.bin", "kernel.bin"], \
 	"cp boot_block.bin image && \
