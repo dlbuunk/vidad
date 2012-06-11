@@ -2,6 +2,9 @@ execfile("SConset")
 env.Replace(CPPPATH="include")
 
 
+env.Default("kernel.bin")
+
+
 env.SConscript("util/SConstruct")
 env.SConscript("system/SConstruct")
 env.SConscript("memory/SConstruct")
