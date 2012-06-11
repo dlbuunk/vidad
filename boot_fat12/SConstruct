@@ -13,15 +13,16 @@ boot_sect.Depends("boot_sect.tmpx", "boot_sect.ld")
 boot_sect.Command("boot_sect.tmp", "boot_sect.tmpx", "chmod -x boot_sect.tmpx && cp boot_sect.tmpx boot_sect.tmp")
 
 
-#boot_block = loader.Clone()
-#boot_block.Replace(LINKFLAGS = "-T boot_block.ld")
+boot_block = loader.Clone()
+boot_block.Replace(LINKFLAGS = "-T boot_block.ld")
 #boot_block.Program("boot_block.tmpx", ["boot_block.s", "loader_hw.c", "loader_m.c"])
-#boot_block.Depends("boot_block.tmpx", "boot_block.ld")
-#boot_block.Command("boot_block.tmp", "boot_block.tmpx", "chmod -x boot_block.tmpx && cp boot_block.tmpx boot_block.tmp")
+boot_block.Program("boot_block.tmpx", ["boot_block.s"])
+boot_block.Depends("boot_block.tmpx", "boot_block.ld")
+boot_block.Command("boot_block.tmp", "boot_block.tmpx", "chmod -x boot_block.tmpx && cp boot_block.tmpx boot_block.tmp")
 
-#boot_block.Command("boot_block.bin", "boot_block.tmp", \
-#	"cp boot_sect.tmp boot_block.bin && dd if=boot_block.tmp of=boot_block.bin seek=1")
-#boot_block.Depends("boot_block.bin", "boot_sect.tmp")
+boot_block.Command("boot_block.bin", "boot_block.tmp", \
+	"cp boot_sect.tmp boot_block.bin && dd if=boot_block.tmp of=boot_block.bin seek=1")
+boot_block.Depends("boot_block.bin", "boot_sect.tmp")
 
 
 
