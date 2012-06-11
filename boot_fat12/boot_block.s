@@ -1,6 +1,6 @@
 #       boot_block.s
 #
-#       Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
+#       Copyright 2011,2012 D.L.Buunk <dlbuunk@gmail.com>
 #
 #       This file is part of ViOS.
 #
@@ -524,8 +524,8 @@ pmode32_entry:
 
 
 	# now we can call the loader, first do the hardware part
-#	.extern	loader_hw
-#	call	loader_hw
+	.extern	loader_hw
+	call	loader_hw
 
 	cli
 	hlt

@@ -1,6 +1,6 @@
 #       boot_sect.s
 #
-#       Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
+#       Copyright 2011,2012 D.L.Buunk <dlbuunk@gmail.com>
 #
 #       This file is part of ViOS.
 #
