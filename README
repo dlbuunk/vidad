@@ -24,7 +24,7 @@ on directories and on namespaces.
 
 ==> memory, the memory management code, provides both physical memory management
 	(paging) and logical memory management (new/delete).
-==> stream, contains the interface for the stream model. Most data is
+==> stream, contains the interface for the stream/device model. Most data is
 	transferred throug a stream.
 ==> event, contains the code for the event subsystem, all sorts of "events"
 	are passed throug this system, IRQ's, some keystrokes, signals.
@@ -35,16 +35,17 @@ on directories and on namespaces.
 
 
 ===== Status of the project ====================================================
-(as of January 8, 2012)
+(as of June 11, 2012)
 
 ==> Bootloader done.
 ==> *_entry files mostly complete.
 ==> util contains several useful functions.
 ==> system contains a bit of startup code.
 ==> memory is mostly functional.
-==> stream: well, there is a header, outlining the ideas...
+==> stream: there is a rather complete header.
 ==> thread: works, but there is a need for a better scheduling algo.
-==> there are port io functions in io.
+==> there are port io functions in io, and there is work done on the
+	root/legacy devices.
 
 And that's about it.
 
@@ -53,8 +54,8 @@ And that's about it.
 
 The stream/device interface should be completed, this requires writing a system
 for translating device/file numbers to Stream pointers.
-We will need a proper screen driver, but i prefer writing a PCI driver first.
-(For obvious reasons) I might want to write a few other basic drivers as well.
+We will need a proper screen driver, i will postpone writing a PCI driver.
+I'll start working on the legacy devices.
 
 Keyboard handling will require irq's and thus event, which, when finished
 should make it possible to finally have a functional terminal!
