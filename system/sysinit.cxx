@@ -28,6 +28,9 @@ using util::kprintf;
 using thread::Thread;
 using thread::sched;
 
+#include "io.hxx"
+using io::pciread;
+
 namespace system
 {
 
@@ -81,17 +84,29 @@ void init(void * mem_low_p)
 	// Still needs to be distributed.
 	kprintf("%t system::init: mem_low == %u.\n", mem_low_p);
 
-	// Testing buffers.
-	byte msg[16];
-	util::Buffer buf;
-	buf.w(63);
-	buf.w(63);
-	buf.w(33);
-	buf.r();
-	buf.r();
-	buf.r();
-	kprintf("%t buffer_test_write: %i.\n", buf.w((byte const *) "Hello, world!", 14));
-	kprintf("%t buffer_test_read : %i, %s.\n", buf.r(msg, 14), msg);
+	// Getting info from the pci config space
+	dword tmp0, tmp2;
+	kprintf("%t system::init: reading pci configuration space.\n");
+	kprintf("bus\tdevice\tfunc\tvendID\tdevID\tclass\tsubcl\tprogIF\n");
+
+	for (int i=0; i<256; i++)
+	{
+		for (int j=0; j<32; j++)
+		{
+			for (int k=0; k<8; k++)
+			{
+				tmp0 = pciread(i, j, k, 0);
+				if (tmp0 == 0xFFFFFFFF)
+					continue;
+				tmp2 = pciread(i, j, k, 2);
+				kprintf("%u\t%u\t%u\t%X\t%X\t%X\t%X\t%X\n",
+					i, j, k,
+					tmp0 & 0xFFFF, tmp0 >> 16,
+					tmp2 >> 24, (tmp2 >> 16) & 0xFF,
+					(tmp2 >> 8) & 0xFF);
+			}
+		}
+	}
 }
 
 void panic(char const * msg)

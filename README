@@ -43,6 +43,7 @@ on directories and on namespaces.
 ==> system contains a bit of startup code.
 ==> memory is mostly functional.
 ==> stream: well, there is a header, outlining the ideas...
+==> thread: works, but there is a need for a better scheduling algo.
 ==> there are port io functions in io.
 
 And that's about it.
@@ -50,10 +51,10 @@ And that's about it.
 
 ===== Further planning =========================================================
 
-The stream interface should be completed, this requires writing a system
+The stream/device interface should be completed, this requires writing a system
 for translating device/file numbers to Stream pointers.
 We will need a proper screen driver, but i prefer writing a PCI driver first.
-(For obvious reasons) I might wat to write a few other basic drivers as well.
+(For obvious reasons) I might want to write a few other basic drivers as well.
 
 Keyboard handling will require irq's and thus event, which, when finished
 should make it possible to finally have a functional terminal!

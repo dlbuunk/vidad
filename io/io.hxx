@@ -41,6 +41,9 @@ void insb(byte * ptr, word port, size_t count);
 void insw(word * ptr, word port, size_t count);
 void insd(dword * ptr, word port, size_t count);
 
+// PCI
+dword pciread(byte bus, byte dev, byte func, byte reg);
+
 }
 
 #endif // IO_HXX

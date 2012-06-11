@@ -1,19 +1,19 @@
 //      kprint.cxx
-//      
+//
 //      Copyright 2011 D.L.Buunk <dlbuunk@gmail.com>
 //
 //      This file is part of ViOS.
-//      
+//
 //      ViOS is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      ViOS is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with ViOS; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -61,16 +61,33 @@ void _format_str(char const * fstr, char * ostr, dword * args)
 			strcpy(ostr, (char const *)(*args++));
 			ostr += strlen(ostr);
 			break;
-		case 'x':
-		case 'X':
+		case 'h':
+		case 'H':
 			for (int i=28; i>=0; i-=4)
 			{
 				*ostr = ((*args >> i) & 0xF) + 0x30;
 				if (*ostr > 0x39)
-					*ostr += *fstr - 'X' + 7;
+					*ostr += *fstr - 'H' + 7;
 				ostr++;
 			}
 			args++;
+			break;
+		case 'X':
+		case 'x':
+			unum = *args++;
+			for (int i=8; i>=0; i--)
+			{
+				buf[i] = (unum & 0xF) + 0x30;
+				if (buf[i] > 0x39)
+					buf[i] += *fstr - 'X' + 7;
+				unum >>= 4;
+				if (unum)
+					continue;
+				buf[9] = '\0';
+				strcpy(ostr, &buf[i]);
+				ostr += strlen(ostr);
+				break;
+			}
 			break;
 		case 'u':
 			unum = *args++;

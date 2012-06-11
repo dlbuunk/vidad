@@ -5,12 +5,13 @@ fs_entry:
 	.word	0xFFFC	# boot block
 	.word	0xFFF8	# allocation table
 	.word	0xFFF8	# root directory
-	.word	0x0004	# kernel.bin
-	.word	0x0005	# 4 blocks, 16 KiB
+	.word	0x0004	# kernel.bin (page init, 1 block, 4 kiB)
+	.word	0x0005	# kernel.bin (main part, 5 blocks, 20 KiB)
 	.word	0x0006
 	.word	0x0007
+	.word	0x0008
 	.word	0xFFF8
-	.fill	2040,2
+	.fill	2039,2	# MIND THE FILL!!!
 
 	# root dir header
 	.word	32
