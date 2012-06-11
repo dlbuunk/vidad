@@ -146,9 +146,9 @@ void loader_main(void)
 			num_resvd_sectors + num_fat_sectors*num_fats + i);
 
 	// read the kernel
-	for (int i=0; i<16; i++)
+	for (int i=0; i<8; i++)
 	{
-		if (read_file((byte *) 0xE000, "kernel.bin", 0))
+		if (read_file((byte *) (0xE000 + (i<<9)), "kernel.bin", i))
 		{
 			puts("FAIL");
 			return;
@@ -163,7 +163,7 @@ void loader_main(void)
 		void (*)(char *),
 		void (*)(int),
 		void (*)(void)
-	)) (0xE000 + *((word *) 0xE000))))(
+	)) 0xE000))(
 		&read_file,
 		&puts,
 		&timer,

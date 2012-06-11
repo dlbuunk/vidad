@@ -25,8 +25,8 @@ boot_block.Depends("boot_block.bin", "boot_sect.tmp")
 
 
 
-#page_init = loader.Clone()
-#page_init.Replace(LINKFLAGS = "-T page_init.ld")
-#page_init.Program("page_init.binx", ["kheader.s", "page_init.c"])
-#page_init.Depends("page_init.binx", "page_init.ld")
-#page_init.Command("page_init.bin", "page_init.binx", "chmod -x page_init.binx && cp page_init.binx page_init.bin")
+page_init = loader.Clone()
+page_init.Replace(LINKFLAGS = "-T page_init.ld")
+page_init.Program("page_init.binx", ["kheader.s", "page_init.c"])
+page_init.Depends("page_init.binx", "page_init.ld")
+page_init.Command("page_init.bin", "page_init.binx", "chmod -x page_init.binx && cp page_init.binx page_init.bin")
