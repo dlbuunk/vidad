@@ -1,4 +1,4 @@
 execfile("../SConset")
 env.Replace(CPPPATH="../include")
 
-env.Program("io.o", ["general.cxx", "pci.cxx"])
+env.Program("io.o", ["general.cxx", "device.cxx"])

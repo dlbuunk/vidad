@@ -23,13 +23,12 @@
 //	ordering the heap to be initialized and calling the main startup
 //	sequence, system::init().
 
-#include "kernel.hxx"
 #include "util.hxx"
 using util::kputs;
 using util::kprintf;
 
-#include "memory.hxx"
 #include "system.hxx"
+#include "memory.hxx"
 
 // These are the global overloads of new and delete.
 

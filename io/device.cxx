@@ -1,4 +1,4 @@
-//      io.hxx
+//      device.cxx
 //
 //      Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
 //
@@ -19,35 +19,72 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-#ifndef IO_HXX
-#define IO_HXX
-
-#include "kernel.hxx"
-#include "stream.hxx"
-using stream::Device;
+#include "io.hxx"
 
 namespace io
 {
 
-// Port I/O functions.
-void outb(byte val, word port);
-void outw(word val, word port);
-void outd(dword val, word port);
-byte inb(word port);
-word inw(word port);
-dword ind(word port);
-void outsb(byte * ptr, word port, size_t count);
-void outsw(word * ptr, word port, size_t count);
-void outsd(dword * ptr, word port, size_t count);
-void insb(byte * ptr, word port, size_t count);
-void insw(word * ptr, word port, size_t count);
-void insd(dword * ptr, word port, size_t count);
+class Device_legacy: public Device
+{
+	public:
+	Device_legacy() : Device("|0;", 0x40)
+	{
+		// TODO: init legacy devices.
+	}
+	~Device_legacy()
+	{
+		// TODO: exit legacy devices.
+	}
 
-// Main devices and initialisation
-extern Device * dev_root;
-int init_dev();
-int exit_dev();
+	Device * open_subdev(int num_subdev)
+	{
+		// TODO: return legacy devices
+		(void) num_subdev;
+		return 0;
+	}
+};
 
+class Device_root: public Device
+{
+	public:
+	Device_root() : Device("|;", 0x40)
+	{
+		dev_legacy = new Device_legacy();
+		// init PCI
+	}
+	~Device_root()
+	{
+		// exit PCI
+		delete dev_legacy;
+	}
+
+	Device * open_subdev(int num_subdev)
+	{
+		switch (num_subdev)
+		{
+		case 0 : return dev_legacy;
+		case 4 : // PCI
+		default:
+			return 0;
+		}
+	}
+
+	private:
+	Device * dev_legacy;
+};
+
+int init_dev()
+{
+	dev_root = new Device_root();
+	return 0;
 }
 
-#endif // IO_HXX
+int exit_dev()
+{
+	delete dev_root;
+	return 0;
+}
+
+Device * dev_root = 0;
+
+}

@@ -118,6 +118,7 @@ class Device
 		reg_subdev = 0;
 		strncpy(dev_id, to_dev_id, DEV_ID_LEN);
 	}
+	virtual ~Device() {}
 	byte get_type() { return type; }
 	bool can_close()
 	{
@@ -135,7 +136,7 @@ class Device
 
 	virtual Device * open_subdev(int num_subdev)
 	{
-		if (num_subdev = 0 && reg_subdev)
+		if (num_subdev == 0 && reg_subdev)
 			return reg_subdev;
 		else
 			return 0;
@@ -168,6 +169,7 @@ class Filesys: public Device
 		fopen_write = 0;
 		fopen_read = 0;
 	}
+	virtual ~Filesys() {}
 
 	// Ordinary lookup
 	virtual char const * name_to_num(char const * name) = 0;
