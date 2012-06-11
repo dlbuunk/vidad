@@ -202,6 +202,9 @@ msg_cpu_error:
 	.text
 	.code16
 
+	# re-init the IVT
+	movw	$IRQ0,0x0020
+
 	call	readFIFO
 	call	readFIFO
 	call	readFIFO
@@ -467,7 +470,7 @@ idt_loop:
 	jne	idt_loop
 
 	# copy GDT
-	movw	$0x1240,%si
+	movw	$0x1210,%si
 	movw	$0x2000,%di
 	movw	$0x0018,%cx	# 6 entries
 	rep	movsw

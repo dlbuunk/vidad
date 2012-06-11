@@ -143,7 +143,7 @@ void page_init(
 	{
 		for (int i = 8; i < 16; i++)
 		{
-			if ((*read_file)((void *) 0xF000, "kernel.bin", i))
+			if ((*read_file)((void *) 0xF000, "KERNEL.BIN", i))
 			{
 				(*puts)("[] Error: cannot load second block"
 					" of kernel.\n");
@@ -327,7 +327,7 @@ void page_init(
 		if (need_load) for (int k = 0; k < 8; k++)
 		{
 			int r = (*read_file)(phys + (k<<9),
-				"kernel.bin",
+				"KERNEL.BIN",
 				((j+kernel_start) << 3) + k);
 			if (r == 2) need_load = 0;
 			else if (r == 1)
@@ -406,7 +406,8 @@ void page_init(
 		"lldt	%%ax\n\t"
 		:
 		:
-		: "memory"
+		: "%eax"
+		, "memory"
 		) ;
 
 
@@ -443,7 +444,7 @@ void page_init(
 
 
 	// Ninthly, map the page stack into kernel memory,
-	// and switch to logical addresses in stack_pages.
+	// and switch to linear addresses in stack_pages.
 	(*puts)("[] Switching to linear addresses.\n");
 	*((dword *)((kernel_size<<2) + 0x4400)) = 0x00100007;
 	stack_pages += kernel_size << 10; // stack_pages is a pointer!

@@ -66,7 +66,7 @@ word num_resvd_sectors;
 word num_fat_sectors;
 byte num_fats;
 word num_root_dir_sectors;
-word * FAT;
+byte * FAT;
 struct dir_entry * root_dir;
 
 // Function to load a sector within a file, given a first sector.
@@ -75,14 +75,16 @@ int read_file_num(byte * addr, word sect, word sect_count)
 	if (sect_count) for (word i = 0; i< sect_count; i++)
 	{
 		if (sect & 0x0001)
-			sect = FAT[sect + (sect>>1)] >> 4;
+			sect = *(word *)&FAT[sect + (sect>>1)] >> 4;
 		else
-			sect = FAT[sect + (sect>>1)] & 0x0FFF;
+			sect = *(word *)&FAT[sect + (sect>>1)] & 0x0FFF;
 		if (sect >= 0xFF8)
 			return 2;
 	}
 
-	read_sect(addr, sect);
+	// The + 16 is a translation between relative and absolute
+	// sector numbering, this is hardcoded, not sure on how to calculate it.
+	read_sect(addr, sect + 16);
 
 	return 0;
 }
@@ -135,7 +137,7 @@ void loader_main(void)
 	num_fat_sectors = *((word *) 0x0616);
 	num_fats = *((byte *) 0x0610);
 	num_root_dir_sectors = *((word *) 0x0611) >> 4;
-	FAT = (word *) FAT_ADDR;
+	FAT = (byte *) FAT_ADDR;
 	root_dir = (struct dir_entry *)(FAT_ADDR + (num_fat_sectors << 9));
 
 	for (int i = 0; i < num_fat_sectors; i++)
@@ -148,7 +150,7 @@ void loader_main(void)
 	// read the kernel
 	for (int i=0; i<8; i++)
 	{
-		if (read_file((byte *) (0xE000 + (i<<9)), "kernel.bin", i))
+		if (read_file((byte *) (0xE000 + (i<<9)), "KERNEL.BIN", i))
 		{
 			puts("FAIL");
 			return;
