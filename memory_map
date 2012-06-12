@@ -11,8 +11,7 @@ first 1Mb is ID paged.
 0x02E00 - 0x02FFF :   0.5 kb : GDTP, IDTP and stack
 0x03000 - 0x03FFF :   4   kb : page directory
 0x04000 - 0x07FFF :  16   kb : page tables for first 16 Mb
-0x08000 - 0x0BFFF :  16   kb : floppy disk buffer for bootloader
-0x0C000 - 0x0DFFF :   8   kb : filesystem buffer for bootloader
+0x08000 - 0x0DFFF :  24   kb : floppy disk and filesystem buffers for bootloader
 0x0E000 - 0x0FFFF :   8   kb : paging initialisation code
 0x10000 - 0x1FFFF :  64   kb : GDT (0x2000 entries)
 0x20000 - 0x5FFFF : 256   kb : DMA buffers, otherwise free

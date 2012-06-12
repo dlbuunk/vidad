@@ -1,0 +1,12 @@
+loader = Environment()
+loader.Replace(LINK = "/usr/local/cross/bin/i486-elf-ld")
+loader.Replace(AS = "/usr/local/cross/bin/i486-elf-as")
+loader.Replace(CC = "/usr/local/cross/bin/i486-elf-gcc")
+loader.Replace(CCFLAGS = "-Wall -Wextra -Werror -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Os -std=gnu99")
+
+
+multiboot = loader.Clone()
+multiboot.Replace(LINKFLAGS = "-T multiboot.ld")
+multiboot.Program("multiboot.binx", ["multiboot.s", "loader_print.c", "mb_data.c"])
+multiboot.Depends("multiboot.binx", "multiboot.ld")
+multiboot.Command("multiboot.bin", "multiboot.binx", "chmod -x multiboot.binx && cp multiboot.binx multiboot.bin")
