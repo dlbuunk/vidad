@@ -97,7 +97,7 @@ dword * mb_data(dword magic, dword * info)
 		memcpy(end, (void *) data[6], data[5] << 4);
 		data[6] = (dword) tmp;
 		end += data[5] << 4;
-		// copy strings
+		// copy stringslinear address
 		for (dword i = 0; i < data[5]; i++)
 		{
 			if (tmp[(i<<2)+2])
@@ -154,6 +154,12 @@ dword * mb_data(dword magic, dword * info)
 		puts("Error: number of modules is not equal to one.");
 		asm ( "hlt\n\t" : : : ) ;
 	}
+
+	// put the pointers in the right place
+	*((dword *) 0x00101000) = 0x00101000;
+	*((dword *) 0x00101004) = (dword) data;
+
+	puts("Now copying data and starting ordinary startup routine.\n");
 
 	return data;
 }

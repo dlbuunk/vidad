@@ -35,17 +35,7 @@
 	.code32
 	.global multiboot_entry
 
-	# multiboot header
-	.long	0x1BADB002	# magic
-	.long	0x00010001	# flags
-	# align modules, no mem detection needed, no video mode, use aout kludge
-	.long	0xE4514FFD	# checksum
-	.long	0x00100000	# header load address
-	.long	0x00100000	# code load adress (same)
-	.long	0x00000000	# load end adress (filesize)
-	.long	0x00110000	# end of BSS
-	.long	multiboot_entry	# entry adress
-	# end of header
+	# The multiboot header is in boot_block.s
 
 multiboot_entry:
 	# Okay, we are loaded multiboot, what to do next:
@@ -55,6 +45,17 @@ multiboot_entry:
 	# 3 => Copy the kernel and boot_block modules to lower memory.
 	# 4 => Load a new, temporary, special GDT.
 	# 5 => Switch to 16-bit pmode, and jump to boot block.
+
+	# reserve 8 bytes of space for the two pointers
+	nop
+	nop
+	nop
+	nop
+
+	nop
+	nop
+	nop
+	nop
 
 	# set up stack and clear some flags
 	movl	$0x00110000,%esp
@@ -74,10 +75,10 @@ multiboot_entry:
 	pushl	%eax
 
 	# copy mb-data to low mem
-	movl	%eax,%esi
+	movl	$0x00101000,%esi
 	movl	$0x00008000,%edi
-	movl	$0x00006000,%ecx
-	rep	movsb
+	movl	$0x00001800,%ecx
+	rep	movsl
 
 	# copy kernel
 	popl	%eax
@@ -90,8 +91,37 @@ multiboot_entry:
 	movl	$0x00020000,%edi
 	rep	movsl
 
-	# copy self
+	# copy boot block
+	movl	$0x00100000,%esi
+	movl	$0x00001000,%edi
+	movl	$0x00000400,%ecx
+	rep	movsl
 
+	# We'll now create a temporary GDT, it will contain 3 entries:
+	# the null entry, a 16-bit code segment, and a 16-bit data segment.
+	# We place this table on top of the start of this code...
 
-	cli
-	hlt
+	movl	$0x00000000,0x00101000	# null entry
+	movl	$0x00000000,0x00101004
+
+	movl	$0x0000FFFF,0x00101008	# code segment
+	movl	$0x00009A00,0x0010100C
+
+	movl	$0x0000FFFF,0x00101010	# data segment
+	movl	$0x00009200,0x00101014
+
+	movw	$0x0017,0x0010101A	# gdtp: size
+	movl	$0x00101000,0x0010101C	# gdtp: offset
+
+	movl	$0x00000008,%eax
+	pushl	%eax
+
+	movl	$0x0000102C,%ebx
+	movl	(%ebx),%eax
+	pushl	%eax
+
+	lgdt	0x0010101A
+
+	retfl
+	# Functions like a far jump to boot block.
+	# Everything above 1 MiB is now no longer needed!

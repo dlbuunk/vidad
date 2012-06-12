@@ -1,10 +1,10 @@
-ENTRY(multiboot_entry)
+ENTRY(boot_block_entry)
 
 OUTPUT_FORMAT(binary)
 
 SECTIONS
 {
-	. = 0x00101000;
+	. = 0x00001000;
 
 	.text :
 	{
@@ -19,12 +19,5 @@ SECTIONS
 	.data :
 	{
 		*(.data)
-	}
-
-	.bss :
-	{
-		*(COMMON)
-		*(.bss)
-		bss_end = . ;
 	}
 }

@@ -10,3 +10,15 @@ multiboot.Replace(LINKFLAGS = "-T multiboot.ld")
 multiboot.Program("multiboot.binx", ["multiboot.s", "loader_print.c", "mb_data.c"])
 multiboot.Depends("multiboot.binx", "multiboot.ld")
 multiboot.Command("multiboot.bin", "multiboot.binx", "chmod -x multiboot.binx && cp multiboot.binx multiboot.bin")
+
+
+boot_block = loader.Clone()
+boot_block.Replace(LINKFLAGS = "-T boot_block.ld")
+#boot_block.Program("boot_block.binx", ["boot_block.s", "loader_hw.c", "loader_m.c"])
+boot_block.Program("boot_block.binx", ["boot_block.s"])
+boot_block.Depends("boot_block.binx", "boot_block.ld")
+boot_block.Command("boot_block.bin", "boot_block.binx", "chmod -x boot_block.binx && cp boot_block.binx boot_block.bin")
+
+loader.Command("multboot.bin", "multiboot.bin", \
+	"cp boot_block.bin multboot.bin && dd if=multiboot.bin of=multboot.bin seek=8")
+loader.Depends("multboot.bin", "boot_block.bin")

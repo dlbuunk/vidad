@@ -1,33 +1,46 @@
-#       boot_block.s
+#	boot_block.s
 #
-#       Copyright 2011,2012 D.L.Buunk <dlbuunk@gmail.com>
+#	Copyright 2012 D.L.Buunk <dlbuunk@gmail.com>
 #
-#       This file is part of ViOS.
+#	This file is part of ViOS.
 #
-#       ViOS is free software; you can redistribute it and/or modify
-#       it under the terms of the GNU General Public License as published by
-#       the Free Software Foundation; either version 2 of the License, or
-#       (at your option) any later version.
+#	ViOS is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
 #
-#       ViOS is distributed in the hope that it will be useful,
-#       but WITHOUT ANY WARRANTY; without even the implied warranty of
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#       GNU General Public License for more details.
+#	ViOS is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
 #
-#       You should have received a copy of the GNU General Public License
-#       along with ViOS; if not, write to the Free Software
-#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#       MA 02110-1301, USA.
+#	You should have received a copy of the GNU General Public License
+#	along with ViOS; if not, write to the Free Software
+#	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#	MA 02110-1301, USA.
 
 	.text
 	# each function in this file should specify .code16 or .code32 !
 	.global boot_block_entry
 
-	# segment:offset pointer to start of code + padding
-	.word	boot_block_entry
-	.word	0x0000
+	# multiboot header
+	.long	0x1BADB002	# magic
+	.long	0x00010001	# flags
+	# align modules, no mem detection needed, no video mode, use aout kludge
+	.long	0xE4514FFD	# checksum
+	.long	0x00100000	# header load address
+	.long	0x00100000	# code load adress (same)
+	.long	0x00000000	# load end adress (filesize)
+	.long	0x00107000	# end of BSS
+	.long	0x00101000	# entry adress
+	.long	0		# reserved
 	.long	0
-	.quad	0
+	.long	0
+	# end of multiboot header
+
+	# pointer to the entry point @ 0x0000102C
+	.long	boot_block_entry
+	# endp
 
 	# start of GDT
 	# null entry
@@ -91,48 +104,6 @@ exp_e:	hlt
 exp_msg:
 	.asciz	"Unhandled exception."
 
-	# other INT-handlers and helper functions come here
-
-	# irq 0 handler
-	.global	irq0
-irq0:
-	.code32
-	pushl	%eax
-	movb	$0x01,irq0f
-	movb	$0x20,%al
-	outb	%al,$0x20
-	popl	%eax
-	iretl
-irq0f:	.byte	0x00
-
-	.global	wait_irq0
-wait_irq0:
-	hlt
-	cmpb	$0x01,irq0f
-	jne	wait_irq0
-	movb	$0x00,irq0f
-	ret
-
-	# irq 6 handler
-	.global	irq6
-irq6:
-	.code32
-	pushl	%eax
-	movb	$0x01,irq6f
-	movb	$0x20,%al
-	outb	%al,$0x20
-	popl	%eax
-	iretl
-irq6f:	.byte	0x00
-
-	.global	wait_irq6
-wait_irq6:
-	hlt
-	cmpb	$0x01,irq6f
-	jne	wait_irq6
-	movb	$0x00,irq6f
-	ret
-
 	# real-mode BIOS-printing, %si is pointer to string to print
 print_r:
 	.code16
@@ -149,145 +120,67 @@ prr_e:	popw	%bx
 	popw	%ax
 	ret
 
-	# real-mode irq-handling and such
-IRQ0:
-	.code16
-	pushw	%ax
-	movb	$0x01,IRQ0.f
-	movb	$0x20,%al
-	outb	%al,$0x20
-	popw	%ax
-	iretw
-IRQ0.f:
-	.byte	0x00
-timer:
-	.code16
-	hlt
-	cmpb	$0x01,IRQ0.f
-	jne	timer
-	movb	$0x00,IRQ0.f
-	loop	timer
-	ret
-
-readFIFO:
-	.code16
-	movw	$0x03F4,%dx
-	inb	%dx,%al
-	andb	$0x80,%al
-	cmpb	$0x80,%al
-	jne	readFIFO
-	incw	%dx
-	inb	%dx,%al
-	ret
-
 	# Main loader code starts here.
 	# Tasks for the main loader:
-	# => Shut down hw
-	# => Check CPU type
+	# => Drop to realmode
 	# => Obtain system data from BIOS, and store it.
-	# => A20-gate.
 	# => Setup IDT, and copy GDT.
 	# => Prepare and swich to pmode.
+	.data
+msg_load:
+	.asciz	"\n\rViOS boot-block loaded.\n\rMemory  "
+
+	.text
 boot_block_entry:
-	.data
-msg_cpu:
-	.asciz	"\n\rViOS boot-block loaded.\n\rCPU     "
-msg_cpu_error:
-	.asciz	"FAIL"
-	.text
+	.code16
+	# This is 16-bit pmode, mind you!
+	# All segment registers are invalid and we don't have a stack.
+	movw	$0x0010,%ax
+	movw	%ax,%ss
+	movw	$0x3000,%sp
+	movw	%sp,%bp
+	movw	%ax,%ds
+	movw	%ax,%es
+	movw	%ax,%fs
+	movw	%ax,%gs
+	# Reset ALL segments to prevent triple-fault later on...
+	# Now, drop to realmode:
+	movl	%cr0,%eax
+	andb	$0xFE,%al
+	movl	%eax,%cr0
+	# And do the required far jump:
+	jmpw	$0x0000,$realmode_entry
+realmode_entry:
 	.code16
 
-	# re-init the IVT
-	movw	$IRQ0,0x0020
+	# Now, we'll have to give BIOS the correct values for the cursor
+	# position, first obtain the data from the VGA-registers.
+	movw	$0x03D4,%dx
+	movb	$0x0E,%al
+	outb	%al,%dx
+	inc	%dx
+	inb	%dx,%al
+	movb	%al,%ah
+	dec	%dx
+	movb	$0x0F,%al
+	outb	%al,%dx
+	inc	%dx
+	inb	%dx,%al
 
-	call	readFIFO
-	call	readFIFO
-	call	readFIFO
-	call	readFIFO
-	call	readFIFO
-
-	# print A
-	movw	$0x0E41,%ax
+	# calculate row/collumn and do the interrupt
+	movb	$0x50,%cl
+	divb	%cl
+	rorw	$8,%ax
+	movw	%ax,%dx
+	movb	$0x00,%bh
+	movb	$0x02,%ah
 	int	$0x10
 
-	# shut off the floppy motor
-	movw	$0x03F2,%dx
-	movb	$0x0C,%al
-	outb	%al,%dx
-	movw	$0x0005,%cx
-	call	timer
-	cli
-
-	# and shut off the entire FDC
-	movb	$0x00,%al
-	outb	%al,%dx
-
-	# why not kill the DMAC while we're at it?
-	movb	$0x0F,%al	# mask all channels
-	outb	%al,$0x0F
-	outb	%al,$0xDE
-	movb	$0x04,%al	# kill both DMACs
-	outb	%al,$0x08
-	outb	%al,$0xD0
-
-	# and mask the PIC, for good measure
-	movb	$0xFF,%al
-	outb	%al,$0x21
-
-	# print D
-	movw	$0x0E44,%ax
-	int	$0x10
-
-	# check CPU type
-	movw	$msg_cpu,%si
-	call	print_r
-	pushfw
-
-	pushfw
-	popw	%ax
-	movw	%ax,%cx
-	andw	$0x0FFF,%ax
-	pushw	%ax
-	popfw
-	pushfw
-	popw	%ax
-	and	$0xF000,%ax
-	cmp	$0xF000,%ax
-	jne	check_286
-	popfw
-	movw	$msg_cpu_error,%si
-	call	print_r
-	cli
-	hlt
-
-check_286:
-	orw	$0xF000,%cx
-	pushw	%cx
-	popfw
-	pushfw
-	popw	%ax
-	and	$0xF000,%ax
-	jnz	check_386
-	popfw
-	movw	$msg_cpu_error,%si
-	call	print_r
-	cli
-	hlt
-
-check_386:
-	popfw
-	movb	$0x03,0x2DFE
-	# we have a 386, and are happy with it (for now)
-
-	# check memory && other BIOS data
-	.data
-msg_memory:
-	.asciz	"OK\r\nMemory  "
-	.text
-	.code16
-	movw	$msg_memory,%si
+	# print "loaded" string
+	movw	$msg_load,%si
 	call	print_r
 
+	# detect memory
 	# first try int 0x15, %eax = 0x0000E82
 	movw	$0x2C00,%di
 	movl	$0x0000E820,%eax
@@ -383,59 +276,6 @@ hw_err:
 hw_end:
 	movw	%ax,0x2DFC
 
-	# tell everyone that it went OK, and go A20
-	.data
-msg_a20:
-	.asciz	"OK\r\nA20     "
-	.text
-	.code16
-	movw	msg_a20,%di
-	call	print_r
-
-	# clear the interrupts flag, it should already be down
-	# but BIOS can do anything...
-	cli
-	jmp	a20
-
-a20wait:
-	inb	$0x64,%al
-	test	$0x02,%al
-	jnz	a20wait
-	ret
-
-a20wait2:
-	inb	$0x64,%al
-	test	$0x01,%al
-	jz	a20wait2
-	ret
-
-a20:
-	# disable keyboard
-	call	a20wait
-	movb	$0xAD,%al
-	outb	%al,$0x64
-
-	# read from input
-	call	a20wait
-	mov	$0xD0,%al
-	outb	%al,$0x64
-	call	a20wait2
-	inb	$0x60,%al
-	pushw	%ax
-
-	# write to output
-	call	a20wait
-	movb	$0xD1,%al
-	outb	%al,$0x64
-	call	a20wait
-	popw	%ax
-	orb	$0x02,%al
-	outb	%al,$0x60
-
-	# wait for processing
-	call	a20wait
-	# and a20 should be enabled
-
 	# preparing pmode
 	.data
 msg_pmode:
@@ -449,7 +289,7 @@ msg_pmode:
 	# set up IDT
 	movw	$0x0800,%di
 idt_loop:
-	movw	$0x1240,(%di)	# offset low
+	movw	$0x1060,(%di)	# offset low
 	incw	%di
 	incw	%di
 	movw	$0x0020,(%di)	# selector
@@ -465,7 +305,7 @@ idt_loop:
 	jne	idt_loop
 
 	# copy GDT
-	movw	$0x1210,%si
+	movw	$0x1030,%si
 	movw	$0x2000,%di
 	movw	$0x0018,%cx	# 6 entries
 	rep	movsw
@@ -479,7 +319,9 @@ idt_loop:
 	movw	$0x0800,0x2E0C	# linear address of IDT low
 	movw	$0x0000,0x2E0E	# linear address of IDT high
 
-	# turn off NMI
+	# mask the PIC and turn off NMI
+	movb	$0xFF,%al
+	outb	%al,$0x21
 	inb	$0x70,%al
 	orb	$0x80,%al
 	outb	%al,$0x70
@@ -520,10 +362,9 @@ pmode32_entry:
 	movw	%ax,%fs
 	movw	%ax,%gs
 
-
 	# now we can call the loader, first do the hardware part
-	.extern	loader_hw
-	call	loader_hw
+#	.extern	loader_hw
+#	call	loader_hw
 
 	cli
 	hlt
