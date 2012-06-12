@@ -138,27 +138,6 @@ void page_init(
 	// Tell the (l)user what we are up to.
 	(*puts)("[] Start of page_init().\n");
 
-	// Load the second part of the paging init code.
-	if (*((byte *) 0xE00B) == 2)
-	{
-		for (int i = 8; i < 16; i++)
-		{
-			if ((*read_file)((void *) 0xF000, "KERNEL.BIN", i))
-			{
-				(*puts)("[] Error: cannot load second block"
-					" of kernel.\n");
-					return;
-			}
-		}
-	}
-	else if (*((byte *) 0xE00B) > 2)
-	{
-		(*puts)("[] Error, paging initialization code too large\n");
-		return;
-	}
-	else if (*((byte *) 0xE00B) ==  0)
-		(*puts)("[] Warning, kernel header possibly corrupted.\n");
-
 	// Clear the BSS.
 	for (dword * i = &bss_start; i < &bss_end; i++)
 		*i = 0;
@@ -378,8 +357,6 @@ void page_init(
 	(*puts)("[] Re-init GDT.\n");
 	for (dword * j = (dword *) 0x00010000; j < (dword *) 0x00020000; j++)
 		*j = 0;
-	for (dword * j = (dword *) 0x00002000; j < (dword *) 0x00002C00; j++)
-		*j = 0;
 	// sys-LDT
 	*((qword *) 0x10008) = 0x0000820020000C00LL;
 	// 16-bit
@@ -409,7 +386,9 @@ void page_init(
 		: "%eax"
 		, "memory"
 		) ;
-
+	// Clear the sysLDT
+	for (dword * j = (dword *) 0x00002000; j < (dword *) 0x00002C00; j++)
+		*j = 0;
 
 
 	// Eightly, create page directory, load CR3 and enable paging and cache.

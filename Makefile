@@ -6,6 +6,7 @@ floppy_fat12: kernel.bin bootloader/floppy_fat12/boot_block.bin
 	dd if=boot_block.bin of=image count=8 conv=notrunc,sync
 	sudo mount -o loop -vt msdos image mnt
 	sudo cp kernel.bin mnt
+	sleep 1
 	sudo umount mnt
 
 bootloader/floppy_fat12/boot_block.bin: force_look

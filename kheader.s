@@ -1,4 +1,4 @@
-#       boot_block.s
+#       kheader.s
 #
 #       Copyright 2011,2012 D.L.Buunk <dlbuunk@gmail.com>
 #
@@ -28,5 +28,5 @@
 	.byte	0x00		# major version
 	.byte	0x01		# minor version
 	.byte	0x00		# minor-minor version
-	.byte	0x01		# number of blocks in page-init code
+	.byte	0x02		# number of blocks in page-init code
 	.long	0x00000010	# number of blocks in kernel proper

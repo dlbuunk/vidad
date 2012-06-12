@@ -148,7 +148,7 @@ void loader_main(void)
 			num_resvd_sectors + num_fat_sectors*num_fats + i);
 
 	// read the kernel
-	for (int i=0; i<8; i++)
+	for (int i=0; i<16; i++)
 	{
 		if (read_file((byte *) (0xE000 + (i<<9)), "KERNEL.BIN", i))
 		{

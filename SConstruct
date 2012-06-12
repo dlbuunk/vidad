@@ -29,4 +29,4 @@ page_init.Command("page_init.tmp", "page_init.binx", "chmod -x page_init.binx &&
 
 env.Command("kernel.bin", ["kernel.tmp", "page_init.tmp"], \
 	"cp page_init.tmp kernel.bin && \
-	dd of=kernel.bin seek=08 if=kernel.tmp")
+	dd of=kernel.bin seek=16 if=kernel.tmp")
