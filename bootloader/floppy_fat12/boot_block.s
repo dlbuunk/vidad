@@ -471,7 +471,7 @@ idt_loop:
 	rep	movsw
 
 	# setup GDTP && IDTP
-	movw	$0x0030,0x2E02	# 6 GDT entries
+	movw	$0x002F,0x2E02	# 6 GDT entries
 	movw	$0x2000,0x2E04	# linear address of GDT low
 	movw	$0x0000,0x2E06	# linear address of GDT high
 

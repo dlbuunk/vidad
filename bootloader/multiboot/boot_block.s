@@ -134,6 +134,7 @@ msg_load:
 boot_block_entry:
 	.code16
 	# This is 16-bit pmode, mind you!
+
 	# All segment registers are invalid and we don't have a stack.
 	movw	$0x0010,%ax
 	movw	%ax,%ss
@@ -144,14 +145,30 @@ boot_block_entry:
 	movw	%ax,%fs
 	movw	%ax,%gs
 	# Reset ALL segments to prevent triple-fault later on...
+
+	# Reset the IDT to the IVT values
+	movw	$0x0400,0x2E0A
+	movw	$0x0000,0x2E0C
+	movw	$0x0000,0x2E0E
+	lidt	0x2E0A
+
 	# Now, drop to realmode:
 	movl	%cr0,%eax
 	andb	$0xFE,%al
 	movl	%eax,%cr0
 	# And do the required far jump:
 	jmpw	$0x0000,$realmode_entry
+
 realmode_entry:
 	.code16
+
+	# And reset all segment registers again...
+	movw	$0x0000,%ax
+	movw	%ax,%ss
+	movw	$0x3000,%sp
+	movw	%sp,%bp
+	movw	%ax,%ds
+	movw	%ax,%es
 
 	# Now, we'll have to give BIOS the correct values for the cursor
 	# position, first obtain the data from the VGA-registers.
@@ -311,7 +328,7 @@ idt_loop:
 	rep	movsw
 
 	# setup GDTP && IDTP
-	movw	$0x0030,0x2E02	# 6 GDT entries
+	movw	$0x002F,0x2E02	# 6 GDT entries
 	movw	$0x2000,0x2E04	# linear address of GDT low
 	movw	$0x0000,0x2E06	# linear address of GDT high
 
