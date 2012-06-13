@@ -132,7 +132,6 @@ extern dword bss_end;
 void page_init(
 	int (*read_file)(void *, char *, word),
 	void (*puts)(char *),
-	void (*timer)(int),
 	void (*exit_hw)(void))
 {
 	// Tell the (l)user what we are up to.
@@ -144,7 +143,6 @@ void page_init(
 
 	// Init the loaderdata.
 	loaderdata.puts = puts;
-	(void) timer;
 
 	// Define the meminfo structs.
 	struct Info * info = (struct Info *) 0x2DF4;

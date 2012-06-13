@@ -163,12 +163,10 @@ void loader_main(void)
 	(**((void (**)(
 		int (*)(byte *, char *, word),
 		void (*)(char *),
-		void (*)(int),
 		void (*)(void)
 	)) 0xE000))(
 		&read_file,
 		&puts,
-		&timer,
 		&exit_hw
 	);
 }

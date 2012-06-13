@@ -380,8 +380,8 @@ pmode32_entry:
 	movw	%ax,%gs
 
 	# now we can call the loader, first do the hardware part
-#	.extern	loader_hw
-#	call	loader_hw
+	.extern	loader
+	call	loader
 
 	cli
 	hlt
